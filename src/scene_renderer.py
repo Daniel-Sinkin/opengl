@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
 
 class SceneRenderer:
     def __init__(self, app: "GraphicsEngine"):
-        self.app: "GraphicsEngine" = app
+        self.app: GraphicsEngine = app
         self.ctx: Context = app.ctx
         self.mesh: Mesh = app.mesh
         self.scene: Scene = app.scene

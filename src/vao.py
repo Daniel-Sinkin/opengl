@@ -37,6 +37,6 @@ class VertexArrayObject:
             program, [(vbo.vbo, vbo.buffer_format, *vbo.attributes)], skip_errors=True
         )
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.vbo.destroy()
         self.program.destroy()

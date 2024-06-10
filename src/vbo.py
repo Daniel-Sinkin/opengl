@@ -3,24 +3,24 @@ from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias, cast
 
 import numpy as np
 import pywavefront
+import pywavefront.material
 from moderngl import Buffer, Context, Program
 
 from util.vertex_data_generator import generate_CubeVBO
 
+from .constants import *
+
 if TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
-
-Vertex: TypeAlias = tuple[float, float, float]
-VertexIdx: TypeAlias = tuple[int, int, int]
 
 
 class VBOHandler:
     def __init__(self, ctx: Context):
         self.vbo_map: dict[str, VertexBufferObject] = {
-            "cube": CubeVBO(ctx),
-            "cat": CatVBO(ctx),
-            "skybox": SkyBoxVBO(ctx),
-            "advanced_skybox": AdvancedSkyBoxVBO(ctx),
+            "cube": Cube(ctx),
+            "cat": Cat(ctx),
+            "skybox": NaiveSkyBox(ctx),
+            "advanced_skybox": SkyBox(ctx),
         }
 
     def destroy(self):
@@ -34,7 +34,7 @@ class VertexBufferObject(ABC):
         self.vbo: Buffer = self.get_vbo()
 
     @abstractmethod
-    def get_vertex_data(self) -> Iterable[Vertex]: ...
+    def get_vertex_data(self) -> Iterable[POINT]: ...
 
     @property
     @abstractmethod
@@ -45,14 +45,14 @@ class VertexBufferObject(ABC):
     def attributes(self) -> list[str]: ...
 
     def get_vbo(self) -> Buffer:
-        vertex_data: Iterable[Vertex] = self.get_vertex_data()
+        vertex_data: Iterable[POINT] = self.get_vertex_data()
         return self.ctx.buffer(vertex_data)
 
     def destroy(self) -> None:
         self.vbo.release()
 
 
-class CubeVBO(VertexBufferObject):
+class Cube(VertexBufferObject):
     def __init__(self, ctx: Context):
         super().__init__(ctx)
 
@@ -80,7 +80,7 @@ class CubeVBO(VertexBufferObject):
                 )
 
 
-class SkyBoxVBO(VertexBufferObject):
+class NaiveSkyBox(VertexBufferObject):
     def __init__(self, ctx: Context):
         super().__init__(ctx)
 
@@ -94,7 +94,7 @@ class SkyBoxVBO(VertexBufferObject):
 
     @staticmethod
     def get_data(
-        vertices: Iterable[Vertex], indices: Iterable[VertexIdx]
+        vertices: Iterable[POINT], indices: Iterable[VERTEX_IDX]
     ) -> np.ndarray[np.float32]:
         data = [vertices[ind] for triangle in indices for ind in triangle]
         return np.array(data, dtype=np.float32)
@@ -130,7 +130,7 @@ class SkyBoxVBO(VertexBufferObject):
         return vertex_data
 
 
-class AdvancedSkyBoxVBO(VertexBufferObject):
+class SkyBox(VertexBufferObject):
     def __init__(self, ctx: Context):
         super().__init__(ctx)
 
@@ -153,8 +153,9 @@ class AdvancedSkyBoxVBO(VertexBufferObject):
         return vertex_data
 
 
-class CatVBO(VertexBufferObject):
+class Cat(VertexBufferObject):
     def __init__(self, ctx: Context):
+        self.filepath: str = "objects/cat/20430_Cat_v1_NEW.obj"
         super().__init__(ctx)
 
     @property
@@ -166,10 +167,13 @@ class CatVBO(VertexBufferObject):
         return ["in_texcoord_0", "in_normal", "in_position"]
 
     def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
-        objs = pywavefront.Wavefront(
-            "objects/cat/20430_Cat_v1_NEW.obj", cache=True, parse=True
-        )
-        obj = objs.materials.popitem()[1]
-        vertex_data = obj.vertices
-        vertex_data = np.array(vertex_data, dtype="f4")
-        return vertex_data
+        objs = pywavefront.Wavefront(self.filepath, cache=True, parse=True)
+        assert len(objs.materials) == 1
+        obj: pywavefront.material.Material = objs.materials.popitem()[1]
+
+        vertex_data: tuple[float, ...] = obj.vertices
+        assert isinstance(vertex_data, tuple)
+        assert all(isinstance(x, float) for x in vertex_data)
+        assert len(vertex_data) == 4740096
+
+        return np.array(vertex_data, dtype=np.float32)

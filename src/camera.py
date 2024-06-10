@@ -2,31 +2,43 @@ import typing
 
 import glm
 import pygame as pg
+from glm import mat4
+
+from .constants import *
+from .settings import Settings_Camera
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
-FOV = 60
-NEAR = 0.1
-FAR = 150.0
-SPEED = 0.01
-SENSITIVITY = 0.05
-
 
 class Camera:
     def __init__(
-        self, app: "GraphicsEngine", position=(0, 0, 4), yaw=-90.0, pitch=16.0
+        self,
+        app: "GraphicsEngine",
+        position: POINT = None,
+        yaw=Settings_Camera.INITIAL_YAW,
+        pitch=Settings_Camera.INITAL_PITCH,
     ):
-        self.app: "GraphicsEngine" = app
+        self.app: GraphicsEngine = app
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
-        self.initial_position = position
-        self.position = glm.vec3(position)
 
-        print(id(self.initial_position), id(self.position))
+        if position is not None:
+            self.initial_position: POINT = position
+        else:
+            self.initial_position: POINT = Settings_Camera.INITIAL_POSITION
 
-        self.up = glm.vec3(0, 1, 0)
-        self.right = glm.vec3(1, 0, 0)
-        self.forward = glm.vec3(0, 0, -1)
+        self.position = vec3(*self.initial_position)
+
+        self.fov = Settings_Camera.FOV
+        self.aspect_ratio
+        self.near_plane: float = Settings_Camera.NEAR
+        self.far_plane: float = Settings_Camera.FAR
+        self.speed: float = Settings_Camera.SPEED
+        self.sensitivity: float = Settings_Camera.SENSITIVITY
+
+        self.up: vec3 = vec3_y
+        self.right: vec3 = vec3_x
+        self.forward: vec3 = -vec3_z
 
         self.initial_yaw, self.initial_pitch = yaw, pitch
         self.yaw, self.pitch = yaw, pitch
@@ -35,10 +47,10 @@ class Camera:
         self.m_proj = self.get_projection_matrix()
 
     def rotate(self, rel_x, rel_y) -> None:
-        self.yaw += rel_x * SENSITIVITY
-        self.pitch -= rel_y * SENSITIVITY
+        self.yaw += rel_x * self.sensitivity
+        self.pitch -= rel_y * self.sensitivity
 
-        self.pitch = glm.clamp(self.pitch, -89, 89)
+        self.pitch = glm.clamp(self.pitch, *Settings_Camera.PITCH_BOUNDS)
 
     def update_camera_vectors(self) -> None:
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
@@ -54,7 +66,7 @@ class Camera:
     def update(self) -> None:
         self.move()
         self.update_camera_vectors()
-        self.m_view = self.get_view_matrix()
+        self.m_view: mat4 = self.get_view_matrix()
 
     # TODO: Move this into the event handler of the renderer
     def move(self) -> None:
@@ -64,7 +76,7 @@ class Camera:
             self.yaw, self.pitch = self.initial_yaw, self.initial_pitch
             return
 
-        velocity = SPEED * self.app.delta_time
+        velocity: float = self.speed * self.app.delta_time
 
         if keys[pg.K_LSHIFT]:
             velocity *= 3
@@ -82,8 +94,13 @@ class Camera:
         if keys[pg.K_DOWN]:
             self.position -= self.up * velocity
 
-    def get_view_matrix(self) -> glm.mat4x4:
+    def get_view_matrix(self) -> mat4:
         return glm.lookAt(self.position, self.position + self.forward, self.up)
 
-    def get_projection_matrix(self) -> glm.mat4x4:
-        return glm.perspective(glm.radians(FOV), self.aspect_ratio, NEAR, FAR)
+    def get_projection_matrix(self) -> mat4:
+        return glm.perspective(
+            glm.radians(self.fov),
+            self.aspect_ratio,
+            self.near_plane,
+            self.far_plane,
+        )

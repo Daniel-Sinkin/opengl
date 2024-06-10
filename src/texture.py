@@ -3,7 +3,7 @@ import typing
 
 import numpy as np
 import pygame as pg
-from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture
+from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture, TextureCube
 from PIL import Image
 
 if typing.TYPE_CHECKING:
@@ -12,8 +12,8 @@ if typing.TYPE_CHECKING:
 
 class TextureHandler:
     def __init__(self, app: "GraphicsEngine"):
-        self.app = app
-        self.ctx = app.ctx
+        self.app: GraphicsEngine = app
+        self.ctx: Context = app.ctx
         self.texture_folderpath = "textures"
         self.textures: dict[int, Texture] = {
             i: self.get_texture(
@@ -41,9 +41,9 @@ class TextureHandler:
     def get_texture_cube(self, filepath: str, ext="png"):
         faces = ["right", "left", "top", "bottom", "back", "front"]
 
-        textures = []
+        textures: list[pg.Surface] = []
         for face in faces:
-            texture = pg.image.load(os.path.join(filepath, f"{face}.{ext}"))
+            texture: pg.Surface = pg.image.load(os.path.join(filepath, f"{face}.{ext}"))
             if face in ["right", "left", "front", "back"]:
                 texture = pg.transform.flip(texture, flip_x=True, flip_y=False)
             else:
@@ -51,23 +51,27 @@ class TextureHandler:
             textures.append(texture)
 
         assert len(set([texture.get_size() for texture in textures])) == 1
-        size = textures[0].get_size()
-        texture_cube = self.ctx.texture_cube(size=size, components=3, data=None)
+        size: typing.Tuple[int] = textures[0].get_size()
+        texture_cube: TextureCube = self.ctx.texture_cube(
+            size=size, components=3, data=None
+        )
 
         for i in range(6):
-            texture_data = pg.image.tostring(textures[i], "RGB")
+            texture_data: bytes = pg.image.tostring(textures[i], "RGB")
             texture_cube.write(face=i, data=texture_data)
 
         return texture_cube
 
     def get_texture(self, filepath: str, mode=0) -> Texture:
         if mode == 0:
-            image = Image.open(filepath)
+            image: Image.Image = Image.open(filepath)
             image = image.convert("RGB")
 
-            data = np.array(image).tobytes()
+            data: bytes = np.array(image).tobytes()
 
-            texture = self.ctx.texture(size=image.size, components=3, data=data)
+            texture: Texture = self.ctx.texture(
+                size=image.size, components=3, data=data
+            )
 
             texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
             texture.build_mipmaps()
@@ -76,7 +80,7 @@ class TextureHandler:
 
             return texture
         else:
-            texture = pg.image.load(filepath).convert()
+            texture: Texture = pg.image.load(filepath).convert()
             texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
             texture = self.ctx.texture(
                 size=texture.get_size(),

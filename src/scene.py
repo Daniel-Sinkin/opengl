@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
 
 class Scene:
     def __init__(self, app: "GraphicsEngine"):
-        self.app: "GraphicsEngine" = app
+        self.app: GraphicsEngine = app
         self.objects = []
         self.load_cat_circle()
         self.skybox = AdvancedSkyBox(app)

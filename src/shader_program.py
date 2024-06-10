@@ -6,15 +6,15 @@ class ShaderProgram:
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         self.programs: dict[str, Program] = {
-            k: self.get_program(k)
+            k: self.get_shader_program(k)
             for k in ["default", "skybox", "advanced_skybox", "shadow_map"]
         }
 
-    def get_program(self, shader_program_name) -> Program:
-        with open(f"shaders/{shader_program_name}.vert") as file:
+    def get_shader_program(self, shader_name) -> Program:
+        with open(f"shaders/{shader_name}.vert") as file:
             vertex_shader = file.read()
 
-        with open(f"shaders/{shader_program_name}.frag") as file:
+        with open(f"shaders/{shader_name}.frag") as file:
             fragment_shader = file.read()
 
         program: Program = self.ctx.program(

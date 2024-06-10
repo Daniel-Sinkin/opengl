@@ -25,7 +25,7 @@ class Model:
         rot: vec3 = vec3_0,
         scale: vec3 = vec3_1,
     ):
-        self.app: "GraphicsEngine" = app
+        self.app: GraphicsEngine = app
         self.pos: vec3 = pos
         self.rot: vec3 = rot
         self.scale: vec3 = scale
