@@ -8,7 +8,7 @@ if typing.TYPE_CHECKING:
 
 FOV = 50
 NEAR = 0.1
-FAR = 100
+FAR = 150.0
 SPEED = 0.01
 SENSITIVITY = 0.05
 
@@ -27,7 +27,6 @@ class Camera:
         self.pitch = pitch
 
         self.m_view = self.get_view_matrix()
-
         self.m_proj = self.get_projection_matrix()
 
     def rotate(self, rel_x, rel_y) -> None:
@@ -52,6 +51,7 @@ class Camera:
         self.update_camera_vectors()
         self.m_view = self.get_view_matrix()
 
+    # TODO: Move this into the event handler of the renderer
     def move(self) -> None:
         velocity = SPEED * self.app.delta_time
         keys = pg.key.get_pressed()

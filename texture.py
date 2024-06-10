@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pygame as pg
-from moderngl import Buffer, Context, Texture
+from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture
 from PIL import Image
 
 
@@ -21,7 +21,14 @@ class TextureHandler:
 
         data = np.array(image).tobytes()
 
-        return self.ctx.texture(size=image.size, components=3, data=data)
+        texture = self.ctx.texture(size=image.size, components=3, data=data)
+
+        texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
+        texture.build_mipmaps()
+
+        texture.anisotropy = 32.0
+
+        return texture
 
     def destroy(self) -> None:
         for texture in self.textures.values():

@@ -14,7 +14,7 @@ def vertex_idx_transform(
     return np.array(data, dtype=np.float32)
 
 
-def generate_CubeVBO(folderpath="VertexData", filename="CubeVBO.npy") -> None:
+def generate_CubeVBO(folderpath="Objects", filename="CubeVBO.npy") -> None:
     vertices = [
         (-1, -1, 1),
         (1, -1, 1),

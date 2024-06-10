@@ -62,8 +62,8 @@ class CubeVBO(VertexBufferObject):
 
     def get_vertex_data(self):
         try:
-            return np.load("VertexData/CubeVBO.npy")
+            return np.load("objects/CubeVBO.npy")
         except FileNotFoundError:
             print(
-                "'VertexDataCubeVBO.npy' was not found, run 'util/vertex_data_generator.py' first."
+                "objects/CubeVBO.npy' was not found, run 'util/vertex_data_generator.py' first."
             )

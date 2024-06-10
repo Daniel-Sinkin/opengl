@@ -8,6 +8,7 @@ from camera import Camera
 from light import Light
 from mesh import Mesh
 from model import Cube
+from scene import Scene
 
 
 class GraphicsEngine:
@@ -39,11 +40,12 @@ class GraphicsEngine:
         self.light = Light()
         self.camera = Camera(self)
         self.mesh = Mesh(self)
-        self.scene = Cube(self)
+        self.scene = Scene(self)
 
     def check_events(self) -> None:
         for event in pg.event.get():
             match event.type:
+                # TODO: Add keyboard inputs here
                 case pg.QUIT | pg.MOUSEBUTTONDOWN:
                     self.mesh.destroy()
                     pg.quit()
