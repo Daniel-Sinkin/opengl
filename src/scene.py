@@ -98,4 +98,6 @@ class Scene:
             obj.render()
         self.skybox.render()
 
-    def update(self) -> None: ...
+    def update(self) -> None:
+        for obj in self.objects:
+            obj.update()

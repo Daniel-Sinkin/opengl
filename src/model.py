@@ -117,7 +117,6 @@ class ExtendedModel(Model):
         self.update_shadow()
         self.shadow_vao.render()
 
-    # Why not just put this into the __init__ constructor?
     def on_init(self) -> None:
         self.program["m_view_light"].write(self.app.light.m_view_light)
 
@@ -197,6 +196,7 @@ class MovingCube(Cube):
         self.m_model = glm.rotate(
             self.m_model, self.app.delta_time * self.rot.z, vec3_z
         )
+
         super().update()
 
 
@@ -229,4 +229,9 @@ class Cat(ExtendedModel):
             self.m_model = glm.rotate(
                 self.m_model, self.rot_update.z * self.app.delta_time, vec3_z
             )
+        if self.app.camera_projection_has_changed:
+            self.shadow_program["m_proj"].write(self.camera.m_proj)
+            self.program["m_proj"].write(self.app.camera.m_proj)
+            self.program["m_view"].write(self.app.camera.m_view)
+
         super().update()

@@ -29,8 +29,9 @@ class Camera:
 
         self.position = vec3(*self.initial_position)
 
-        self.fov = Settings_Camera.FOV
-        self.aspect_ratio
+        self.original_fov = Settings_Camera.FOV
+        self.fov = self.original_fov
+
         self.near_plane: float = Settings_Camera.NEAR
         self.far_plane: float = Settings_Camera.FAR
         self.speed: float = Settings_Camera.SPEED
@@ -64,8 +65,9 @@ class Camera:
         self.up = glm.normalize(glm.cross(self.right, self.forward))
 
     def update(self) -> None:
-        self.move()
         self.update_camera_vectors()
+        if self.app.camera_projection_has_changed:
+            self.m_proj = self.get_projection_matrix()
         self.m_view: mat4 = self.get_view_matrix()
 
     # TODO: Move this into the event handler of the renderer
@@ -104,3 +106,18 @@ class Camera:
             self.near_plane,
             self.far_plane,
         )
+
+    def reset(self) -> None:
+        self.position = vec3(self.initial_position)
+        self.yaw, self.pitch = (
+            self.initial_yaw,
+            self.initial_pitch,
+        )
+        self.fov = self.original_fov
+        self.camera_projection_has_changed = True
+
+    def adjust_fov(self, amount: float) -> None:
+        new_fov = glm.clamp(self.fov + amount, *Settings_Camera.FOV_BOUNDS)
+        if new_fov != self.fov:
+            self.camera_projection_has_changed = True
+            self.camera.fov = new_fov

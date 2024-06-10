@@ -68,6 +68,7 @@ class Cube(VertexBufferObject):
         try:
             return cast(np.ndarray, np.load("objects/CubeVBO.npy"))
         except FileNotFoundError:
+            # TODO: Attach logger and replace these prints with proper logging
             print(
                 "objects/CubeVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
             )

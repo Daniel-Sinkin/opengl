@@ -1,9 +1,22 @@
+from enum import IntEnum, auto
 from typing import TypeAlias
 
 import pygame.constants
 from glm import vec3
 
+
 # fmt: off
+###
+# Enums
+###
+class MouseMode(IntEnum):
+    FPS = auto()
+    FREELOOK = auto()
+
+
+###
+# Quality of Life
+###
 vec3_0  = vec3(0.0, 0.0, 0.0)
 vec3_1  = vec3(1.0, 1.0, 1.0)
 vec3_x  = vec3(1.0, 0.0, 0.0)
@@ -16,9 +29,15 @@ vec3_yz = vec3(0.0, 1.0, 1.0)
 SECOND_TO_MS = 1e-4
 MS_TO_SECOND = 1000
 
+###
+# TypeDefs
+###
 POINT: TypeAlias = tuple[float, float, float]
 VERTEX_IDX: TypeAlias = tuple[int, int, int]
 
+###
+# Key Mappings
+###
 MOUSE_BUTTON_ID_TO_NAME_MAP: dict[int, str] = {
     pygame.constants.BUTTON_LEFT:      "BUTTON_LEFT",
     pygame.constants.BUTTON_MIDDLE:    "BUTTON_MIDDLE",

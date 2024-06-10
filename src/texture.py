@@ -32,8 +32,8 @@ class TextureHandler:
         )
         self.textures["depth_texture"] = self.get_depth_texture()
 
-    def get_depth_texture(self):
-        depth_texture = self.ctx.depth_texture(self.app.window_size)
+    def get_depth_texture(self) -> Texture:
+        depth_texture: Texture = self.ctx.depth_texture(self.app.window_size)
         depth_texture.repeat_x = False
         depth_texture.repeat_y = False
         return depth_texture

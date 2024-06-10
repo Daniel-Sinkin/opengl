@@ -16,6 +16,7 @@ class Settings_Camera:
     INITAL_PITCH: float = 16.0
 
     PITCH_BOUNDS: tuple[float, float] = (-89.0, 89.0)
+    FOV_BOUNDS: tuple[float, float] = (50.0, 100.0)
 
 
 @dataclass
