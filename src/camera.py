@@ -18,7 +18,7 @@ class Camera:
         self, app: "GraphicsEngine", position=(0, 0, 4), yaw=-90.0, pitch=16.0
     ):
         self.app: "GraphicsEngine" = app
-        self.aspect_ratio: float = app.WIN_SIZE[0] / app.WIN_SIZE[1]
+        self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
         self.initial_position = position
         self.position = glm.vec3(position)
 

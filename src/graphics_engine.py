@@ -1,37 +1,28 @@
 import sys
 import typing
 from logging import Logger
+from typing import Optional
 
 import moderngl as mgl
 import pygame as pg
 
+from . import my_logger
 from .camera import Camera
+from .constants import SECOND_TO_MS
 from .light import Light
 from .mesh import Mesh
 from .model import Cube
+from .my_logger import setup
+from .opengl import setup_opengl
 from .scene import Scene
 from .scene_renderer import SceneRenderer
-from .setup_logger import setup_logger
+from .settings import Colors, Settings_OpenGL
 
 
 class GraphicsEngine:
-    def __init__(self, win_size: tuple[float, float] = (1600, 900)):
-        pg.init()
-
-        self.WIN_SIZE: tuple[int, int] = win_size
-
-        # OpenGL setup
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)
-        pg.display.gl_set_attribute(
-            pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
-        )
-        # OpenGL Context
-        pg.display.set_mode(self.WIN_SIZE, flags=pg.OPENGL | pg.DOUBLEBUF)
-
-        # Locks mouse into window
-        pg.event.set_grab(True)
-        pg.mouse.set_visible(False)
+    def __init__(self, win_size: Optional[tuple[int, int]] = None):
+        self.window_size: tuple[int, int] = Settings_OpenGL.WINDOW_SIZE
+        setup_opengl(window_size=self.window_size)
 
         self.ctx: mgl.Context = mgl.create_context()
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
@@ -46,39 +37,54 @@ class GraphicsEngine:
         self.scene = Scene(self)
         self.scene_renderer = SceneRenderer(self)
 
-        self.logger = setup_logger("GraphicsEngine")
+        self.logger: Logger = my_logger.setup("GraphicsEngine")
+
+        self.is_running = True
+        self.tick_counter = 0
 
     def check_events(self) -> None:
         for event in pg.event.get():
             match event.type:
                 # TODO: Add keyboard inputs here
                 case pg.QUIT | pg.MOUSEBUTTONDOWN:
-                    self.mesh.destroy()
-                    pg.quit()
-                    sys.exit()
+                    self.is_running = False
+
                 case pg.MOUSEMOTION:
                     mouse_rel: tuple[int, int] = typing.cast(tuple[int, int], event.rel)
                     if mouse_rel != (0, 0):
                         self.camera.rotate(*mouse_rel)
 
-                        pg.mouse.set_pos((self.WIN_SIZE[0] // 2, self.WIN_SIZE[1] // 2))
+                        pg.mouse.set_pos(
+                            (self.window_size[0] // 2, self.window_size[1] // 2)
+                        )
                         # Flushes the mouse position buffer
                         pg.mouse.get_rel()
 
     def render(self) -> None:
-        self.ctx.clear(color=(0.08, 0.16, 0.18))
+        # This should always be covered
+        self.ctx.clear(color=Colors.MISSING_TEXTURE)
 
         self.scene_renderer.render()
 
         pg.display.flip()
 
     def get_time(self) -> None:
-        self.time = pg.time.get_ticks() * 0.001
+        self.time = pg.time.get_ticks() * SECOND_TO_MS
 
-    def run(self) -> typing.NoReturn:
-        while True:
+    def run(self) -> None:
+        while self.is_running:
             self.get_time()
             self.check_events()
             self.camera.update()
             self.render()
-            self.delta_time = self.clock.tick(60.0)
+            self.delta_time: int = self.clock.tick(60.0)
+
+            self.tick_counter += 1
+
+    def __del__(self) -> None:
+        self.logger.info("Cleaning up Graphics Enging.")
+        self.mesh.destroy()
+        pg.quit()
+
+        self.logger.info("Cleanup is done, deleting logger now.")
+        my_logger.cleanup(self.logger)

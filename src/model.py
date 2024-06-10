@@ -122,7 +122,7 @@ class ExtendedModel(Model):
         self.program["m_view_light"].write(self.app.light.m_view_light)
 
         # resolution
-        self.program["u_resolution"].write(vec2(self.app.WIN_SIZE))
+        self.program["u_resolution"].write(vec2(self.app.window_size))
 
         # Depth Texture
         self.depth_texture: mgl.Texture = self.app.mesh.texture.textures[

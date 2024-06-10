@@ -1,15 +1,17 @@
 import logging
 import os
+from logging import Handler, Logger
+from typing import Optional
 
 
-def setup_logger(project_name: str, logger_folderpath: str = "logs") -> logging.Logger:
+def setup(project_name: str, logger_folderpath: str = "logs") -> Logger:
     """
     Creates a logger for that project name and creates the filehandler with
     the corresponding file
     """
 
     logging.basicConfig(level=logging.INFO)
-    logger: logging.Logger = logging.getLogger(project_name)
+    logger: Logger = logging.getLogger(project_name)
 
     os.makedirs("logs", exist_ok=True)
 
@@ -28,3 +30,12 @@ def setup_logger(project_name: str, logger_folderpath: str = "logs") -> logging.
             file.write("\nStarting a new run.\n\n")
 
     return logger
+
+
+def cleanup(logger: Optional[Logger]) -> None:
+    if logger is not None:
+        handlers: list[Handler] = logger.handlers[:]
+        for handler in handlers:
+            handler.close()
+            logger.removeHandler(handler)
+        logging.getLogger().handlers.clear()
