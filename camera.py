@@ -3,6 +3,9 @@ import typing
 import glm
 import pygame as pg
 
+if typing.TYPE_CHECKING:
+    from main import GraphicsEngine
+
 FOV = 50
 NEAR = 0.1
 FAR = 100
@@ -11,9 +14,9 @@ SENSITIVITY = 0.05
 
 
 class Camera:
-    def __init__(self, app, position=(0, 0, 4), yaw=-90.0, pitch=0.0):
-        self.app = app
-        self.aspect_ratio = app.WIN_SIZE[0] / app.WIN_SIZE[1]
+    def __init__(self, app: "GraphicsEngine", position=(0, 0, 4), yaw=-90.0, pitch=0.0):
+        self.app: "GraphicsEngine" = app
+        self.aspect_ratio: float = app.WIN_SIZE[0] / app.WIN_SIZE[1]
         self.position = glm.vec3(position)
 
         self.up = glm.vec3(0, 1, 0)
@@ -27,14 +30,13 @@ class Camera:
 
         self.m_proj = self.get_projection_matrix()
 
-    def rotate(self):
-        rel_x, rel_y = pg.mouse.get_rel()
-        print(rel_x, rel_y)
+    def rotate(self, rel_x, rel_y) -> None:
         self.yaw += rel_x * SENSITIVITY
         self.pitch -= rel_y * SENSITIVITY
-        # self.pitch = typing.cast(float, self.glm.clamp(self.pitch, -150, 150))
 
-    def update_camera_vectors(self):
+        self.pitch = glm.clamp(self.pitch, -89, 89)
+
+    def update_camera_vectors(self) -> None:
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
 
         self.forward.x = glm.cos(yaw) * glm.cos(pitch)
@@ -45,13 +47,12 @@ class Camera:
         self.right = glm.normalize(glm.cross(self.forward, glm.vec3(0, 1, 0)))
         self.up = glm.normalize(glm.cross(self.right, self.forward))
 
-    def update(self):
+    def update(self) -> None:
         self.move()
-        self.rotate()
         self.update_camera_vectors()
         self.m_view = self.get_view_matrix()
 
-    def move(self):
+    def move(self) -> None:
         velocity = SPEED * self.app.delta_time
         keys = pg.key.get_pressed()
         if keys[pg.K_w]:
