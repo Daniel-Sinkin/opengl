@@ -1,7 +1,7 @@
 import typing
 
-from texture import TextureHandler
-from vao import VertexArrayObject
+from .texture import TextureHandler
+from .vao import VertexArrayObject
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine

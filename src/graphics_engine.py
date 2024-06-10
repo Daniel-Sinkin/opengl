@@ -5,13 +5,13 @@ from logging import Logger
 import moderngl as mgl
 import pygame as pg
 
-from camera import Camera
-from light import Light
-from mesh import Mesh
-from model import Cube
-from scene import Scene
-from scene_renderer import SceneRenderer
-from setup_logger import setup_logger
+from .camera import Camera
+from .light import Light
+from .mesh import Mesh
+from .model import Cube
+from .scene import Scene
+from .scene_renderer import SceneRenderer
+from .setup_logger import setup_logger
 
 
 class GraphicsEngine:

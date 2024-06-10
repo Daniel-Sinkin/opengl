@@ -8,8 +8,8 @@ import pygame as pg
 from glm import mat3, mat4, vec2, vec3
 from moderngl import Program
 
-from camera import Camera
-from src.constants import *
+from .camera import Camera
+from .constants import *
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine

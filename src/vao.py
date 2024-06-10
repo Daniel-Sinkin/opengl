@@ -1,7 +1,7 @@
 from moderngl import Buffer, Context, Program, VertexArray
 
-from shader_program import ShaderProgram
-from vbo import VBOHandler, VertexBufferObject
+from .shader_program import ShaderProgram
+from .vbo import VBOHandler, VertexBufferObject
 
 
 class VertexArrayObject:

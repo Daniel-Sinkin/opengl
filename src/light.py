@@ -1,7 +1,7 @@
 import glm
 from glm import mat4, vec3
 
-from src.constants import *
+from .constants import *
 
 
 class Light:

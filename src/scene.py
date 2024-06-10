@@ -1,8 +1,7 @@
 import typing
 
-# TODO: Remove this wildcard import
-from model import *
-from src.constants import *
+from .constants import *
+from .model import *
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine

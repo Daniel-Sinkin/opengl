@@ -2,8 +2,8 @@ import typing
 
 from moderngl import Context, Framebuffer, Texture
 
-from mesh import Mesh
-from scene import Scene
+from .mesh import Mesh
+from .scene import Scene
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
