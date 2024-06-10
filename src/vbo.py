@@ -8,7 +8,7 @@ from moderngl import Buffer, Context, Program
 from util.vertex_data_generator import generate_CubeVBO
 
 if TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 Vertex: TypeAlias = tuple[float, float, float]
 VertexIdx: TypeAlias = tuple[int, int, int]

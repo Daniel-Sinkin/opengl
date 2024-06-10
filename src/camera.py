@@ -4,7 +4,7 @@ import glm
 import pygame as pg
 
 if typing.TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 FOV = 60
 NEAR = 0.1

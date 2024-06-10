@@ -4,7 +4,7 @@ from texture import TextureHandler
 from vao import VertexArrayObject
 
 if typing.TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 
 class Mesh:

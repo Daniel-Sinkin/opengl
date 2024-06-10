@@ -6,7 +6,7 @@ from mesh import Mesh
 from scene import Scene
 
 if typing.TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 
 class SceneRenderer:

@@ -7,7 +7,7 @@ from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture
 from PIL import Image
 
 if typing.TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 
 class TextureHandler:

@@ -5,7 +5,7 @@ from model import *
 from src.constants import *
 
 if typing.TYPE_CHECKING:
-    from main import GraphicsEngine
+    from graphics_engine import GraphicsEngine
 
 
 class Scene:
