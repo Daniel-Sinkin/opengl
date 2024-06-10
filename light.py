@@ -5,7 +5,7 @@ from src.constants import *
 
 
 class Light:
-    def __init__(self, position=(3, 3, -3), color=(1, 1, 1)):
+    def __init__(self, position=(50, 50, -10), color=(1, 1, 1)):
         self.position = vec3(position)
         self.color = vec3(color)
         self.direction = vec3_0

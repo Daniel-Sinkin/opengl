@@ -1,6 +1,6 @@
 import typing
 
-from moderngl import Context, Texture
+from moderngl import Context, Framebuffer, Texture
 
 from mesh import Mesh
 from scene import Scene
@@ -17,7 +17,9 @@ class SceneRenderer:
         self.scene: Scene = app.scene
 
         self.depth_texture: Texture = self.mesh.texture.textures["depth_texture"]
-        self.depth_fbo = self.ctx.framebuffer(depth_attachment=self.depth_texture)
+        self.depth_fbo: Framebuffer = self.ctx.framebuffer(
+            depth_attachment=self.depth_texture
+        )
 
     def render_shadow(self):
         self.depth_fbo.clear()

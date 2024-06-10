@@ -33,7 +33,10 @@ class TextureHandler:
         self.textures["depth_texture"] = self.get_depth_texture()
 
     def get_depth_texture(self):
-        return self.ctx.depth_texture(self.app.WIN_SIZE)
+        depth_texture = self.ctx.depth_texture(self.app.WIN_SIZE)
+        depth_texture.repeat_x = False
+        depth_texture.repeat_y = False
+        return depth_texture
 
     def get_texture_cube(self, filepath: str, ext="png"):
         faces = ["right", "left", "top", "bottom", "back", "front"]

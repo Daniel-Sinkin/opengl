@@ -6,11 +6,11 @@ from vbo import VBOHandler, VertexBufferObject
 
 class VertexArrayObject:
     def __init__(self, ctx: Context):
-        self.ctx = ctx
+        self.ctx: Context = ctx
         self.vbo = VBOHandler(ctx)
         self.program = ShaderProgram(ctx)
 
-        self.vao_map = {
+        self.vao_map: dict[str, VertexArray] = {
             "cube": self.get_vao(
                 self.program.programs["default"], self.vbo.vbo_map["cube"]
             ),

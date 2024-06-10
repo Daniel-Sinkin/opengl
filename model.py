@@ -5,7 +5,8 @@ import glm
 import moderngl as mgl
 import numpy as np
 import pygame as pg
-from glm import mat3, mat4, vec3
+from glm import mat3, mat4, vec2, vec3
+from moderngl import Program
 
 from camera import Camera
 from src.constants import *
@@ -32,7 +33,7 @@ class Model:
         self.texture_id: int | str = texture_id
         self.vao_name = vao_name
         self.vao: mgl.VertexArray = app.mesh.vao.vao_map[vao_name]
-        self.program: mgl.Program = self.vao.program
+        self.program: Program = self.vao.program
         self.camera: Camera = self.app.camera
 
     @abstractmethod
@@ -104,7 +105,7 @@ class ExtendedModel(Model):
         self.on_init()
 
     def update(self) -> None:
-        self.texture.use()
+        self.texture.use(location=0)
         self.program["camPos"].write(self.camera.position)
         self.program["m_view"].write(self.camera.m_view)
         self.program["m_model"].write(self.m_model)
@@ -118,13 +119,23 @@ class ExtendedModel(Model):
 
     # Why not just put this into the __init__ constructor?
     def on_init(self) -> None:
-        self.depth_texture = self.app.mesh.texture.textures["depth_texture"]
+        self.program["m_view_light"].write(self.app.light.m_view_light)
+
+        # resolution
+        self.program["u_resolution"].write(vec2(self.app.WIN_SIZE))
+
+        # Depth Texture
+        self.depth_texture: mgl.Texture = self.app.mesh.texture.textures[
+            "depth_texture"
+        ]
+        self.program["shadowMap"] = 1
         self.depth_texture.use(location=1)
 
+        # Shadows
         self.shadow_vao: mgl.VertexArray = self.app.mesh.vao.vao_map[
             "shadow_" + self.vao_name
         ]
-        self.shadow_program = self.shadow_vao.program
+        self.shadow_program: Program = self.shadow_vao.program
         self.shadow_program["m_proj"].write(self.camera.m_proj)
         self.shadow_program["m_view_light"].write(self.app.light.m_view_light)
         self.shadow_program["m_model"].write(self.m_model)

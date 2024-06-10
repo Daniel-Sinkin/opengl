@@ -12,7 +12,7 @@ class Scene:
     def __init__(self, app: "GraphicsEngine"):
         self.app: "GraphicsEngine" = app
         self.objects = []
-        self.load()
+        self.load_cat_circle()
         self.skybox = AdvancedSkyBox(app)
 
     def add_object(self, obj) -> None:
@@ -25,11 +25,11 @@ class Scene:
     #       array by just stacking them, that would have the advantage that we
     #       can immediately read of the number of objects from the header.
     def load(self) -> None:
-        n, s = 30, 3
+        n, s = 30, 2
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
-        self.add_object(Cat(self.app, pos=vec3(0, -2, -15)))
+        self.add_object(Cat(self.app, pos=vec3(0, -1, -15)))
 
         self.add_object(MovingCube(self.app, pos=vec3(5, 5, 5), rot=0.002 * vec3_xy))
 
@@ -51,10 +51,12 @@ class Scene:
             self.add_object(
                 Cat(
                     self.app,
-                    pos=(pos.x, 0, pos.y),
-                    rot=vec3(-np.pi / 2, 0, -0.5 * np.pi - alpha),
-                    rot_update=0.005 * vec3_y,
+                    pos=(pos.x, -1, pos.y),
+                    rot=-float(alpha + np.pi / 2) * vec3_z,
                 )
+            )
+            self.add_object(
+                MovingCube(self.app, pos=vec3(pos.x, 12, pos.y), rot=0.002 * vec3_xy)
             )
 
     def load_basic_example(self) -> None:
