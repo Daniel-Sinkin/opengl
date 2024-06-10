@@ -9,13 +9,14 @@ from light import Light
 from mesh import Mesh
 from model import Cube
 from scene import Scene
+from scene_renderer import SceneRenderer
 
 
 class GraphicsEngine:
-    def __init__(self, win_size: tuple[float, float] = (1600.0, 900.0)):
+    def __init__(self, win_size: tuple[float, float] = (1600, 900)):
         pg.init()
 
-        self.WIN_SIZE: tuple[float, float] = win_size
+        self.WIN_SIZE: tuple[int, int] = win_size
 
         # OpenGL setup
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
@@ -41,6 +42,7 @@ class GraphicsEngine:
         self.camera = Camera(self)
         self.mesh = Mesh(self)
         self.scene = Scene(self)
+        self.scene_renderer = SceneRenderer(self)
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -62,7 +64,7 @@ class GraphicsEngine:
     def render(self) -> None:
         self.ctx.clear(color=(0.08, 0.16, 0.18))
 
-        self.scene.render()
+        self.scene_renderer.render()
 
         pg.display.flip()
 

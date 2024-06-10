@@ -6,7 +6,7 @@ import pygame as pg
 if typing.TYPE_CHECKING:
     from main import GraphicsEngine
 
-FOV = 50
+FOV = 60
 NEAR = 0.1
 FAR = 150.0
 SPEED = 0.01
@@ -14,17 +14,22 @@ SENSITIVITY = 0.05
 
 
 class Camera:
-    def __init__(self, app: "GraphicsEngine", position=(0, 0, 4), yaw=-90.0, pitch=0.0):
+    def __init__(
+        self, app: "GraphicsEngine", position=(0, 0, 4), yaw=-90.0, pitch=16.0
+    ):
         self.app: "GraphicsEngine" = app
         self.aspect_ratio: float = app.WIN_SIZE[0] / app.WIN_SIZE[1]
+        self.initial_position = position
         self.position = glm.vec3(position)
+
+        print(id(self.initial_position), id(self.position))
 
         self.up = glm.vec3(0, 1, 0)
         self.right = glm.vec3(1, 0, 0)
         self.forward = glm.vec3(0, 0, -1)
 
-        self.yaw = yaw
-        self.pitch = pitch
+        self.initial_yaw, self.initial_pitch = yaw, pitch
+        self.yaw, self.pitch = yaw, pitch
 
         self.m_view = self.get_view_matrix()
         self.m_proj = self.get_projection_matrix()
@@ -53,8 +58,17 @@ class Camera:
 
     # TODO: Move this into the event handler of the renderer
     def move(self) -> None:
-        velocity = SPEED * self.app.delta_time
         keys = pg.key.get_pressed()
+        if keys[pg.K_SPACE]:
+            self.position = glm.vec3(self.initial_position)
+            self.yaw, self.pitch = self.initial_yaw, self.initial_pitch
+            return
+
+        velocity = SPEED * self.app.delta_time
+
+        if keys[pg.K_LSHIFT]:
+            velocity *= 3
+
         if keys[pg.K_w]:
             self.position += self.forward * velocity
         if keys[pg.K_s]:

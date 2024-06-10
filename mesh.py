@@ -12,7 +12,7 @@ class Mesh:
     def __init__(self, app: "GraphicsEngine"):
         self.app: "GraphicsEngine" = app
         self.vao = VertexArrayObject(app.ctx)
-        self.texture = TextureHandler(app.ctx)
+        self.texture = TextureHandler(app)
 
     def destroy(self):
         self.vao.destroy

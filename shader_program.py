@@ -6,7 +6,8 @@ class ShaderProgram:
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         self.programs: dict[str, Program] = {
-            k: self.get_program(k) for k in ["default", "skybox", "advanced_skybox"]
+            k: self.get_program(k)
+            for k in ["default", "skybox", "advanced_skybox", "shadow_map"]
         }
 
     def get_program(self, shader_program_name) -> Program:

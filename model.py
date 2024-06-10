@@ -30,6 +30,7 @@ class Model:
         self.scale: vec3 = scale
         self.m_model: mat4 = self.get_model_matrix()
         self.texture_id: int | str = texture_id
+        self.vao_name = vao_name
         self.vao: mgl.VertexArray = app.mesh.vao.vao_map[vao_name]
         self.program: mgl.Program = self.vao.program
         self.camera: Camera = self.app.camera
@@ -108,11 +109,29 @@ class ExtendedModel(Model):
         self.program["m_view"].write(self.camera.m_view)
         self.program["m_model"].write(self.m_model)
 
+    def update_shadow(self):
+        self.shadow_program["m_model"].write(self.m_model)
+
+    def render_shadow(self):
+        self.update_shadow()
+        self.shadow_vao.render()
+
     # Why not just put this into the __init__ constructor?
     def on_init(self) -> None:
+        self.depth_texture = self.app.mesh.texture.textures["depth_texture"]
+        self.depth_texture.use(location=1)
+
+        self.shadow_vao: mgl.VertexArray = self.app.mesh.vao.vao_map[
+            "shadow_" + self.vao_name
+        ]
+        self.shadow_program = self.shadow_vao.program
+        self.shadow_program["m_proj"].write(self.camera.m_proj)
+        self.shadow_program["m_view_light"].write(self.app.light.m_view_light)
+        self.shadow_program["m_model"].write(self.m_model)
+
         self.texture = self.app.mesh.texture.textures[self.texture_id]
         self.program["u_texture_0"] = 0
-        self.texture.use()
+        self.texture.use(location=0)
 
         self.program["m_proj"].write(self.app.camera.m_proj)
         self.program["m_view"].write(self.app.camera.m_view)
@@ -144,6 +163,30 @@ class Cube(ExtendedModel):
         scale=vec3_1,
     ):
         super().__init__(app, "cube", tex_id, pos, rot, scale)
+
+
+class MovingCube(Cube):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        tex_id: str | int = 0,
+        pos=vec3_0,
+        rot=vec3_0,
+        scale=vec3_1,
+    ):
+        super().__init__(app, tex_id, pos, rot, scale)
+
+    def update(self):
+        self.m_model = glm.rotate(
+            self.m_model, self.app.delta_time * self.rot.x, vec3_x
+        )
+        self.m_model = glm.rotate(
+            self.m_model, self.app.delta_time * self.rot.y, vec3_y
+        )
+        self.m_model = glm.rotate(
+            self.m_model, self.app.delta_time * self.rot.z, vec3_z
+        )
+        super().update()
 
 
 class Cat(ExtendedModel):

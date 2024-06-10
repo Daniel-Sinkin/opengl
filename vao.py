@@ -14,8 +14,14 @@ class VertexArrayObject:
             "cube": self.get_vao(
                 self.program.programs["default"], self.vbo.vbo_map["cube"]
             ),
+            "shadow_cube": self.get_vao(
+                self.program.programs["shadow_map"], self.vbo.vbo_map["cube"]
+            ),
             "cat": self.get_vao(
                 self.program.programs["default"], self.vbo.vbo_map["cat"]
+            ),
+            "shadow_cat": self.get_vao(
+                self.program.programs["shadow_map"], self.vbo.vbo_map["cat"]
             ),
             "skybox": self.get_vao(
                 self.program.programs["skybox"], self.vbo.vbo_map["skybox"]
@@ -28,7 +34,7 @@ class VertexArrayObject:
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:
         return self.ctx.vertex_array(
-            program, [(vbo.vbo, vbo.buffer_format, *vbo.attributes)]
+            program, [(vbo.vbo, vbo.buffer_format, *vbo.attributes)], skip_errors=True
         )
 
     def destroy(self):
