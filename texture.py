@@ -11,24 +11,67 @@ class TextureHandler:
         self.ctx = ctx
         self.texture_folderpath = "textures"
         self.textures: dict[int, Texture] = {
-            i: self.get_texture(os.path.join(self.texture_folderpath, f"img_{i}.png"))
+            i: self.get_texture(
+                os.path.join(self.texture_folderpath, f"img_{i}.png"), mode=0
+            )
             for i in range(3)
         }
+        self.textures["cat"] = self.get_texture(
+            "objects/cat/20430_cat_diff_v1.jpg", mode=1
+        )
+        self.textures["skybox"] = self.get_texture_cube("textures/skybox1/", ext="png")
 
-    def get_texture(self, filepath: str) -> Texture:
-        image = Image.open(filepath)
-        image = image.convert("RGB")
+    def get_texture_cube(self, filepath: str, ext="png"):
+        faces = ["right", "left", "top", "bottom", "back", "front"]
 
-        data = np.array(image).tobytes()
+        textures = []
+        for face in faces:
+            texture = pg.image.load(filepath + f"{face}.{ext}")
+            if face in ["right", "left", "front", "back"]:
+                texture = pg.transform.flip(texture, flip_x=True, flip_y=False)
+            else:
+                texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
+            textures.append(texture)
 
-        texture = self.ctx.texture(size=image.size, components=3, data=data)
+        assert len(set([texture.get_size() for texture in textures])) == 1
+        size = textures[0].get_size()
+        texture_cube = self.ctx.texture_cube(size=size, components=3, data=None)
 
-        texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
-        texture.build_mipmaps()
+        for i in range(6):
+            texture_data = pg.image.tostring(textures[i], "RGB")
+            texture_cube.write(face=i, data=texture_data)
 
-        texture.anisotropy = 32.0
+        return texture_cube
 
-        return texture
+    def get_texture(self, filepath: str, mode=0) -> Texture:
+        if mode == 0:
+            image = Image.open(filepath)
+            image = image.convert("RGB")
+
+            data = np.array(image).tobytes()
+
+            texture = self.ctx.texture(size=image.size, components=3, data=data)
+
+            texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
+            texture.build_mipmaps()
+
+            texture.anisotropy = 16.0
+
+            return texture
+        else:
+            texture = pg.image.load(filepath).convert()
+            texture = pg.transform.flip(texture, flip_x=False, flip_y=True)
+            texture = self.ctx.texture(
+                size=texture.get_size(),
+                components=3,
+                data=pg.image.tostring(texture, "RGB"),
+            )
+            # mipmaps
+            texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
+            texture.build_mipmaps()
+            # AF
+            texture.anisotropy = 32.0
+            return texture
 
     def destroy(self) -> None:
         for texture in self.textures.values():

@@ -5,7 +5,7 @@ import glm
 import moderngl as mgl
 import numpy as np
 import pygame as pg
-from glm import mat4x4, vec3
+from glm import mat3, mat4, vec3
 
 from camera import Camera
 from src.constants import *
@@ -19,17 +19,17 @@ class Model:
         self,
         app: "GraphicsEngine",
         vao_name: str,
-        texture_id: int,
+        texture_id: int | str,
         pos: vec3 = vec3_0,
         rot: vec3 = vec3_0,
         scale: vec3 = vec3_1,
     ):
-        self.app: GraphicsEngine = app
+        self.app: "GraphicsEngine" = app
         self.pos: vec3 = pos
         self.rot: vec3 = rot
         self.scale: vec3 = scale
-        self.m_model: mat4x4 = self.get_model_matrix()
-        self.texture_id: int = texture_id
+        self.m_model: mat4 = self.get_model_matrix()
+        self.texture_id: int | str = texture_id
         self.vao: mgl.VertexArray = app.mesh.vao.vao_map[vao_name]
         self.program: mgl.Program = self.vao.program
         self.camera: Camera = self.app.camera
@@ -37,7 +37,7 @@ class Model:
     @abstractmethod
     def update(self) -> None: ...
 
-    def get_model_matrix(self) -> mat4x4:
+    def get_model_matrix(self) -> mat4:
         m_model = glm.mat4()
 
         m_model = glm.translate(m_model, self.pos)
@@ -55,17 +55,50 @@ class Model:
         self.vao.render()
 
 
-class Cube(Model):
+class SkyBox(Model):
+    def __init__(self, app: "GraphicsEngine"):
+        super().__init__(app, "skybox", "skybox")
+        self.on_init()
+
+    def update(self):
+        self.program["m_view"].write(mat4(mat3(self.camera.m_view)))
+
+    def on_init(self):
+        self.texture = self.app.mesh.texture.textures[self.texture_id]
+        self.program["u_texture_skybox"] = 0
+        self.texture.use(location=0)
+
+        self.program["m_proj"].write(self.camera.m_proj)
+        self.program["m_view"].write(mat4(mat3(self.camera.m_view)))
+
+
+class AdvancedSkyBox(Model):
+    def __init__(self, app: "GraphicsEngine"):
+        super().__init__(app, "advanced_skybox", "skybox")
+        self.on_init()
+
+    def update(self):
+        m_view = glm.mat4(glm.mat3(self.camera.m_view))
+        self.program["m_invProjView"].write(glm.inverse(self.camera.m_proj * m_view))
+
+    def on_init(self):
+        self.texture = self.app.mesh.texture.textures[self.texture_id]
+        self.program["u_texture_skybox"] = 0
+        self.texture.use(location=0)
+
+
+class ExtendedModel(Model):
     def __init__(
         self,
         app: "GraphicsEngine",
-        texture_id=0,
+        vao_name: str,
+        texture_id,
         pos: vec3 = vec3_0,
         rot: vec3 = vec3_0,
         scale: vec3 = vec3_1,
     ):
         super().__init__(
-            app, vao_name="cube", texture_id=texture_id, pos=pos, rot=rot, scale=scale
+            app, vao_name=vao_name, texture_id=texture_id, pos=pos, rot=rot, scale=scale
         )
         self.on_init()
 
@@ -100,14 +133,46 @@ class Cube(Model):
         vbo = self.ctx.buffer(vertex_data)
         return vbo
 
-    def get_shader_program(self, shader_name):
-        with open(f"shaders/{shader_name}.vert") as file:
-            vertex_shader = file.read()
 
-        with open(f"shaders/{shader_name}.frag") as file:
-            fragment_shader = file.read()
+class Cube(ExtendedModel):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        tex_id: str | int = 0,
+        pos=vec3_0,
+        rot=vec3_0,
+        scale=vec3_1,
+    ):
+        super().__init__(app, "cube", tex_id, pos, rot, scale)
 
-        program = self.ctx.program(
-            vertex_shader=vertex_shader, fragment_shader=fragment_shader
+
+class Cat(ExtendedModel):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        pos: vec3 = vec3_0,
+        rot: vec3 = vec3_0,
+        scale: vec3 = vec3_1,
+        rot_update: vec3 = vec3_0,
+    ):
+        if rot_update == vec3(0.0, 0.0, 0.0):
+            self.rot_update = None
+        else:
+            self.rot_update = rot_update
+        rot_: vec3 = rot - float(np.pi / 2) * vec3_x
+        super().__init__(
+            app, vao_name="cat", texture_id="cat", pos=pos, rot=rot_, scale=scale
         )
-        return program
+
+    def update(self):
+        if self.rot_update is not None:
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.x * self.app.delta_time, vec3_x
+            )
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.y * self.app.delta_time, vec3_y
+            )
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.z * self.app.delta_time, vec3_z
+            )
+        super().update()

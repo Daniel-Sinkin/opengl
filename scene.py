@@ -12,7 +12,9 @@ class Scene:
     def __init__(self, app: "GraphicsEngine"):
         self.app: "GraphicsEngine" = app
         self.objects = []
-        self.load()
+        # self.load()
+        self.load_cat_circle()
+        self.skybox = AdvancedSkyBox(app)
 
     def add_object(self, obj) -> None:
         self.objects.append(obj)
@@ -24,10 +26,28 @@ class Scene:
     #       array by just stacking them, that would have the advantage that we
     #       can immediately read of the number of objects from the header.
     def load(self) -> None:
-        n, s = 80, 2
+        n, s = 30, 3
+        for x in range(-n, n, s):
+            for z in range(-n, n, s):
+                self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
+        self.add_object(Cat(self.app, pos=vec3(0, -2, -15)))
+
+    def load_cat_circle(self) -> None:
+        n, s = 30, 2
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 self.add_object(Cube(self.app, pos=glm.vec3(x, -s, z)))
+
+        for alpha in np.linspace(0, 2 * np.pi, 8):
+            pos = glm.rotate((15.0, 0), alpha)
+            self.add_object(
+                Cat(
+                    self.app,
+                    pos=(pos.x, 0, pos.y),
+                    rot=vec3(-np.pi / 2, 0, -0.5 * np.pi - alpha),
+                    rot_update=0.005 * vec3_y,
+                )
+            )
 
     def load_basic_example(self) -> None:
         tex_ids: list[int] = [0, 1, 2, 0, 1, 2, 0]
@@ -67,3 +87,4 @@ class Scene:
     def render(self) -> None:
         for obj in self.objects:
             obj.render()
+        self.skybox.render()

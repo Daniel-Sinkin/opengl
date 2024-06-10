@@ -9,9 +9,21 @@ class VertexArrayObject:
         self.ctx = ctx
         self.vbo = VBOHandler(ctx)
         self.program = ShaderProgram(ctx)
-        self.vao_map: dict[str, VertexArray] = {
-            k: self.get_vao(program=self.program.programs["default"], vbo=vbo)
-            for k, vbo in self.vbo.vbo_map.items()
+
+        self.vao_map = {
+            "cube": self.get_vao(
+                self.program.programs["default"], self.vbo.vbo_map["cube"]
+            ),
+            "cat": self.get_vao(
+                self.program.programs["default"], self.vbo.vbo_map["cat"]
+            ),
+            "skybox": self.get_vao(
+                self.program.programs["skybox"], self.vbo.vbo_map["skybox"]
+            ),
+            "advanced_skybox": self.get_vao(
+                self.program.programs["advanced_skybox"],
+                self.vbo.vbo_map["advanced_skybox"],
+            ),
         }
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:

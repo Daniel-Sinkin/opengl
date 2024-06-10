@@ -5,7 +5,9 @@ from moderngl import Context, Program
 class ShaderProgram:
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
-        self.programs: dict[str, Program] = {"default": self.get_program("default")}
+        self.programs: dict[str, Program] = {
+            k: self.get_program(k) for k in ["default", "skybox", "advanced_skybox"]
+        }
 
     def get_program(self, shader_program_name) -> Program:
         with open(f"shaders/{shader_program_name}.vert") as file:
