@@ -25,6 +25,7 @@ from src.scene_renderer import SceneRenderer
 from src.settings import Colors, Settings_OpenGL
 
 
+# TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
 class GraphicsEngine:
     def __init__(self, win_size: Optional[tuple[int, int]] = None):
         self.logger: Logger = my_logger.setup("GraphicsEngine")
@@ -50,7 +51,7 @@ class GraphicsEngine:
         self.is_running = True
         self.frame_counter = 0
 
-        self.mouse_mode = MouseMode.FPS
+        self.player_controller_mode = PLAYER_CONTROLLER_MODE.PLAYER_CONTROLLER_FPS
 
         self.camera_projection_has_changed = False
         self.mouse_position_on_freelook_enter = None
@@ -62,7 +63,10 @@ class GraphicsEngine:
                     self.is_running = False
                 case pg.MOUSEMOTION:
                     # Only move the camera if in FPS mode.
-                    if self.mouse_mode == MouseMode.FPS:
+                    if (
+                        self.player_controller_mode
+                        == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                    ):
                         mouse_rel: tuple[int, int] = typing.cast(
                             tuple[int, int], event.rel
                         )
@@ -75,8 +79,14 @@ class GraphicsEngine:
                             # Flushes the mouse position buffer
                             pg.mouse.get_rel()
                 case pg.KEYDOWN:
-                    if self.mouse_mode == MouseMode.FPS and event.key == pg.K_ESCAPE:
-                        self.mouse_mode = MouseMode.FREELOOK
+                    if (
+                        self.player_controller_mode
+                        == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                        and event.key == pg.K_ESCAPE
+                    ):
+                        self.player_controller_mode = (
+                            PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
+                        )
                         if self.mouse_position_on_freelook_enter is not None:
                             pg.mouse.set_pos(self.mouse_position_on_freelook_enter)
 
@@ -86,10 +96,15 @@ class GraphicsEngine:
                         self.camera.reset_to_inital_state()
 
                 case pg.MOUSEBUTTONDOWN:
-                    if self.mouse_mode == MouseMode.FREELOOK and event.button in (
-                        pg.BUTTON_LEFT,
-                        pg.BUTTON_RIGHT,
-                        pg.BUTTON_MIDDLE,
+                    if (
+                        self.player_controller_mode
+                        == PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
+                        and event.button
+                        in (
+                            pg.BUTTON_LEFT,
+                            pg.BUTTON_RIGHT,
+                            pg.BUTTON_MIDDLE,
+                        )
                     ):
                         # Avoids sudden jumps when re-entering FPS mode
                         _ = pg.mouse.get_rel()
@@ -98,7 +113,9 @@ class GraphicsEngine:
                             pg.mouse.get_pos()
                         )
 
-                        self.mouse_mode = MouseMode.FPS
+                        self.player_controller_mode = (
+                            PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                        )
                         pg.event.set_grab(True)
                         pg.mouse.set_visible(False)
                     if event.button == pg.BUTTON_WHEELDOWN:

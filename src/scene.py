@@ -78,7 +78,7 @@ class Scene:
                 )
             )
             self.add_object(
-                MovingCube(self.app, pos=vec3(pos.x, 12, pos.y), rot=0.002 * vec3_xy)
+                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=0.002 * vec3_xy)
             )
 
     def load_basic_example(self) -> None:
