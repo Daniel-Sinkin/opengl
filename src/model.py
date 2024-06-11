@@ -33,6 +33,8 @@ class BaseModel:
         self.rot: vec3 = rot
         self.scale: vec3 = scale
 
+        # TODO: Find a good way of copying so we don't have to create it twice
+        self.m_model_initial = self.get_initial_model_matrix()
         self.m_model: mat4 = self.get_initial_model_matrix()
 
         self.texture_id: int | str = texture_id
@@ -134,6 +136,8 @@ class Model(BaseModel):
         rot_update: Optional[vec3] = None,
     ):
         self.rot_update = rot_update
+        self.scale_animation_function = None
+        self.previous_scale_factor = vec3_1()
 
         super().__init__(
             app, vao_name=vao_name, texture_id=texture_id, pos=pos, rot=rot, scale=scale
@@ -182,6 +186,12 @@ class Model(BaseModel):
             )
             self.m_model = glm.rotate(
                 self.m_model, self.rot_update.z * self.app.delta_time_s, vec3_z()
+            )
+
+        if self.scale_animation_function is not None:
+            self.m_model = glm.scale(
+                self.m_model_initial,
+                self.scale_animation_function(self.alpha + self.app.frame_counter / 50),
             )
 
     def update_shadow(self):

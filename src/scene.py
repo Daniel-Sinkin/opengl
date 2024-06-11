@@ -1,3 +1,4 @@
+import random
 import typing
 
 from .constants import *
@@ -14,7 +15,7 @@ class Scene:
         self.object_idx = 0
         self.objects: list[Model] = []
 
-        self.load_cat_circle()
+        self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
 
     def serialize(
@@ -50,7 +51,13 @@ class Scene:
         n, s = 30, 2
         for x in range(-n, n, s):
             for z in range(-n, n, s):
-                self.add_object(Cube(self.app, tex_id=(x + z) % 3, pos=vec3(x, -s, z)))
+                self.add_object(
+                    Cube(
+                        self.app,
+                        tex_id=(x + z) % 3,
+                        pos=vec3(x, -s, z),
+                    )
+                )
         self.add_object(Cat(self.app, pos=vec3(0, -1, -15)))
 
         self.add_object(Cube(self.app, pos=vec3(5, 5, 5), rot_update=0.002 * vec3_xy()))
@@ -62,13 +69,51 @@ class Scene:
                 self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
         self.add_object(Cat(self.app, pos=vec3(0, -2, -15)))
 
+    def load_cat_circle_animated_scale(self) -> None:
+        n, s = 80, 2
+        for i, x in enumerate(range(-n, n + 1, s)):
+            for j, z in enumerate(range(-n, n + 1, s)):
+                self.add_object(
+                    Cube(
+                        self.app,
+                        tex_id=(i + j) % 3,
+                        pos=glm.vec3(
+                            x,
+                            -2 + 4 * max(0, max(abs(x), abs(z)) - (n - 30)),
+                            z,
+                        ),
+                        rot_update=2.5 * random.choice(VEC3_AXIS_PERMUTATIONS()),
+                    )
+                )
+
+        def cat_scale_func(sigma):
+            return 0.5 * (1 + glm.cos(2 * sigma)) * (vec3_1()) + 0.5 * (
+                1 - glm.cos(2 * sigma)
+            ) * (vec3_xy() + 0.3 * vec3_z())
+
+        for alpha in np.linspace(0, 2 * np.pi, 15 + 1)[:-1]:
+            alpha_normalized = alpha / (2 * np.pi)
+            pos = glm.rotate((15.0, 0), alpha)
+            cat = Cat(
+                self.app,
+                pos=(pos.x, -1, pos.y),
+                rot=-float(alpha + np.pi / 2) * vec3_z(),
+            )
+            cat.alpha = alpha
+            cat.scale_animation_function = lambda x: cat_scale_func(x)
+            self.add_object(cat)
+            self.add_object(
+                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=2.5 * vec3_xy())
+            )
+
     def load_cat_circle(self) -> None:
         n, s = 30, 2
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 self.add_object(Cube(self.app, pos=glm.vec3(x, -s, z)))
 
-        for alpha in np.linspace(0, 2 * np.pi, 8):
+        for alpha in np.linspace(0, 2 * np.pi, 15 + 1)[:-1]:
+            alpha_normalized = alpha / (2 * np.pi)
             pos = glm.rotate((15.0, 0), alpha)
             self.add_object(
                 Cat(
@@ -78,7 +123,7 @@ class Scene:
                 )
             )
             self.add_object(
-                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=0.002 * vec3_xy())
+                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=2.5 * vec3_xy())
             )
 
     def load_basic_example(self) -> None:

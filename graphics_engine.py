@@ -5,8 +5,10 @@ from logging import Logger
 from typing import Optional
 
 import moderngl as mgl
+import numpy as np
 import ujson as json
 from glm import vec3
+from PIL import Image
 
 # Suppresses welcome message
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
@@ -23,7 +25,7 @@ from src.opengl import setup_opengl
 from src.player_controller import PlayerController
 from src.scene import Scene
 from src.scene_renderer import SceneRenderer
-from src.settings import Colors, Settings_OpenGL
+from src.settings import Colors, Folders, Settings_OpenGL
 
 
 # TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
@@ -32,7 +34,11 @@ class GraphicsEngine:
         self.logger: Logger = my_logger.setup("GraphicsEngine")
 
         self.window_size: tuple[int, int] = Settings_OpenGL.WINDOW_SIZE
-        setup_opengl(window_size=self.window_size)
+        self.pg_window = setup_opengl(window_size=self.window_size)
+
+        # Locks mouse into window
+        pg.event.set_grab(True)
+        pg.mouse.set_visible(False)
 
         self.ctx: mgl.Context = mgl.create_context()
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
@@ -179,6 +185,8 @@ class GraphicsEngine:
             self.frame_counter += 1
 
             self.camera_projection_has_changed = False
+
+            print(self.clock.get_fps())
 
     def __del__(self) -> None:
         self.logger.info("Cleaning up Graphics Enging.")

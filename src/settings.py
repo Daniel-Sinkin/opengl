@@ -20,7 +20,7 @@ class LoggingSettings:
 class Settings_Camera:
     FOV: float = 60.0
     NEAR: float = 0.1
-    FAR: float = 150.0
+    FAR: float = 200.0
     SPEED: float = 0.01
     SPEED_TUROB: float = 0.03
     SENSITIVITY: float = 0.05
@@ -50,6 +50,7 @@ class Colors:
 class Folders:
     RECORDINGS: str = "recordings"
     RECORDINGS_CAMERA: str = os.path.join(RECORDINGS, "camera")
+    RECORDINGS_SCREENSHOTS: str = os.path.join(RECORDINGS, "screenshots")
 
     SRC: str = "src"
     TEXTURES: str = "textures"
