@@ -23,9 +23,9 @@ class BaseModel:
         app: "GraphicsEngine",
         vao_name: str,
         texture_id: int | str,
-        pos: vec3 = vec3_0,
-        rot: vec3 = vec3_0,
-        scale: vec3 = vec3_1,
+        pos: vec3 = vec3_0(),
+        rot: vec3 = vec3_0(),
+        scale: vec3 = vec3_1(),
     ):
         self.app: GraphicsEngine = app
 
@@ -56,9 +56,9 @@ class BaseModel:
 
         m_model = glm.translate(m_model, self.pos)
 
-        m_model = glm.rotate(m_model, self.rot.x, vec3_x)
-        m_model = glm.rotate(m_model, self.rot.y, vec3_y)
-        m_model = glm.rotate(m_model, self.rot.z, vec3_z)
+        m_model = glm.rotate(m_model, self.rot.x, vec3_x())
+        m_model = glm.rotate(m_model, self.rot.y, vec3_y())
+        m_model = glm.rotate(m_model, self.rot.z, vec3_z())
 
         m_model = glm.scale(m_model, self.scale)
 
@@ -128,9 +128,9 @@ class Model(BaseModel):
         app: "GraphicsEngine",
         vao_name: str,
         texture_id,
-        pos: vec3 = vec3_0,
-        rot: vec3 = vec3_0,
-        scale: vec3 = vec3_1,
+        pos: vec3 = vec3_0(),
+        rot: vec3 = vec3_0(),
+        scale: vec3 = vec3_1(),
         rot_update: Optional[vec3] = None,
     ):
         self.rot_update = rot_update
@@ -174,9 +174,9 @@ class Model(BaseModel):
             self.shadow_program["m_proj"].write(self.camera.m_proj)
 
         if self.rot_update is not None:
-            self.m_model = glm.rotate(self.m_model, self.rot.x, vec3_x)
-            self.m_model = glm.rotate(self.m_model, self.rot.y, vec3_y)
-            self.m_model = glm.rotate(self.m_model, self.rot.z, vec3_z)
+            self.m_model = glm.rotate(self.m_model, self.rot.x, vec3_x())
+            self.m_model = glm.rotate(self.m_model, self.rot.y, vec3_y())
+            self.m_model = glm.rotate(self.m_model, self.rot.z, vec3_z())
 
     def update_shadow(self):
         self.shadow_program["m_model"].write(self.m_model)
@@ -236,9 +236,9 @@ class Cube(Model):
         self,
         app: "GraphicsEngine",
         tex_id: str | int = 0,
-        pos=vec3_0,
-        rot=vec3_0,
-        scale=vec3_1,
+        pos=vec3_0(),
+        rot=vec3_0(),
+        scale=vec3_1(),
         rot_update: Optional[vec3] = None,
     ):
         super().__init__(app, "cube", tex_id, pos, rot, scale, rot_update)
@@ -253,21 +253,21 @@ class MovingCube(Cube):
         self,
         app: "GraphicsEngine",
         tex_id: str | int = 0,
-        pos=vec3_0,
-        rot=vec3_0,
-        scale=vec3_1,
+        pos=vec3_0(),
+        rot=vec3_0(),
+        scale=vec3_1(),
     ):
         super().__init__(app, tex_id, pos, rot, scale)
 
     def update(self):
         self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.x, vec3_x
+            self.m_model, self.app.delta_time * self.rot.x, vec3_x()
         )
         self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.y, vec3_y
+            self.m_model, self.app.delta_time * self.rot.y, vec3_y()
         )
         self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.z, vec3_z
+            self.m_model, self.app.delta_time * self.rot.z, vec3_z()
         )
 
         super().update()
@@ -282,11 +282,11 @@ class Cat(Model):
     def __init__(
         self,
         app: "GraphicsEngine",
-        pos: vec3 = vec3_0,
-        rot: vec3 = vec3_0,
-        scale: vec3 = vec3_1,
+        pos: vec3 = vec3_0(),
+        rot: vec3 = vec3_0(),
+        scale: vec3 = vec3_1(),
     ):
-        rot_: vec3 = rot - float(np.pi / 2) * vec3_x
+        rot_: vec3 = rot - float(np.pi / 2) * vec3_x()
         super().__init__(
             app, vao_name="cat", texture_id="cat", pos=pos, rot=rot_, scale=scale
         )

@@ -53,7 +53,7 @@ class Scene:
                 self.add_object(Cube(self.app, tex_id=(x + z) % 3, pos=vec3(x, -s, z)))
         self.add_object(Cat(self.app, pos=vec3(0, -1, -15)))
 
-        self.add_object(Cube(self.app, pos=vec3(5, 5, 5), rot_update=0.002 * vec3_xy))
+        self.add_object(Cube(self.app, pos=vec3(5, 5, 5), rot_update=0.002 * vec3_xy()))
 
     def load_basic(self) -> None:
         n, s = 30, 3
@@ -74,41 +74,41 @@ class Scene:
                 Cat(
                     self.app,
                     pos=(pos.x, -1, pos.y),
-                    rot=-float(alpha + np.pi / 2) * vec3_z,
+                    rot=-float(alpha + np.pi / 2) * vec3_z(),
                 )
             )
             self.add_object(
-                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=0.002 * vec3_xy)
+                Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=0.002 * vec3_xy())
             )
 
     def load_basic_example(self) -> None:
         tex_ids: list[int] = [0, 1, 2, 0, 1, 2, 0]
         poss: list[vec3] = [
-            vec3_0,
-            -2.5 * vec3_x,
-            2.5 * vec3_x,
-            -5.0 * vec3_x,
-            5.0 * vec3_x,
-            -7.5 * vec3_x,
-            7.5 * vec3_x,
+            vec3_0(),
+            -2.5 * vec3_x(),
+            2.5 * vec3_x(),
+            -5.0 * vec3_x(),
+            5.0 * vec3_x(),
+            -7.5 * vec3_x(),
+            7.5 * vec3_x(),
         ]
         rots: list[vec3] = [
-            vec3_0,
-            45 * vec3_x,
-            -45 * vec3_x,
-            90 * vec3_x,
-            -90 * vec3_x,
-            135 * vec3_x,
-            -135 * vec3_x,
+            vec3_0(),
+            45 * vec3_x(),
+            -45 * vec3_x(),
+            90 * vec3_x(),
+            -90 * vec3_x(),
+            135 * vec3_x(),
+            -135 * vec3_x(),
         ]
         scales: list[vec3] = [
-            vec3_1,
-            0.75 * vec3_1,
-            0.6 * vec3_1,
-            0.5 * vec3_1,
-            0.4 * vec3_1,
-            0.3 * vec3_1,
-            0.2 * vec3_1,
+            vec3_1(),
+            0.75 * vec3_1(),
+            0.6 * vec3_1(),
+            0.5 * vec3_1(),
+            0.4 * vec3_1(),
+            0.3 * vec3_1(),
+            0.2 * vec3_1(),
         ]
 
         for tex_id, pos, rot, scale in zip(tex_ids, poss, rots, scales):

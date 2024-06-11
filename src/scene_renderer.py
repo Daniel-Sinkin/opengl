@@ -34,6 +34,7 @@ class SceneRenderer:
         self.scene.skybox.render()
 
     def render(self):
+        # Maybe also have a fixed_update function for physics stuff
         self.scene.update()
         self.render_shadow()
         self.main_render()

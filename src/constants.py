@@ -14,14 +14,15 @@ VERTEX_IDX: TypeAlias = tuple[int, int, int]
 ###
 # Constant Variables
 ###
-vec3_0 = vec3(0.0, 0.0, 0.0)
-vec3_1 = vec3(1.0, 1.0, 1.0)
-vec3_x = vec3(1.0, 0.0, 0.0)
-vec3_y = vec3(0.0, 1.0, 0.0)
-vec3_z = vec3(0.0, 0.0, 1.0)
-vec3_xy = vec3(1.0, 1.0, 0.0)
-vec3_xz = vec3(1.0, 0.0, 1.0)
-vec3_yz = vec3(0.0, 1.0, 1.0)
+# Have to create new objects otherwise we only pass around references
+vec3_0: Callable[[], vec3] = lambda: vec3(0.0, 0.0, 0.0)
+vec3_1: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 1.0)
+vec3_x: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 0.0)
+vec3_y: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 0.0)
+vec3_z: Callable[[], vec3] = lambda: vec3(0.0, 0.0, 1.0)
+vec3_xy: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 0.0)
+vec3_xz: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 1.0)
+vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
 
 MS_TO_SECOND = 1e-4
 SECOND_TO_MS = 1000

@@ -6,6 +6,11 @@ from .constants import *
 
 
 @dataclass
+class Physics:
+    GRAVITATIONAL_CONSTANT: float = 9.81  # Accelerates in -y with G meters per second
+
+
+@dataclass
 class LoggingSettings:
     LEVEL: int = logging.DEBUG
     LEVEL_FILE: int = logging.INFO
@@ -45,9 +50,13 @@ class Colors:
 class Folders:
     RECORDINGS: str = "recordings"
     RECORDINGS_CAMERA: str = os.path.join(RECORDINGS, "camera")
+
     SRC: str = "src"
     TEXTURES: str = "textures"
     SHADERS: str = "shaders"
     UTIL: str = "util"
     LOGS: str = "logs"
     OBJECTS: str = "objects"
+
+    DATA: str = "data"
+    DATA_SOUND: str = os.path.join(DATA, "sound")

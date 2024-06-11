@@ -40,6 +40,7 @@ class GraphicsEngine:
         self.clock = pg.time.Clock()
         self.time = 0
         self.delta_time = 0
+        self.delta_time_s = 0
 
         self.light = Light()
         self.camera = Camera(
@@ -56,8 +57,15 @@ class GraphicsEngine:
         self.camera_projection_has_changed = False
         self.mouse_position_on_freelook_enter = None
 
+        # TODO: Add a dedicated State Management function instead of just swapping around
         self.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
+        self.previous_player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
+
         self.player_controller = PlayerController(self)
+
+        self.state_transition_sound = pygame.mixer.Sound(
+            "data/sound/state_transition.wav"
+        )
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -83,17 +91,30 @@ class GraphicsEngine:
                             pg.mouse.get_rel()
                 case pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
-                        self.player_controller_mode = (
-                            PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
-                        )
+                        if (
+                            self.player_controller_mode
+                            != PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
+                        ):
+                            self.state_transition_sound.play()
+                            self.player_controller_mode = (
+                                PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
+                            )
+
                         if self.mouse_position_on_freelook_enter is not None:
                             pg.mouse.set_pos(self.mouse_position_on_freelook_enter)
                             self.mouse_position_on_freelook_enter = None
 
                         pg.event.set_grab(False)
                         pg.mouse.set_visible(True)
-                    if event.key == pg.K_SPACE:
-                        self.camera.reset_to_inital_state()
+                    if event.key == pg.K_F1:
+                        if (
+                            self.player_controller_mode
+                            != PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                        ):
+                            self.state_transition_sound.play()
+                            self.player_controller_mode = (
+                                PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                            )
                 case pg.MOUSEBUTTONDOWN:
                     if (
                         self.player_controller_mode
@@ -105,6 +126,7 @@ class GraphicsEngine:
                             pg.BUTTON_MIDDLE,
                         )
                     ):
+                        self.state_transition_sound.play()
                         # Avoids sudden jumps when re-entering FPS mode
                         _ = pg.mouse.get_rel()
 
@@ -113,7 +135,7 @@ class GraphicsEngine:
                         )
 
                         self.player_controller_mode = (
-                            PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                            self.previous_player_controller_mode
                         )
                         pg.event.set_grab(True)
                         pg.mouse.set_visible(False)
@@ -122,6 +144,8 @@ class GraphicsEngine:
                     if event.button == pg.BUTTON_WHEELUP:
                         self.camera.adjust_fov(-5)
 
+    # We should have game logic seperate from the rending logic, but everything
+    # being synced with the rendering pipeline is okay for now.
     def render(self) -> None:
         # This should always be covered
         self.ctx.clear(color=Colors.MISSING_TEXTURE)
@@ -150,6 +174,7 @@ class GraphicsEngine:
             self.player_controller.update()
             self.render()
             self.delta_time: int = self.clock.tick(60.0)
+            self.delta_time_s: float = self.delta_time * MS_TO_SECOND
 
             self.frame_counter += 1
 

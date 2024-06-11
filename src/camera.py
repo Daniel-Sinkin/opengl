@@ -43,9 +43,9 @@ class Camera:
         self.speed_turbo = Settings_Camera.SPEED_TUROB
         self.sensitivity = Settings_Camera.SENSITIVITY
 
-        self.up: vec3 = vec3_y
-        self.right: vec3 = vec3_x
-        self.forward: vec3 = -vec3_z
+        self.up: vec3 = vec3_y()
+        self.right: vec3 = vec3_x()
+        self.forward: vec3 = -vec3_z()
 
         self.initial_yaw, self.initial_pitch = yaw, pitch
         self.yaw, self.pitch = yaw, pitch
@@ -141,8 +141,7 @@ class Camera:
         """
         keys: ScancodeWrapper = pg.key.get_pressed()
         if keys[pg.K_SPACE]:
-            self.position = glm.vec3(self.initial_position)
-            self.yaw, self.pitch = self.initial_yaw, self.initial_pitch
+            self.app.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
             return
 
         if keys[pg.K_LSHIFT]:
