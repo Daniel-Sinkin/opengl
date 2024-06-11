@@ -3,7 +3,7 @@ from typing import Iterable, TypeAlias
 
 import numpy as np
 
-from settings import Folders
+from src.settings import Folders
 
 Vertex: TypeAlias = tuple[float, float, float]
 VertexIdx: TypeAlias = tuple[int, int, int]

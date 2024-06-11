@@ -1,7 +1,14 @@
+import logging
 import os
 from dataclasses import dataclass
 
 from .constants import *
+
+
+@dataclass
+class LoggingSettings:
+    LEVEL: int = logging.DEBUG
+    LEVEL_FILE: int = logging.INFO
 
 
 @dataclass

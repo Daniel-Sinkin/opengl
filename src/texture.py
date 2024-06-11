@@ -6,7 +6,7 @@ import pygame as pg
 from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture, TextureCube
 from PIL import Image
 
-from settings import Folders
+from .settings import Folders
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine

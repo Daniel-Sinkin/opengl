@@ -20,6 +20,7 @@ from src.mesh import Mesh
 from src.model import Cube
 from src.my_logger import setup
 from src.opengl import setup_opengl
+from src.player_controller import PlayerController
 from src.scene import Scene
 from src.scene_renderer import SceneRenderer
 from src.settings import Colors, Settings_OpenGL
@@ -51,10 +52,12 @@ class GraphicsEngine:
         self.is_running = True
         self.frame_counter = 0
 
-        self.player_controller_mode = PLAYER_CONTROLLER_MODE.PLAYER_CONTROLLER_FPS
-
+        # TODO: Think about moving this to the camera
         self.camera_projection_has_changed = False
         self.mouse_position_on_freelook_enter = None
+
+        self.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
+        self.player_controller = PlayerController(self)
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -63,9 +66,9 @@ class GraphicsEngine:
                     self.is_running = False
                 case pg.MOUSEMOTION:
                     # Only move the camera if in FPS mode.
-                    if (
-                        self.player_controller_mode
-                        == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
+                    if self.player_controller_mode in (
+                        PLAYER_CONTROLLER_MODE.FLOATING_CAMERA,
+                        PLAYER_CONTROLLER_MODE.FPS,
                     ):
                         mouse_rel: tuple[int, int] = typing.cast(
                             tuple[int, int], event.rel
@@ -79,22 +82,18 @@ class GraphicsEngine:
                             # Flushes the mouse position buffer
                             pg.mouse.get_rel()
                 case pg.KEYDOWN:
-                    if (
-                        self.player_controller_mode
-                        == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
-                        and event.key == pg.K_ESCAPE
-                    ):
+                    if event.key == pg.K_ESCAPE:
                         self.player_controller_mode = (
                             PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
                         )
                         if self.mouse_position_on_freelook_enter is not None:
                             pg.mouse.set_pos(self.mouse_position_on_freelook_enter)
+                            self.mouse_position_on_freelook_enter = None
 
                         pg.event.set_grab(False)
                         pg.mouse.set_visible(True)
                     if event.key == pg.K_SPACE:
                         self.camera.reset_to_inital_state()
-
                 case pg.MOUSEBUTTONDOWN:
                     if (
                         self.player_controller_mode
@@ -141,8 +140,14 @@ class GraphicsEngine:
         while self.is_running:
             self.get_time()
             self.check_events()
-            self.camera.move_floating_camera()
+
+            if self.player_controller_mode == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA:
+                self.camera.move()
+            elif self.player_controller_mode == PLAYER_CONTROLLER_MODE.FPS:
+                self.player_controller.move()
+
             self.camera.update()
+            self.player_controller.update()
             self.render()
             self.delta_time: int = self.clock.tick(60.0)
 

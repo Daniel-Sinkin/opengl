@@ -57,6 +57,7 @@ class Camera:
         self.is_recording = False
 
         self.recording_buffer: list[tuple[int, CAMERA_SERIALIZE_BASE]] = []
+        self.recorded_camera_path_tracer = None
 
     def serialize(
         self,
@@ -113,46 +114,27 @@ class Camera:
         self.right = glm.normalize(glm.cross(self.forward, glm.vec3(0, 1, 0)))
         self.up = glm.normalize(glm.cross(self.right, self.forward))
 
-    def update(self) -> None:
-        if self.recorded_camera_path_tracer is not None:
-            ticks = list(map(int, self.recorded_camera_path_tracer.keys()))
-            current_tick_counter = pg.time.get_ticks()
-            if ticks[-1] > current_tick_counter > ticks[0]:
-                current_tick: int = max(
-                    tick for tick in ticks if tick < current_tick_counter
-                )
-                self.deserialize(self.recorded_camera_path_tracer[str(current_tick)])
+    def _update_recoding(self) -> None:
+        current_tick = pg.time.get_ticks()
+        time_passed = current_tick - self.recording_start
 
+        if time_passed < self.recording_duration_ms:
+            self.recording_buffer.append(current_tick, self.serialize())
+        else:
+            dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(RECORDING_TIME_FORMAT)
+            with open(os.path.join(Folders.RECORDINGS_CAMERA, dt_str), "w") as file:
+                file.write(self.recording_buffer)
+
+    def update(self) -> None:
         self.update_camera_vectors()
         if self.app.camera_projection_has_changed:
             self.m_proj: mat4 = self.get_projection_matrix()
         self.m_view: mat4 = self.get_view_matrix()
 
         if self.is_recording:
-            current_tick = pg.time.get_ticks()
-            time_passed = current_tick - self.recording_start
+            self._update_recoding()
 
-            if time_passed < self.recording_duration_ms:
-                self.recording_buffer.append(current_tick, self.serialize())
-            else:
-                dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(
-                    RECORDING_TIME_FORMAT
-                )
-                with open(os.path.join(Folders.RECORDINGS_CAMERA, dt_str), "w") as file:
-                    file.write(self.recording_buffer)
-
-        if self.path_trace_max_length > 0 and (
-            self.app.frame_counter % (self.frame_skip + 1) == 0
-        ):
-            if len(self.path_trace) < self.path_trace_max_length:
-                self.append_current_to_path_trace()
-            else:
-                with open("camera_path_tracer.json", "w") as file:
-                    json.dump(self.path_trace, file)
-
-                self.app.is_running = False
-
-    def move_floating_camera(self) -> None:
+    def move(self) -> None:
         """
         When controlling a floating camera we can just pass through objects so we
         don't need any bound checks.

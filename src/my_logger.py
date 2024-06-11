@@ -3,7 +3,7 @@ import os
 from logging import Handler, Logger
 from typing import Optional
 
-from settings import Folders
+from .settings import Folders, LoggingSettings
 
 # Suppresses warnings from pywavefront when importing incompletely imported OBJ files
 logging.getLogger("pywavefront").setLevel(logging.ERROR)
@@ -15,7 +15,7 @@ def setup(logger_name: str, logger_folderpath: str = Folders.LOGS) -> Logger:
     the corresponding file
     """
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=LoggingSettings.LEVEL)
     logger: Logger = logging.getLogger(logger_name)
 
     os.makedirs("logs", exist_ok=True)
@@ -23,7 +23,7 @@ def setup(logger_name: str, logger_folderpath: str = Folders.LOGS) -> Logger:
     logger_filepath: str = os.path.join(logger_folderpath, f"{logger_name}.log")
 
     file_handler = logging.FileHandler(logger_filepath)
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(LoggingSettings.LEVEL_FILE)
     file_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     )

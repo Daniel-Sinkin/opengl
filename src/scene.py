@@ -36,7 +36,7 @@ class Scene:
         self.objects.append(obj)
         obj.scene_idx = self.object_idx
         if log:
-            self.app.logger.info(f"Registered object: {obj}")
+            self.app.logger.debug("Registered object: %s", obj)
 
         self.object_idx += 1
 

@@ -4,6 +4,28 @@ from typing import Callable, NotRequired, TypeAlias, TypedDict
 import pygame.constants
 from glm import vec3
 
+###
+# TypeDefs
+###
+POSITION3D: TypeAlias = tuple[float, float, float]
+VERTEX_IDX: TypeAlias = tuple[int, int, int]
+
+
+###
+# Constant Variables
+###
+vec3_0 = vec3(0.0, 0.0, 0.0)
+vec3_1 = vec3(1.0, 1.0, 1.0)
+vec3_x = vec3(1.0, 0.0, 0.0)
+vec3_y = vec3(0.0, 1.0, 0.0)
+vec3_z = vec3(0.0, 0.0, 1.0)
+vec3_xy = vec3(1.0, 1.0, 0.0)
+vec3_xz = vec3(1.0, 0.0, 1.0)
+vec3_yz = vec3(0.0, 1.0, 1.0)
+
+MS_TO_SECOND = 1e-4
+SECOND_TO_MS = 1000
+
 
 ###
 # Strings
@@ -23,29 +45,7 @@ RECORDING_TIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
 class PLAYER_CONTROLLER_MODE(IntEnum):
     FLOATING_CAMERA = auto()
     UNLOCKED_MOUSE = auto()
-    PLAYER_CONTROLLER_FPS = auto()
-
-
-###
-# Constant Variables
-###
-vec3_0 = vec3(0.0, 0.0, 0.0)
-vec3_1 = vec3(1.0, 1.0, 1.0)
-vec3_x = vec3(1.0, 0.0, 0.0)
-vec3_y = vec3(0.0, 1.0, 0.0)
-vec3_z = vec3(0.0, 0.0, 1.0)
-vec3_xy = vec3(1.0, 1.0, 0.0)
-vec3_xz = vec3(1.0, 0.0, 1.0)
-vec3_yz = vec3(0.0, 1.0, 1.0)
-
-MS_TO_SECOND = 1e-4
-SECOND_TO_MS = 1000
-
-###
-# TypeDefs
-###
-POSITION3D: TypeAlias = tuple[float, float, float]
-VERTEX_IDX: TypeAlias = tuple[int, int, int]
+    FPS = auto()
 
 
 ###
