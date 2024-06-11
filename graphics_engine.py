@@ -67,6 +67,8 @@ class GraphicsEngine:
         self.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
         self.previous_player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
 
+        self.menu_open = self.player_controller_mode == PLAYER_CONTROLLER_MODE.MENU
+
         self.player_controller = PlayerController(self)
 
         self.state_transition_sound = pygame.mixer.Sound(
@@ -97,14 +99,10 @@ class GraphicsEngine:
                             pg.mouse.get_rel()
                 case pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
-                        if (
-                            self.player_controller_mode
-                            != PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
-                        ):
+                        if self.player_controller_mode != PLAYER_CONTROLLER_MODE.MENU:
                             self.state_transition_sound.play()
-                            self.player_controller_mode = (
-                                PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
-                            )
+                            self.player_controller_mode = PLAYER_CONTROLLER_MODE.MENU
+                            self.menu_open = True
 
                         if self.mouse_position_on_freelook_enter is not None:
                             pg.mouse.set_pos(self.mouse_position_on_freelook_enter)
@@ -123,8 +121,7 @@ class GraphicsEngine:
                             )
                 case pg.MOUSEBUTTONDOWN:
                     if (
-                        self.player_controller_mode
-                        == PLAYER_CONTROLLER_MODE.UNLOCKED_MOUSE
+                        self.player_controller_mode == PLAYER_CONTROLLER_MODE.MENU
                         and event.button
                         in (
                             pg.BUTTON_LEFT,
@@ -145,6 +142,7 @@ class GraphicsEngine:
                         )
                         pg.event.set_grab(True)
                         pg.mouse.set_visible(False)
+                        self.menu_open = False
                     if event.button == pg.BUTTON_WHEELDOWN:
                         self.camera.adjust_fov(5)
                     if event.button == pg.BUTTON_WHEELUP:
@@ -171,10 +169,15 @@ class GraphicsEngine:
             self.get_time()
             self.check_events()
 
-            if self.player_controller_mode == PLAYER_CONTROLLER_MODE.FLOATING_CAMERA:
-                self.camera.move()
-            elif self.player_controller_mode == PLAYER_CONTROLLER_MODE.FPS:
-                self.player_controller.move()
+            match self.player_controller_mode:
+                case PLAYER_CONTROLLER_MODE.FLOATING_CAMERA:
+                    self.camera.move()
+                case PLAYER_CONTROLLER_MODE.FPS:
+                    self.player_controller.move()
+                case PLAYER_CONTROLLER_MODE.MENU:
+                    self.logger.debug(pg.mouse.get_pos())
+                case _:
+                    raise NotImplementedError
 
             self.camera.update()
             self.player_controller.update()
@@ -186,14 +189,12 @@ class GraphicsEngine:
 
             self.camera_projection_has_changed = False
 
-            print(self.clock.get_fps())
-
     def __del__(self) -> None:
         self.logger.info("Cleaning up Graphics Enging.")
         try:
             self.mesh.destroy()
         except AttributeError:
-            self.logger.warn("Didn't have a mesh when getting destroyed.")
+            self.logger.warning("Didn't have a mesh when getting destroyed.")
         pg.quit()
 
         self.logger.info("Cleanup is done, deleting logger now.")

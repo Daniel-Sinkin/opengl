@@ -30,6 +30,15 @@ class VertexArrayObject:
                 self.program.programs["advanced_skybox"],
                 self.vbo.vbo_map["advanced_skybox"],
             ),
+            "quad": self.get_vao(
+                self.program.programs["quad"], self.vbo.vbo_map["quad"]
+            ),
+            "sphere": self.get_vao(
+                self.program.programs["default"], self.vbo.vbo_map["sphere"]
+            ),
+            "shadow_sphere": self.get_vao(
+                self.program.programs["shadow_map"], self.vbo.vbo_map["sphere"]
+            ),
         }
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:

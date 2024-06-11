@@ -17,6 +17,24 @@ if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
 
+class Quad:
+    def __init__(self, app: "GraphicsEngine"):
+        self.app: GraphicsEngine = app
+        self.vao_name = "quad"
+        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
+
+        self.program: Program = self.vao.program
+
+    def update(self):
+        if self.app.menu_open:
+            self.program["menuOpen"] = True
+        else:
+            self.program["menuOpen"] = False
+
+    def render(self):
+        self.vao.render(mgl.TRIANGLE_STRIP)
+
+
 class BaseModel:
     def __init__(
         self,
@@ -110,6 +128,11 @@ class SkyBox(BaseModel):
         m_view = glm.mat4(glm.mat3(self.camera.m_view))
         self.program["m_invProjView"].write(glm.inverse(self.camera.m_proj * m_view))
 
+        if self.app.menu_open:
+            self.program["menuOpen"] = True
+        else:
+            self.program["menuOpen"] = False
+
     def on_init(self):
         self.texture = self.app.mesh.texture.textures[self.texture_id]
         self.program["u_texture_skybox"] = 0
@@ -193,6 +216,11 @@ class Model(BaseModel):
                 self.m_model_initial,
                 self.scale_animation_function(self.alpha + self.app.frame_counter / 50),
             )
+
+        if self.app.menu_open:
+            self.program["menuOpen"] = True
+        else:
+            self.program["menuOpen"] = False
 
     def update_shadow(self):
         self.shadow_program["m_model"].write(self.m_model)
@@ -302,7 +330,22 @@ class Cat(Model):
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
     ):
+        # Model data is rotated weirdly
         rot_: vec3 = rot - float(np.pi / 2) * vec3_x()
         super().__init__(
             app, vao_name="cat", texture_id="cat", pos=pos, rot=rot_, scale=scale
+        )
+
+
+class Sphere(Model):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        texture_id=0,
+        pos: vec3 = vec3_0(),
+        rot: vec3 = vec3_0(),
+        scale: vec3 = vec3_1(),
+    ):
+        super().__init__(
+            app, vao_name="sphere", texture_id=texture_id, pos=pos, rot=rot, scale=scale
         )

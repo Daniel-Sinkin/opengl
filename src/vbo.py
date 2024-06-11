@@ -6,7 +6,7 @@ import pywavefront
 import pywavefront.material
 from moderngl import Buffer, Context, Program
 
-from util.vertex_data_generator import generate_CubeVBO
+from util.vertex_data_generator import generate_CubeVBO  # pylint: disable=import-error
 
 from .constants import *
 
@@ -21,6 +21,8 @@ class VBOHandler:
             "cat": Cat(ctx),
             "skybox": NaiveSkyBox(ctx),
             "advanced_skybox": SkyBox(ctx),
+            "quad": Quad(ctx),
+            "sphere": Sphere(ctx),
         }
 
     def destroy(self):
@@ -33,8 +35,9 @@ class VertexBufferObject(ABC):
         self.ctx: Context = ctx
         self.vbo: Buffer = self.get_vbo()
 
+    # TODO: Rethink how we typehint this, prolly don't even need any because this is pretty isolated code
     @abstractmethod
-    def get_vertex_data(self) -> Iterable[POSITION3D]: ...
+    def get_vertex_data(self) -> Iterable[VERTEX_POSITION]: ...
 
     @property
     @abstractmethod
@@ -45,7 +48,7 @@ class VertexBufferObject(ABC):
     def attributes(self) -> list[str]: ...
 
     def get_vbo(self) -> Buffer:
-        vertex_data: Iterable[POSITION3D] = self.get_vertex_data()
+        vertex_data: Iterable[VERTEX_POSITION] = self.get_vertex_data()
         return self.ctx.buffer(vertex_data)
 
     def destroy(self) -> None:
@@ -178,3 +181,60 @@ class Cat(VertexBufferObject):
         assert len(vertex_data) == 4740096
 
         return np.array(vertex_data, dtype=np.float32)
+
+
+class Quad(VertexBufferObject):
+    def __init__(self, ctx: Context):
+
+        super().__init__(ctx)
+
+    @property
+    def buffer_format(self) -> str:
+        return "2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return ["in_position"]
+
+    # fmt: off
+    def get_vertex_data(self) -> Iterable[POSITION2D]:
+        return np.array(
+            [
+                -1.0, -1.0,
+                -0.6, -1.0,
+                -1.0,  1.0,
+                -0.6,  1.0,
+            ],
+            dtype=np.float32,
+        )
+    # fmt: on
+
+
+class Sphere(VertexBufferObject):
+    def __init__(self, ctx: Context):
+        super().__init__(ctx)
+
+    @property
+    def buffer_format(self) -> str:
+        return "3f 3f 2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return ["in_normal", "in_position", "in_texcoord_0"]
+
+    # fmt: off
+    def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
+        try:
+            return cast(np.ndarray, np.load("objects/SphereVBO.npy"))
+        except FileNotFoundError:
+            # TODO: Attach logger and replace these prints with proper logging
+            print(
+                "objects/SubeVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
+            )
+            generate_CubeVBO()
+            try:
+                return cast(np.ndarray, np.load("objects/SphereVBO.npy"))
+            except FileNotFoundError:
+                raise RuntimeError(
+                    "objects/SubeVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
+                )

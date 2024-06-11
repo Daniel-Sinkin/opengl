@@ -8,7 +8,9 @@ from glm import vec1, vec2, vec3, vec4
 ###
 # TypeDefs
 ###
+POSITION2D: TypeAlias = tuple[float, float]
 POSITION3D: TypeAlias = tuple[float, float, float]
+VERTEX_POSITION = POSITION2D | POSITION3D
 VERTEX_IDX: TypeAlias = tuple[int, int, int]
 VEC_N: TypeAlias = vec1 | vec2 | vec3 | vec4
 
@@ -59,7 +61,7 @@ RECORDING_TIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
 ###
 class PLAYER_CONTROLLER_MODE(IntEnum):
     FLOATING_CAMERA = auto()
-    UNLOCKED_MOUSE = auto()
+    MENU = auto()
     FPS = auto()
 
 

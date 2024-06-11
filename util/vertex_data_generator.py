@@ -3,8 +3,6 @@ from typing import Iterable, TypeAlias
 
 import numpy as np
 
-from src.settings import Folders
-
 Vertex: TypeAlias = tuple[float, float, float]
 VertexIdx: TypeAlias = tuple[int, int, int]
 
@@ -16,7 +14,7 @@ def vertex_idx_transform(
     return np.array(data, dtype=np.float32)
 
 
-def generate_CubeVBO(folderpath=Folders.OBJECTS, filename="CubeVBO.npy") -> None:
+def generate_CubeVBO(folderpath="objects", filename="CubeVBO.npy") -> None:
     vertices = [
         (-1, -1, 1),
         (1, -1, 1),
@@ -77,5 +75,68 @@ def generate_CubeVBO(folderpath=Folders.OBJECTS, filename="CubeVBO.npy") -> None
     np.save(os.path.join(folderpath, filename), vertex_data)
 
 
+def generate_Sphere(
+    folderpath="objects",
+    filename="SphereVBO.npy",
+    radius: float = 1.0,
+    sectors: int = 36,
+    stacks: int = 18,
+) -> np.ndarray[np.float32]:
+    vertices = []
+    normals = []
+    tex_coords = []
+    indices = []
+
+    for i in range(stacks + 1):
+        stack_angle = np.pi / 2 - i * np.pi / stacks  # from pi/2 to -pi/2
+        xy = radius * np.cos(stack_angle)  # r * cos(u)
+        z = radius * np.sin(stack_angle)  # r * sin(u)
+
+        for j in range(sectors + 1):
+            sector_angle = j * 2 * np.pi / sectors  # from 0 to 2pi
+
+            x = xy * np.cos(sector_angle)  # r * cos(u) * cos(v)
+            y = xy * np.sin(sector_angle)  # r * cos(u) * sin(v)
+            vertices.append((x, y, z))
+
+            nx = x / radius
+            ny = y / radius
+            nz = z / radius
+            normals.append((nx, ny, nz))
+
+            s = j / sectors
+            t = i / stacks
+            tex_coords.append((s, t))
+
+    for i in range(stacks):
+        for j in range(sectors):
+            first = i * (sectors + 1) + j
+            second = first + sectors + 1
+
+            indices.append((first, second, first + 1))
+            indices.append((second, second + 1, first + 1))
+
+    vertices = np.array(vertices, dtype=np.float32)
+    normals = np.array(normals, dtype=np.float32)
+    tex_coords = np.array(tex_coords, dtype=np.float32)
+    indices = np.array(indices, dtype=np.uint32)
+
+    def vertex_idx_transform(vertices, normals, tex_coords, indices):
+        transformed_data = []
+        for triangle in indices:
+            for ind in triangle:
+                transformed_data.extend(normals[ind])
+                transformed_data.extend(vertices[ind])
+                transformed_data.extend(tex_coords[ind])
+        return np.array(transformed_data, dtype=np.float32)
+
+    vertex_data = vertex_idx_transform(vertices, normals, tex_coords, indices)
+
+    np.save(os.path.join(folderpath, filename), vertex_data)
+    return vertex_data
+
+
 if __name__ == "__main__":
-    generate_CubeVBO()
+    pass
+    # generate_Sphere()
+    # generate_CubeVBO()

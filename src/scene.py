@@ -17,6 +17,7 @@ class Scene:
 
         self.load_basic()
         self.skybox = SkyBox(app)
+        self.quad = Quad(app)
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -68,6 +69,9 @@ class Scene:
             for z in range(-n, n, s):
                 self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
         self.add_object(Cat(self.app, pos=vec3(0, -2, -15)))
+        self.add_object(
+            Sphere(self.app, texture_id=1, pos=5.0 * vec3_y(), scale=4.0 * vec3_1())
+        )
 
     def load_cat_circle_animated_scale(self) -> None:
         n, s = 80, 2
@@ -161,11 +165,7 @@ class Scene:
                 Cube(self.app, tex_id=tex_id, pos=pos, rot=rot, scale=scale)
             )
 
-    def render(self) -> None:
-        for obj in self.objects:
-            obj.render()
-        self.skybox.render()
-
     def update(self) -> None:
         for obj in self.objects:
             obj.update()
+        self.quad.update()

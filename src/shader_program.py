@@ -7,7 +7,13 @@ class ShaderProgram:
         self.ctx: Context = ctx
         self.programs: dict[str, Program] = {
             k: self.get_shader_program(k)
-            for k in ["default", "skybox", "advanced_skybox", "shadow_map"]
+            for k in [
+                "default",
+                "skybox",
+                "advanced_skybox",
+                "shadow_map",
+                "quad",
+            ]
         }
 
     def get_shader_program(self, shader_name) -> Program:
