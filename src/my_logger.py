@@ -7,18 +7,18 @@ from typing import Optional
 logging.getLogger("pywavefront").setLevel(logging.ERROR)
 
 
-def setup(project_name: str, logger_folderpath: str = "logs") -> Logger:
+def setup(logger_name: str, logger_folderpath: str = "logs") -> Logger:
     """
     Creates a logger for that project name and creates the filehandler with
     the corresponding file
     """
 
     logging.basicConfig(level=logging.INFO)
-    logger: Logger = logging.getLogger(project_name)
+    logger: Logger = logging.getLogger(logger_name)
 
     os.makedirs("logs", exist_ok=True)
 
-    logger_filepath: str = os.path.join(logger_folderpath, f"{project_name}.log")
+    logger_filepath: str = os.path.join(logger_folderpath, f"{logger_name}.log")
 
     file_handler = logging.FileHandler(logger_filepath)
     file_handler.setLevel(logging.INFO)

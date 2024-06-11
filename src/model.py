@@ -72,13 +72,13 @@ class BaseModel:
         return f"BaseModel({self.vao_name=},{self.texture_id=},{self.pos=},{self.rot=},{self.scale=})"
 
     def serialize(
-        self, type="json", filepath=None, include_scene_idx=False
-    ) -> BASEMODEL_SERIALIZE_DICT:
-        if type != "json":
+        self, serialize_type="json", filepath=None, include_scene_idx=False
+    ) -> BASEMODEL_SERIALIZE:
+        if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(type)
+                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_ = BASEMODEL_SERIALIZE_DICT(
+        dict_ = BASEMODEL_SERIALIZE(
             vao_name=self.vao_name,
             texture_id=self.texture_id,
             pos=tuple(self.pos),
@@ -147,13 +147,13 @@ class Model(BaseModel):
         )
 
     def serialize(
-        self, type="json", filepath=None, include_scene_idx=False
-    ) -> MODEL_SERIALIZE_DICT:
-        if type != "json":
+        self, serialize_type="json", filepath=None, include_scene_idx=False
+    ) -> MODEL_SERIALIZE:
+        if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(type)
+                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_: BASEMODEL_SERIALIZE_DICT = super().serialize(type, None, False)
+        dict_: BASEMODEL_SERIALIZE = super().serialize(serialize_type, None, False)
         dict_["rot_update"] = self.rot_update
         if include_scene_idx:
             dict_["scene_idx"] = self.scene_idx

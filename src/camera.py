@@ -1,7 +1,9 @@
 import typing
+from typing import Optional, cast
 
 import glm
 import pygame as pg
+import ujson as json
 from glm import mat4
 from pygame.key import ScancodeWrapper
 
@@ -19,6 +21,9 @@ class Camera:
         position: POSITION3D = None,
         yaw=Settings_Camera.INITIAL_YAW,
         pitch=Settings_Camera.INITAL_PITCH,
+        trace_path_max_length=0,
+        trace_path_frame_skip=1,
+        recorded_camera_path_tracer: Optional[list[CAMERA_SERIALIZE_BASE]] = None,
     ):
         self.app: GraphicsEngine = app
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
@@ -48,6 +53,58 @@ class Camera:
         self.m_view = self.get_view_matrix()
         self.m_proj = self.get_projection_matrix()
 
+        self.frame_skip = trace_path_frame_skip
+
+        self.path_trace_max_length = trace_path_max_length
+        assert not (
+            (recorded_camera_path_tracer is not None)
+            and (self.path_trace_max_length > 0)
+        ), "can't record and play recording at the same time."
+
+        self.path_trace: dict[int, CAMERA_SERIALIZE_BASE] = {}
+
+        self.recorded_camera_path_tracer: Optional[dict[int, CAMERA_SERIALIZE_BASE]] = (
+            recorded_camera_path_tracer
+        )
+
+    def serialize(
+        self,
+        serialize_type="json",
+        filepath: Optional[str] = None,
+        include_base_settings=True,
+    ) -> CAMERA_SERIALIZE_BASE:
+        if serialize_type != "json":
+            raise NotImplementedError(
+                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
+            )
+
+        dict_ = CAMERA_SERIALIZE_BASE(
+            position=tuple(map(lambda x: round(x, 4), self.position)),
+            pitch=round(self.pitch, 4),
+            yaw=round(self.yaw, 4),
+        )
+        if include_base_settings:
+            dict_["near_plane"] = round(self.near_plane, 4)
+            dict_["far_plane"] = round(self.far_plane, 4)
+            dict_["speed"] = round(self.speed, 4)
+            dict_["sensitivity"] = round(self.sensitivity, 4)
+            dict_ = cast(CAMERA_SERIALIZE, dict_)
+
+        if filepath is not None:
+            json.dump(dict_, filepath)
+
+        return dict_
+
+    def deserialize(self, serialized: CAMERA_SERIALIZE_BASE) -> None:
+        self.position = vec3(serialized["position"])
+        self.yaw = serialized["yaw"]
+        self.pitch = serialized["pitch"]
+
+    def append_current_to_path_trace(self) -> list[CAMERA_SERIALIZE_BASE]:
+        self.path_trace[pg.time.get_ticks()] = self.serialize(
+            serialize_type="json", filepath=None, include_base_settings=False
+        )
+
     def rotate(self, rel_x, rel_y) -> None:
         self.yaw += rel_x * self.sensitivity
         self.pitch -= rel_y * self.sensitivity
@@ -66,10 +123,30 @@ class Camera:
         self.up = glm.normalize(glm.cross(self.right, self.forward))
 
     def update(self) -> None:
+        if self.recorded_camera_path_tracer is not None:
+            ticks = list(map(int, self.recorded_camera_path_tracer.keys()))
+            current_tick_counter = pg.time.get_ticks()
+            if ticks[-1] > current_tick_counter > ticks[0]:
+                current_tick: int = max(
+                    tick for tick in ticks if tick < current_tick_counter
+                )
+                self.deserialize(self.recorded_camera_path_tracer[str(current_tick)])
+
         self.update_camera_vectors()
         if self.app.camera_projection_has_changed:
-            self.m_proj = self.get_projection_matrix()
+            self.m_proj: mat4 = self.get_projection_matrix()
         self.m_view: mat4 = self.get_view_matrix()
+
+        if self.path_trace_max_length > 0 and (
+            self.app.frame_counter % (self.frame_skip + 1) == 0
+        ):
+            if len(self.path_trace) < self.path_trace_max_length:
+                self.append_current_to_path_trace()
+            else:
+                with open("camera_path_tracer.json", "w") as file:
+                    json.dump(self.path_trace, file)
+
+                self.app.is_running = False
 
     def move_floating_camera(self) -> None:
         """

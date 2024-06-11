@@ -18,14 +18,16 @@ class Scene:
         self.skybox = SkyBox(app)
 
     def serialize(
-        self, type="json", filepath=None
-    ) -> dict[int, BASEMODEL_SERIALIZE_DICT]:
-        if type != "json":
+        self, serialize_type="json", filepath=None
+    ) -> dict[int, BASEMODEL_SERIALIZE]:
+        if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(type)
+                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_: dict[int, BASEMODEL_SERIALIZE_DICT] = {
-            obj.scene_idx: obj.serialize(type, filepath=None, include_scene_idx=False)
+        dict_: dict[int, BASEMODEL_SERIALIZE] = {
+            obj.scene_idx: obj.serialize(
+                serialize_type, filepath=None, include_scene_idx=False
+            )
             for obj in self.objects
         }
 

@@ -5,13 +5,14 @@ import pygame.constants
 from glm import vec3
 
 
-# fmt: off
 ###
 # Strings
 ###
-# Dev
 class DevStringsLambda:
-    UNSUPPORTED_OBJECT_SERIALIZATION_TYPE: Callable[type, str] = lambda type: f"Unsupported object serialization type {type=}."
+    UNSUPPORTED_OBJECT_SERIALIZATION_TYPE: Callable[[type], str] = (
+        lambda type_: "Unsupported object serialization type %s." % type_
+    )
+
 
 ###
 # Enums
@@ -22,13 +23,13 @@ class MouseMode(IntEnum):
 
 
 ###
-# Quality of Life
+# Constant Variables
 ###
-vec3_0  = vec3(0.0, 0.0, 0.0)
-vec3_1  = vec3(1.0, 1.0, 1.0)
-vec3_x  = vec3(1.0, 0.0, 0.0)
-vec3_y  = vec3(0.0, 1.0, 0.0)
-vec3_z  = vec3(0.0, 0.0, 1.0)
+vec3_0 = vec3(0.0, 0.0, 0.0)
+vec3_1 = vec3(1.0, 1.0, 1.0)
+vec3_x = vec3(1.0, 0.0, 0.0)
+vec3_y = vec3(0.0, 1.0, 0.0)
+vec3_z = vec3(0.0, 0.0, 1.0)
 vec3_xy = vec3(1.0, 1.0, 0.0)
 vec3_xz = vec3(1.0, 0.0, 1.0)
 vec3_yz = vec3(0.0, 1.0, 1.0)
@@ -42,18 +43,38 @@ MS_TO_SECOND = 1000
 POSITION3D: TypeAlias = tuple[float, float, float]
 VERTEX_IDX: TypeAlias = tuple[int, int, int]
 
-class BASEMODEL_SERIALIZE_DICT(TypedDict):
+
+###
+# Dicts
+###
+class CAMERA_SERIALIZE_BASE(TypedDict):
+    position: POSITION3D
+    pitch: float
+    yaw: float
+
+
+class CAMERA_SERIALIZE(CAMERA_SERIALIZE_BASE):
+    near_plane: float
+    far_plane: float
+    speed: float
+    sensitivity: float
+
+
+class BASEMODEL_SERIALIZE(TypedDict):
     vao_name: str
     texture_id: int
     pos: POSITION3D
     rot: POSITION3D
     scale: POSITION3D
 
-class MODEL_SERIALIZE_DICT(BASEMODEL_SERIALIZE_DICT):
+
+class MODEL_SERIALIZE(BASEMODEL_SERIALIZE):
     rot_update: POSITION3D
 
-SCENE_SERIALIZE_DICT: TypeAlias = dict[int, BASEMODEL_SERIALIZE_DICT]
 
+SCENE_SERIALIZE_DICT: TypeAlias = dict[int, BASEMODEL_SERIALIZE]
+
+# fmt: off
 ###
 # Key Mappings
 ###

@@ -5,11 +5,12 @@ from logging import Logger
 from typing import Optional
 
 import moderngl as mgl
+import ujson as json
+from glm import vec3
 
 # Suppresses welcome message
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as pg
-from glm import vec3
 
 from src import my_logger
 from src.camera import Camera
@@ -39,7 +40,18 @@ class GraphicsEngine:
         self.delta_time = 0
 
         self.light = Light()
-        self.camera = Camera(self)
+        try:
+            with open("camera_path_tracer.json", "r") as file:
+                recorded_camera_path_tracer = json.load(file)
+        except FileNotFoundError:
+            self.logger.warn("Could not find 'camera_path_tracer.json'.")
+            recorded_camera_path_tracer = None
+        self.camera = Camera(
+            self,
+            trace_path_max_length=0,
+            recorded_camera_path_tracer=recorded_camera_path_tracer,
+            trace_path_frame_skip=0,
+        )
         self.mesh = Mesh(self)
         self.scene = Scene(self)
         self.scene_renderer = SceneRenderer(self)
@@ -91,7 +103,9 @@ class GraphicsEngine:
                         # Avoids sudden jumps when re-entering FPS mode
                         _ = pg.mouse.get_rel()
 
-                        self.mouse_position_on_freelook_enter = pg.mouse.get_pos()
+                        self.mouse_position_on_freelook_enter: tuple[int, int] = (
+                            pg.mouse.get_pos()
+                        )
 
                         self.mouse_mode = MouseMode.FPS
                         pg.event.set_grab(True)
@@ -127,7 +141,10 @@ class GraphicsEngine:
 
     def __del__(self) -> None:
         self.logger.info("Cleaning up Graphics Enging.")
-        self.mesh.destroy()
+        try:
+            self.mesh.destroy()
+        except AttributeError:
+            self.logger.warn("Didn't have a mesh when getting destroyed.")
         pg.quit()
 
         self.logger.info("Cleanup is done, deleting logger now.")
