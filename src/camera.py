@@ -117,7 +117,9 @@ class Camera:
         self.camera_projection_has_changed = True
 
     def adjust_fov(self, amount: float) -> None:
-        new_fov = glm.clamp(self.fov + amount, *Settings_Camera.FOV_BOUNDS)
+        new_fov = typing.cast(
+            float, glm.clamp(self.fov + amount, *Settings_Camera.FOV_BOUNDS)
+        )
         if new_fov != self.fov:
-            self.camera_projection_has_changed = True
-            self.camera.fov = new_fov
+            self.app.camera_projection_has_changed = True
+            self.fov = new_fov

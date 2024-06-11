@@ -46,6 +46,7 @@ class GraphicsEngine:
         self.mouse_mode = MouseMode.FPS
 
         self.camera_projection_has_changed = False
+        self.mouse_position_on_freelook_enter = None
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -69,6 +70,8 @@ class GraphicsEngine:
                 case pg.KEYDOWN:
                     if self.mouse_mode == MouseMode.FPS and event.key == pg.K_ESCAPE:
                         self.mouse_mode = MouseMode.FREELOOK
+                        if self.mouse_position_on_freelook_enter is not None:
+                            pg.mouse.set_pos(self.mouse_position_on_freelook_enter)
 
                         pg.event.set_grab(False)
                         pg.mouse.set_visible(True)
@@ -79,11 +82,14 @@ class GraphicsEngine:
                     if self.mouse_mode == MouseMode.FREELOOK and event.button in (
                         pg.BUTTON_LEFT,
                         pg.BUTTON_RIGHT,
+                        pg.BUTTON_MIDDLE,
                     ):
                         # Avoids sudden jumps when re-entering FPS mode
                         _ = pg.mouse.get_rel()
 
-                        self.mouse_mode = 0
+                        self.mouse_position_on_freelook_enter = pg.mouse.get_pos()
+
+                        self.mouse_mode = MouseMode.FPS
                         pg.event.set_grab(True)
                         pg.mouse.set_visible(False)
                     if event.button == pg.BUTTON_WHEELDOWN:
