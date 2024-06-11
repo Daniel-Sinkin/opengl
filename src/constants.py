@@ -14,6 +14,9 @@ class DevStringsLambda:
     )
 
 
+RECORDING_TIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
+
+
 ###
 # Enums
 ###
@@ -34,8 +37,8 @@ vec3_xy = vec3(1.0, 1.0, 0.0)
 vec3_xz = vec3(1.0, 0.0, 1.0)
 vec3_yz = vec3(0.0, 1.0, 1.0)
 
-SECOND_TO_MS = 1e-4
-MS_TO_SECOND = 1000
+MS_TO_SECOND = 1e-4
+SECOND_TO_MS = 1000
 
 ###
 # TypeDefs

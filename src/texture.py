@@ -6,6 +6,8 @@ import pygame as pg
 from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture, TextureCube
 from PIL import Image
 
+from settings import Folders
+
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
@@ -14,7 +16,7 @@ class TextureHandler:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
         self.ctx: Context = app.ctx
-        self.texture_folderpath = "textures"
+        self.texture_folderpath = Folders.TEXTURES
         self.textures: dict[int, Texture] = {
             i: self.get_texture(
                 os.path.join(self.texture_folderpath, f"img_{i}.png"), mode=0

@@ -216,9 +216,9 @@ class Model(BaseModel):
         self.program["m_model"].write(self.m_model)
 
         self.program["light.position"].write(self.app.light.position)
-        self.program["light.Ia"].write(self.app.light.Ia)
-        self.program["light.Id"].write(self.app.light.Id)
-        self.program["light.Is"].write(self.app.light.Is)
+        self.program["light.Ia"].write(self.app.light.intensity_ambient)
+        self.program["light.Id"].write(self.app.light.intensity_diffuse)
+        self.program["light.Is"].write(self.app.light.intensity_specular)
 
     @staticmethod
     def get_data(vertices, indices):

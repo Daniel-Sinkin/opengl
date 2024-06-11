@@ -40,17 +40,8 @@ class GraphicsEngine:
         self.delta_time = 0
 
         self.light = Light()
-        try:
-            with open("camera_path_tracer.json", "r") as file:
-                recorded_camera_path_tracer = json.load(file)
-        except FileNotFoundError:
-            self.logger.warn("Could not find 'camera_path_tracer.json'.")
-            recorded_camera_path_tracer = None
         self.camera = Camera(
             self,
-            trace_path_max_length=0,
-            recorded_camera_path_tracer=recorded_camera_path_tracer,
-            trace_path_frame_skip=0,
         )
         self.mesh = Mesh(self)
         self.scene = Scene(self)
@@ -124,7 +115,10 @@ class GraphicsEngine:
         pg.display.flip()
 
     def get_time(self) -> None:
-        self.time = pg.time.get_ticks() * SECOND_TO_MS
+        self.time = pg.time.get_ticks() * MS_TO_SECOND
+
+    def pre_run(self) -> None:
+        self.camera.activate_recording(5 * SECOND_TO_MS)
 
     def run(self) -> None:
         while self.is_running:

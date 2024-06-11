@@ -3,6 +3,8 @@ from typing import Iterable, TypeAlias
 
 import numpy as np
 
+from settings import Folders
+
 Vertex: TypeAlias = tuple[float, float, float]
 VertexIdx: TypeAlias = tuple[int, int, int]
 
@@ -14,7 +16,7 @@ def vertex_idx_transform(
     return np.array(data, dtype=np.float32)
 
 
-def generate_CubeVBO(folderpath="Objects", filename="CubeVBO.npy") -> None:
+def generate_CubeVBO(folderpath=Folders.OBJECTS, filename="CubeVBO.npy") -> None:
     vertices = [
         (-1, -1, 1),
         (1, -1, 1),

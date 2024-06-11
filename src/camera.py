@@ -1,3 +1,5 @@
+import datetime as dt
+import os
 import typing
 from typing import Optional, cast
 
@@ -8,7 +10,7 @@ from glm import mat4
 from pygame.key import ScancodeWrapper
 
 from .constants import *
-from .settings import Settings_Camera
+from .settings import Folders, Settings_Camera
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
@@ -21,9 +23,6 @@ class Camera:
         position: POSITION3D = None,
         yaw=Settings_Camera.INITIAL_YAW,
         pitch=Settings_Camera.INITAL_PITCH,
-        trace_path_max_length=0,
-        trace_path_frame_skip=1,
-        recorded_camera_path_tracer: Optional[list[CAMERA_SERIALIZE_BASE]] = None,
     ):
         self.app: GraphicsEngine = app
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
@@ -33,15 +32,16 @@ class Camera:
         else:
             self.initial_position: POSITION3D = Settings_Camera.INITIAL_POSITION
 
-        self.position = vec3(*self.initial_position)
+        self.position = vec3(self.initial_position)
 
         self.original_fov = Settings_Camera.FOV
         self.fov = self.original_fov
 
-        self.near_plane: float = Settings_Camera.NEAR
-        self.far_plane: float = Settings_Camera.FAR
-        self.speed: float = Settings_Camera.SPEED
-        self.sensitivity: float = Settings_Camera.SENSITIVITY
+        self.near_plane = Settings_Camera.NEAR
+        self.far_plane = Settings_Camera.FAR
+        self.speed = Settings_Camera.SPEED
+        self.speed_turbo = Settings_Camera.SPEED_TUROB
+        self.sensitivity = Settings_Camera.SENSITIVITY
 
         self.up: vec3 = vec3_y
         self.right: vec3 = vec3_x
@@ -50,28 +50,19 @@ class Camera:
         self.initial_yaw, self.initial_pitch = yaw, pitch
         self.yaw, self.pitch = yaw, pitch
 
-        self.m_view = self.get_view_matrix()
-        self.m_proj = self.get_projection_matrix()
+        self.m_view: mat4 = self.get_view_matrix()
+        self.m_proj: mat4 = self.get_projection_matrix()
 
-        self.frame_skip = trace_path_frame_skip
+        self.recording_start = None
+        self.is_recording = False
 
-        self.path_trace_max_length = trace_path_max_length
-        assert not (
-            (recorded_camera_path_tracer is not None)
-            and (self.path_trace_max_length > 0)
-        ), "can't record and play recording at the same time."
-
-        self.path_trace: dict[int, CAMERA_SERIALIZE_BASE] = {}
-
-        self.recorded_camera_path_tracer: Optional[dict[int, CAMERA_SERIALIZE_BASE]] = (
-            recorded_camera_path_tracer
-        )
+        self.recording_buffer: list[tuple[int, CAMERA_SERIALIZE_BASE]] = []
 
     def serialize(
         self,
         serialize_type="json",
         filepath: Optional[str] = None,
-        include_base_settings=True,
+        include_base_settings=False,
     ) -> CAMERA_SERIALIZE_BASE:
         if serialize_type != "json":
             raise NotImplementedError(
@@ -109,7 +100,7 @@ class Camera:
         self.yaw += rel_x * self.sensitivity
         self.pitch -= rel_y * self.sensitivity
 
-        self.pitch = glm.clamp(self.pitch, *Settings_Camera.PITCH_BOUNDS)
+        self.pitch = cast(float, glm.clamp(self.pitch, *Settings_Camera.PITCH_BOUNDS))
 
     def update_camera_vectors(self) -> None:
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
@@ -137,6 +128,19 @@ class Camera:
             self.m_proj: mat4 = self.get_projection_matrix()
         self.m_view: mat4 = self.get_view_matrix()
 
+        if self.is_recording:
+            current_tick = pg.time.get_ticks()
+            time_passed = current_tick - self.recording_start
+
+            if time_passed < self.recording_duration_ms:
+                self.recording_buffer.append(current_tick, self.serialize())
+            else:
+                dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(
+                    RECORDING_TIME_FORMAT
+                )
+                with open(os.path.join(Folders.RECORDINGS_CAMERA, dt_str), "w") as file:
+                    file.write(self.recording_buffer)
+
         if self.path_trace_max_length > 0 and (
             self.app.frame_counter % (self.frame_skip + 1) == 0
         ):
@@ -159,10 +163,10 @@ class Camera:
             self.yaw, self.pitch = self.initial_yaw, self.initial_pitch
             return
 
-        velocity: float = self.speed * self.app.delta_time
-
         if keys[pg.K_LSHIFT]:
-            velocity *= 3
+            velocity: float = self.speed_turbo * self.app.delta_time
+        else:
+            velocity: float = self.speed * self.app.delta_time
 
         if keys[pg.K_w]:
             self.position += self.forward * velocity
@@ -212,3 +216,8 @@ class Camera:
         if new_fov != self.fov:
             self.app.camera_projection_has_changed = True
             self.fov = new_fov
+
+    def activate_recording(self, duration_ms: int) -> None:
+        self.recording_duration_ms: int = duration_ms
+        self.recording_start: int = pg.time.get_ticks()
+        self.is_recording = True

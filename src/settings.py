@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 
 from .constants import *
@@ -9,6 +10,7 @@ class Settings_Camera:
     NEAR: float = 0.1
     FAR: float = 150.0
     SPEED: float = 0.01
+    SPEED_TUROB: float = 0.03
     SENSITIVITY: float = 0.05
 
     INITIAL_POSITION: POSITION3D = (0.0, 0.0, 4.0)
@@ -30,3 +32,15 @@ class Settings_OpenGL:
 class Colors:
     # This should never be visible
     MISSING_TEXTURE: tuple[float, float, float] = (1.0, 0.0, 1.0)
+
+
+@dataclass
+class Folders:
+    RECORDINGS: str = "recordings"
+    RECORDINGS_CAMERA: str = os.path.join(RECORDINGS, "camera")
+    SRC: str = "src"
+    TEXTURES: str = "textures"
+    SHADERS: str = "shaders"
+    UTIL: str = "util"
+    LOGS: str = "logs"
+    OBJECTS: str = "objects"
