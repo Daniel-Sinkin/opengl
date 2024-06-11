@@ -39,6 +39,9 @@ class VertexArrayObject:
             "shadow_sphere": self.get_vao(
                 self.program.programs["shadow_map"], self.vbo.vbo_map["sphere"]
             ),
+            "line": self.get_vao(
+                self.program.programs["line"], self.vbo.vbo_map["line"]
+            ),
         }
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:

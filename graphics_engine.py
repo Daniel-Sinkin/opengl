@@ -19,7 +19,6 @@ from src.camera import Camera
 from src.constants import *
 from src.light import Light
 from src.mesh import Mesh
-from src.model import Cube
 from src.my_logger import setup
 from src.opengl import setup_opengl
 from src.player_controller import PlayerController
@@ -44,7 +43,7 @@ class GraphicsEngine:
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
 
         self.clock = pg.time.Clock()
-        self.time = 0
+        self.time = 0.0
         self.delta_time = 0
         self.delta_time_s = 0
 
@@ -182,7 +181,7 @@ class GraphicsEngine:
             self.camera.update()
             self.player_controller.update()
             self.render()
-            self.delta_time: int = self.clock.tick(60.0)
+            self.delta_time: int = self.clock.tick(Settings_OpenGL.FPS_TARGET)
             self.delta_time_s: float = self.delta_time * MS_TO_SECOND
 
             self.frame_counter += 1

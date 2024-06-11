@@ -33,6 +33,7 @@ class SceneRenderer:
             obj.render()
         self.scene.skybox.render()
         self.scene.quad.render()
+        self.scene.lines.render()
 
     def render(self):
         # Maybe also have a fixed_update function for physics stuff

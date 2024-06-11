@@ -39,6 +39,8 @@ class Settings_OpenGL:
     MAJOR_VERSION: int = 3
     MINOR_VERSION: int = 3
 
+    FPS_TARGET: float = 60.0
+
 
 @dataclass
 class Colors:

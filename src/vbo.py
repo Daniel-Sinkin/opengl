@@ -23,6 +23,7 @@ class VBOHandler:
             "advanced_skybox": SkyBox(ctx),
             "quad": Quad(ctx),
             "sphere": Sphere(ctx),
+            "line": Line(ctx),
         }
 
     def destroy(self):
@@ -222,4 +223,19 @@ class Sphere(VertexBufferObject):
                 )
 
 
-# class Line(VertexBufferObject):
+class Line(VertexBufferObject):
+    @property
+    def buffer_format(self) -> str:
+        return "3f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return ["in_position"]
+
+    # fmt: off
+    def get_vertex_data(self) -> Iterable[POSITION3D]:
+        return np.array([
+            -1.0,  0.0, 0.0,
+             0.0,  0.0, 1.0,
+        ], dtype=np.float32)
+    # fmt: on

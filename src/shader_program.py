@@ -13,6 +13,7 @@ class ShaderProgram:
                 "advanced_skybox",
                 "shadow_map",
                 "quad",
+                "line",
             ]
         }
 

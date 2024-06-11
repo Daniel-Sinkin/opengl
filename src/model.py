@@ -17,6 +17,24 @@ if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
 
+class Line:
+    def __init__(self, app: "GraphicsEngine"):
+        self.app: GraphicsEngine = app
+        self.camera: Camera = self.app.camera
+        self.vao_name = "line"
+        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
+
+        self.program: Program = self.vao.program
+
+    def update(self) -> None:
+        mvp = self.camera.m_proj * self.camera.m_view
+        self.program["mvp"].write(mvp)
+
+    def render(self) -> None:
+        self.update()
+        self.vao.render(mgl.LINES)
+
+
 class Quad:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
@@ -25,13 +43,13 @@ class Quad:
 
         self.program: Program = self.vao.program
 
-    def update(self):
+    def update(self) -> None:
         if self.app.menu_open:
             self.program["menuOpen"] = True
         else:
             self.program["menuOpen"] = False
 
-    def render(self):
+    def render(self) -> None:
         self.vao.render(mgl.TRIANGLE_STRIP)
 
 
