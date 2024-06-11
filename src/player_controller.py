@@ -11,6 +11,7 @@ from . import my_logger
 from .camera import Camera
 from .constants import *
 from .settings import Physics
+from .util import normalize_or_zero
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
@@ -29,6 +30,7 @@ class PlayerController:
 
         self.camera_offset: vec3 = vec3_y()
 
+        assert glm.length(self.camera.forward.xz) > EPS
         self.forward: vec3 = glm.normalize(
             vec3(self.camera.forward.x, 0, self.camera.forward.z)
         )
@@ -37,21 +39,30 @@ class PlayerController:
         # TODO: Add to settings
         self.speed = 0.01
         self.speed_turbo = 0.018
-        self.jump_force = 0.3
+        self.jump_force_y = 0.3
+        self.jump_movespeed_mult = 1.2
 
         # Direction that physics will push you
         self.force_vector: vec3 = vec3_0()
         # The force with which you move
         self.move_force: vec3 = vec3_0()
         self.jump_force_vector = vec3_0()
+        self.aircontrol_vector = vec3_0()
 
         self.is_jumping = False
 
     @property
     def on_ground(self) -> bool:
-        return (self.position.y <= 3.001) and (self.force_vector.y <= 0)
+        return (self.position.y <= 3 + EPS) and (self.force_vector.y <= 0)
+
+    def validate(self) -> None:
+        assert self.speed > 0
+        assert self.speed_turbo > 0
+        assert self.jump_force_y > 0
 
     def update(self) -> None:
+        self.validate()
+
         if self.app.player_controller_mode == PLAYER_CONTROLLER_MODE.FPS:
             self.camera.position = self.position + self.camera_offset
 
@@ -96,16 +107,34 @@ class PlayerController:
             move_direction = glm.normalize(move_direction)
 
         if not self.is_jumping:
-            self.move_force += move_direction
+            self.move_force += move_direction * velocity
+        else:
+            self.aircontrol_vector += (
+                10
+                * (
+                    move_direction
+                    - glm.dot(move_direction, self.jump_force_direction)
+                    * self.jump_force_direction
+                )
+                * self.app.delta_time_s
+            )
 
-        if glm.length(self.move_force) > 0.5:
+        move_magnitude = glm.length(self.move_force)
+        if move_magnitude > self.move_magnitude_map:
             self.move_force = 0.5 * glm.normalize(self.move_force)
+        elif move_magnitude < 0.005:
+            self.move_force = vec3_0()
 
         if keys[pg.K_SPACE] and self.on_ground:
-            self.force_vector.y += self.jump_force
-            self.jump_force_direction = glm.normalize(self.move_force)
+            self.force_vector.y += self.jump_force_y
             self.jump_force_vector = self.move_force
+            if self.move_force == vec3_0():
+                self.jump_force_direction = self.move_force
+            else:
+                self.jump_force_direction = glm.normalize(self.move_force)
+
             self.move_force = vec3_0()
+            self.aircontrol_vector = vec3_0()
             self.is_jumping = True
 
     def fixed_update(self) -> None:
@@ -121,24 +150,31 @@ class PlayerController:
                 Physics.GRAVITATIONAL_CONSTANT * self.app.delta_time_s
             )
 
-        self.position += self.force_vector + self.move_force + self.jump_force_vector
+        self.position += (
+            self.force_vector
+            + self.move_force
+            + self.jump_force_vector
+            + self.aircontrol_vector
+        )
+
+        self.move_force = (
+            35 * self.app.delta_time_s * normalize_or_zero(self.move_force)
+        )
 
         move_magnitude_sq = glm.length2(self.move_force)
-        if move_magnitude_sq > 0.001:
-            self.move_force -= (
-                35 * glm.normalize(self.move_force) * self.app.delta_time_s
-            )
-        else:
-            self.move_force = vec3_0()
 
-        self.jump_force_vector -= (
-            0.2 * glm.l2Norm(self.jump_force_vector) * self.app.delta_time_s
-        )
+        move_force_decay_factor: float = max(1 - 35 * self.app.delta_time_s, 0)
+        self.move_force = move_force_decay_factor * normalize_or_zero(self.move_force)
+
+        self.jump_force_vector *= max(1 - 0.2 * self.app.delta_time_s, 0)
 
         if self.on_ground:
             self.position.y = 3
             self.force_vector.y = 0
+            if self.is_jumping:
+                self.move_force = 1.5 * self.jump_force_vector
             self.jump_force_vector = vec3_0()
             self.jump_force_direction = vec3_0()
+            self.aircontrol_vector = vec3_0()
 
             self.is_jumping = False

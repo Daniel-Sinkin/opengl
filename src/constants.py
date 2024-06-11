@@ -1,14 +1,16 @@
 from enum import IntEnum, auto
 from typing import Callable, NotRequired, TypeAlias, TypedDict
 
+import glm
 import pygame.constants
-from glm import vec3
+from glm import vec1, vec2, vec3, vec4
 
 ###
 # TypeDefs
 ###
 POSITION3D: TypeAlias = tuple[float, float, float]
 VERTEX_IDX: TypeAlias = tuple[int, int, int]
+VEC_N: TypeAlias = vec1 | vec2 | vec3 | vec4
 
 
 ###
@@ -26,6 +28,8 @@ vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
 
 MS_TO_SECOND = 1e-4
 SECOND_TO_MS = 1000
+
+EPS = 1e-4
 
 
 ###
