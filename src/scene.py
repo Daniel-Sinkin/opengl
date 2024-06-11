@@ -15,7 +15,7 @@ class Scene:
         self.object_idx = 0
         self.objects: list[Model] = []
 
-        self.load_cat_circle_animated_scale()
+        self.load_basic()
         self.skybox = SkyBox(app)
 
     def serialize(
@@ -158,7 +158,7 @@ class Scene:
 
         for tex_id, pos, rot, scale in zip(tex_ids, poss, rots, scales):
             self.add_object(
-                Cube(self.app, texture_id=tex_id, pos=pos, rot=rot, scale=scale)
+                Cube(self.app, tex_id=tex_id, pos=pos, rot=rot, scale=scale)
             )
 
     def render(self) -> None:
