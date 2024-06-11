@@ -25,6 +25,16 @@ vec3_z: Callable[[], vec3] = lambda: vec3(0.0, 0.0, 1.0)
 vec3_xy: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 0.0)
 vec3_xz: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 1.0)
 vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
+VEC3_AXIS_PERMUTATIONS = lambda: [
+    vec3_0(),
+    vec3_1(),
+    vec3_x(),
+    vec3_y(),
+    vec3_z(),
+    vec3_xy(),
+    vec3_xz(),
+    vec3_yz(),
+]
 
 MS_TO_SECOND = 1e-4
 SECOND_TO_MS = 1000

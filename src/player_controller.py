@@ -11,7 +11,7 @@ from . import my_logger
 from .camera import Camera
 from .constants import *
 from .settings import Physics
-from .util import normalize_or_zero
+from .util import clamp_vector_above, normalize_or_zero
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
@@ -81,10 +81,8 @@ class PlayerController:
         """
         keys: ScancodeWrapper = pg.key.get_pressed()
 
-        if keys[pg.K_LSHIFT]:
-            velocity: float = self.speed_turbo * self.app.delta_time
-        else:
-            velocity: float = self.speed * self.app.delta_time
+        self.is_sprinting = keys[pg.K_LSHIFT] and self.on_ground
+        velocity: float = self.speed * self.app.delta_time
 
         move_direction = vec3_0()
         needs_normalizing = True
@@ -102,12 +100,13 @@ class PlayerController:
         else:
             needs_normalizing = False
 
-        # Surprisingly this is still faster than dividing sqrt2 even if we cache SQRT2
         if needs_normalizing:
             move_direction = glm.normalize(move_direction)
 
         if not self.is_jumping:
-            self.move_force += move_direction * velocity
+            self.move_force += (
+                move_direction * velocity * (2.0 if self.is_sprinting else 1.0)
+            )
         else:
             self.aircontrol_vector += (
                 10
@@ -119,19 +118,14 @@ class PlayerController:
                 * self.app.delta_time_s
             )
 
-        move_magnitude = glm.length(self.move_force)
-        if move_magnitude > self.move_magnitude_map:
-            self.move_force = 0.5 * glm.normalize(self.move_force)
-        elif move_magnitude < 0.005:
-            self.move_force = vec3_0()
+        self.move_force = clamp_vector_above(
+            self.move_force, 0.5 if self.is_sprinting else 0.3
+        )
 
         if keys[pg.K_SPACE] and self.on_ground:
             self.force_vector.y += self.jump_force_y
             self.jump_force_vector = self.move_force
-            if self.move_force == vec3_0():
-                self.jump_force_direction = self.move_force
-            else:
-                self.jump_force_direction = glm.normalize(self.move_force)
+            self.jump_force_direction = normalize_or_zero(self.move_force)
 
             self.move_force = vec3_0()
             self.aircontrol_vector = vec3_0()
@@ -157,16 +151,16 @@ class PlayerController:
             + self.aircontrol_vector
         )
 
-        self.move_force = (
-            35 * self.app.delta_time_s * normalize_or_zero(self.move_force)
+        move_force_reduction = (
+            20 * self.app.delta_time_s * normalize_or_zero(self.move_force)
         )
-
-        move_magnitude_sq = glm.length2(self.move_force)
-
-        move_force_decay_factor: float = max(1 - 35 * self.app.delta_time_s, 0)
-        self.move_force = move_force_decay_factor * normalize_or_zero(self.move_force)
-
-        self.jump_force_vector *= max(1 - 0.2 * self.app.delta_time_s, 0)
+        move_magnitude = glm.length(self.move_force)
+        if (move_magnitude < glm.length(move_force_reduction)) or (
+            move_magnitude < EPS
+        ):
+            self.move_force = vec3_0()
+        else:
+            self.move_force -= move_force_reduction
 
         if self.on_ground:
             self.position.y = 3

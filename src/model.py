@@ -174,9 +174,15 @@ class Model(BaseModel):
             self.shadow_program["m_proj"].write(self.camera.m_proj)
 
         if self.rot_update is not None:
-            self.m_model = glm.rotate(self.m_model, self.rot.x, vec3_x())
-            self.m_model = glm.rotate(self.m_model, self.rot.y, vec3_y())
-            self.m_model = glm.rotate(self.m_model, self.rot.z, vec3_z())
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.x * self.app.delta_time_s, vec3_x()
+            )
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.y * self.app.delta_time_s, vec3_y()
+            )
+            self.m_model = glm.rotate(
+                self.m_model, self.rot_update.z * self.app.delta_time_s, vec3_z()
+            )
 
     def update_shadow(self):
         self.shadow_program["m_model"].write(self.m_model)
