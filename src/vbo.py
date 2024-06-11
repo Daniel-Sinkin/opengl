@@ -56,9 +56,6 @@ class VertexBufferObject(ABC):
 
 
 class Cube(VertexBufferObject):
-    def __init__(self, ctx: Context):
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "2f 3f 3f"
@@ -85,9 +82,6 @@ class Cube(VertexBufferObject):
 
 
 class NaiveSkyBox(VertexBufferObject):
-    def __init__(self, ctx: Context):
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "3f"
@@ -135,9 +129,6 @@ class NaiveSkyBox(VertexBufferObject):
 
 
 class SkyBox(VertexBufferObject):
-    def __init__(self, ctx: Context):
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "3f"
@@ -158,10 +149,6 @@ class SkyBox(VertexBufferObject):
 
 
 class Cat(VertexBufferObject):
-    def __init__(self, ctx: Context):
-        self.filepath: str = "objects/cat/20430_Cat_v1_NEW.obj"
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "2f 3f 3f"
@@ -171,7 +158,9 @@ class Cat(VertexBufferObject):
         return ["in_texcoord_0", "in_normal", "in_position"]
 
     def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
-        objs = pywavefront.Wavefront(self.filepath, cache=True, parse=True)
+        objs = pywavefront.Wavefront(
+            "objects/cat/20430_Cat_v1_NEW.obj", cache=True, parse=True
+        )
         assert len(objs.materials) == 1
         obj: pywavefront.material.Material = objs.materials.popitem()[1]
 
@@ -184,10 +173,6 @@ class Cat(VertexBufferObject):
 
 
 class Quad(VertexBufferObject):
-    def __init__(self, ctx: Context):
-
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "2f"
@@ -211,9 +196,6 @@ class Quad(VertexBufferObject):
 
 
 class Sphere(VertexBufferObject):
-    def __init__(self, ctx: Context):
-        super().__init__(ctx)
-
     @property
     def buffer_format(self) -> str:
         return "3f 3f 2f"
@@ -238,3 +220,6 @@ class Sphere(VertexBufferObject):
                 raise RuntimeError(
                     "objects/SubeVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
                 )
+
+
+# class Line(VertexBufferObject):
