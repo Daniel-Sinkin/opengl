@@ -6,7 +6,7 @@ import pywavefront
 import pywavefront.material
 from moderngl import Buffer, Context, Program
 
-from util.vertex_data_generator import generate_CubeVBO  # pylint: disable=import-error
+from util.vertex_data_generator import generate_CubeVBO  # type: line
 
 from .constants import *
 
