@@ -10,12 +10,33 @@ if typing.TYPE_CHECKING:
 class Scene:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
-        self.objects = []
-        self.load_cat_circle()
-        self.skybox = AdvancedSkyBox(app)
+        # Tracks a unique index for every object
+        self.object_idx = 0
+        self.objects: list[Model] = []
 
-    def add_object(self, obj) -> None:
+        self.load_cat_circle()
+        self.skybox = SkyBox(app)
+
+    def serialize(
+        self, type="json", filepath=None
+    ) -> dict[int, BASEMODEL_SERIALIZE_DICT]:
+        if type != "json":
+            raise NotImplementedError(
+                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(type)
+            )
+        dict_: dict[int, BASEMODEL_SERIALIZE_DICT] = {
+            obj.scene_idx: obj.serialize(type, filepath=None, include_scene_idx=False)
+            for obj in self.objects
+        }
+
+    def add_object(self, obj: Model, log=False) -> None:
+        log = True
         self.objects.append(obj)
+        obj.scene_idx = self.object_idx
+        if log:
+            self.app.logger.info(f"Registered object: {obj}")
+
+        self.object_idx += 1
 
     # TODO: Add serializing and deserializing to scenes
     #       Idea I had was to use the fact that we have 3 floats for each
@@ -27,10 +48,10 @@ class Scene:
         n, s = 30, 2
         for x in range(-n, n, s):
             for z in range(-n, n, s):
-                self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
+                self.add_object(Cube(self.app, tex_id=(x + z) % 3, pos=vec3(x, -s, z)))
         self.add_object(Cat(self.app, pos=vec3(0, -1, -15)))
 
-        self.add_object(MovingCube(self.app, pos=vec3(5, 5, 5), rot=0.002 * vec3_xy))
+        self.add_object(Cube(self.app, pos=vec3(5, 5, 5), rot_update=0.002 * vec3_xy))
 
     def load_basic(self) -> None:
         n, s = 30, 3

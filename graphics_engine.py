@@ -1,9 +1,13 @@
+import os
 import sys
 import typing
 from logging import Logger
 from typing import Optional
 
 import moderngl as mgl
+
+# Suppresses welcome message
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as pg
 from glm import vec3
 
@@ -22,6 +26,8 @@ from src.settings import Colors, Settings_OpenGL
 
 class GraphicsEngine:
     def __init__(self, win_size: Optional[tuple[int, int]] = None):
+        self.logger: Logger = my_logger.setup("GraphicsEngine")
+
         self.window_size: tuple[int, int] = Settings_OpenGL.WINDOW_SIZE
         setup_opengl(window_size=self.window_size)
 
@@ -37,8 +43,6 @@ class GraphicsEngine:
         self.mesh = Mesh(self)
         self.scene = Scene(self)
         self.scene_renderer = SceneRenderer(self)
-
-        self.logger: Logger = my_logger.setup("GraphicsEngine")
 
         self.is_running = True
         self.frame_counter = 0
@@ -76,7 +80,7 @@ class GraphicsEngine:
                         pg.event.set_grab(False)
                         pg.mouse.set_visible(True)
                     if event.key == pg.K_SPACE:
-                        self.camera.reset()
+                        self.camera.reset_to_inital_state()
 
                 case pg.MOUSEBUTTONDOWN:
                     if self.mouse_mode == MouseMode.FREELOOK and event.button in (
@@ -112,7 +116,7 @@ class GraphicsEngine:
         while self.is_running:
             self.get_time()
             self.check_events()
-            self.camera.move()
+            self.camera.move_floating_camera()
             self.camera.update()
             self.render()
             self.delta_time: int = self.clock.tick(60.0)

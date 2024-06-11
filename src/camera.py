@@ -3,6 +3,7 @@ import typing
 import glm
 import pygame as pg
 from glm import mat4
+from pygame.key import ScancodeWrapper
 
 from .constants import *
 from .settings import Settings_Camera
@@ -15,7 +16,7 @@ class Camera:
     def __init__(
         self,
         app: "GraphicsEngine",
-        position: POINT = None,
+        position: POSITION3D = None,
         yaw=Settings_Camera.INITIAL_YAW,
         pitch=Settings_Camera.INITAL_PITCH,
     ):
@@ -23,9 +24,9 @@ class Camera:
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
 
         if position is not None:
-            self.initial_position: POINT = position
+            self.initial_position: POSITION3D = position
         else:
-            self.initial_position: POINT = Settings_Camera.INITIAL_POSITION
+            self.initial_position: POSITION3D = Settings_Camera.INITIAL_POSITION
 
         self.position = vec3(*self.initial_position)
 
@@ -70,9 +71,12 @@ class Camera:
             self.m_proj = self.get_projection_matrix()
         self.m_view: mat4 = self.get_view_matrix()
 
-    # TODO: Move this into the event handler of the renderer
-    def move(self) -> None:
-        keys = pg.key.get_pressed()
+    def move_floating_camera(self) -> None:
+        """
+        When controlling a floating camera we can just pass through objects so we
+        don't need any bound checks.
+        """
+        keys: ScancodeWrapper = pg.key.get_pressed()
         if keys[pg.K_SPACE]:
             self.position = glm.vec3(self.initial_position)
             self.yaw, self.pitch = self.initial_yaw, self.initial_pitch
@@ -107,7 +111,10 @@ class Camera:
             self.far_plane,
         )
 
-    def reset(self) -> None:
+    def reset_to_inital_state(self) -> None:
+        """
+        Moves and resets the camera to the state it had when initialized.
+        """
         self.position = vec3(self.initial_position)
         self.yaw, self.pitch = (
             self.initial_yaw,
@@ -117,6 +124,11 @@ class Camera:
         self.camera_projection_has_changed = True
 
     def adjust_fov(self, amount: float) -> None:
+        """
+        Increase or decrease the fov (within the bounds), usually called from
+        the MOUSEWHEEL(UP/DOWN) event.
+        """
+
         new_fov = typing.cast(
             float, glm.clamp(self.fov + amount, *Settings_Camera.FOV_BOUNDS)
         )

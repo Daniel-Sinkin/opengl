@@ -34,7 +34,7 @@ class VertexBufferObject(ABC):
         self.vbo: Buffer = self.get_vbo()
 
     @abstractmethod
-    def get_vertex_data(self) -> Iterable[POINT]: ...
+    def get_vertex_data(self) -> Iterable[POSITION3D]: ...
 
     @property
     @abstractmethod
@@ -45,7 +45,7 @@ class VertexBufferObject(ABC):
     def attributes(self) -> list[str]: ...
 
     def get_vbo(self) -> Buffer:
-        vertex_data: Iterable[POINT] = self.get_vertex_data()
+        vertex_data: Iterable[POSITION3D] = self.get_vertex_data()
         return self.ctx.buffer(vertex_data)
 
     def destroy(self) -> None:
@@ -95,7 +95,7 @@ class NaiveSkyBox(VertexBufferObject):
 
     @staticmethod
     def get_data(
-        vertices: Iterable[POINT], indices: Iterable[VERTEX_IDX]
+        vertices: Iterable[POSITION3D], indices: Iterable[VERTEX_IDX]
     ) -> np.ndarray[np.float32]:
         data = [vertices[ind] for triangle in indices for ind in triangle]
         return np.array(data, dtype=np.float32)

@@ -11,7 +11,7 @@ class Settings_Camera:
     SPEED: float = 0.01
     SENSITIVITY: float = 0.05
 
-    INITIAL_POSITION: POINT = (0.0, 0.0, 4.0)
+    INITIAL_POSITION: POSITION3D = (0.0, 0.0, 4.0)
     INITIAL_YAW: float = -90.0
     INITAL_PITCH: float = 16.0
 

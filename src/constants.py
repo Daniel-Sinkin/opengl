@@ -1,11 +1,18 @@
 from enum import IntEnum, auto
-from typing import TypeAlias
+from typing import Callable, NotRequired, TypeAlias, TypedDict
 
 import pygame.constants
 from glm import vec3
 
 
 # fmt: off
+###
+# Strings
+###
+# Dev
+class DevStringsLambda:
+    UNSUPPORTED_OBJECT_SERIALIZATION_TYPE: Callable[type, str] = lambda type: f"Unsupported object serialization type {type=}."
+
 ###
 # Enums
 ###
@@ -32,8 +39,20 @@ MS_TO_SECOND = 1000
 ###
 # TypeDefs
 ###
-POINT: TypeAlias = tuple[float, float, float]
+POSITION3D: TypeAlias = tuple[float, float, float]
 VERTEX_IDX: TypeAlias = tuple[int, int, int]
+
+class BASEMODEL_SERIALIZE_DICT(TypedDict):
+    vao_name: str
+    texture_id: int
+    pos: POSITION3D
+    rot: POSITION3D
+    scale: POSITION3D
+
+class MODEL_SERIALIZE_DICT(BASEMODEL_SERIALIZE_DICT):
+    rot_update: POSITION3D
+
+SCENE_SERIALIZE_DICT: TypeAlias = dict[int, BASEMODEL_SERIALIZE_DICT]
 
 ###
 # Key Mappings

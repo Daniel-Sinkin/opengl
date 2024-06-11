@@ -3,6 +3,9 @@ import os
 from logging import Handler, Logger
 from typing import Optional
 
+# Suppresses warnings from pywavefront when importing incompletely imported OBJ files
+logging.getLogger("pywavefront").setLevel(logging.ERROR)
+
 
 def setup(project_name: str, logger_folderpath: str = "logs") -> Logger:
     """
