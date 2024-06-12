@@ -164,6 +164,7 @@ cython_debug/
 textures/
 objects/
 recordings/
+data/
 
 *.json
 *.npy
@@ -173,3 +174,6 @@ recordings/
 *.jpg
 *.png
 *.bmp
+
+*.bin
+*.mtl
