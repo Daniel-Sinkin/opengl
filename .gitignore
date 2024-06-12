@@ -163,8 +163,13 @@ cython_debug/
 
 textures/
 objects/
+recordings/
 
 *.json
 *.npy
 *.wav
 *.obj
+
+*.jpg
+*.png
+*.bmp
