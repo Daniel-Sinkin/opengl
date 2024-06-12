@@ -7,6 +7,7 @@ from typing import Optional
 import moderngl as mgl
 import numpy as np
 import ujson as json
+from freetype import Face
 from glm import vec3
 from PIL import Image
 
@@ -73,6 +74,10 @@ class GraphicsEngine:
         self.state_transition_sound = pygame.mixer.Sound(
             "data/sound/state_transition.wav"
         )
+
+        # TODO: Set this in setting
+        font_face = Face("path/to/your/font.ttf")  # Specify the path to your font file
+        font_face.set_char_size(48 * 64)
 
     def check_events(self) -> None:
         for event in pg.event.get():
