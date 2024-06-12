@@ -79,7 +79,7 @@ class Camera:
             dict_["far_plane"] = round(self.far_plane, 4)
             dict_["speed"] = round(self.speed, 4)
             dict_["sensitivity"] = round(self.sensitivity, 4)
-            dict_ = cast(CameraSerialize, dict_)
+            dict_: CameraSerialize = cast(CameraSerialize, dict_)
 
         if filepath is not None:
             json.dump(dict_, filepath)
