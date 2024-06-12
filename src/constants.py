@@ -57,6 +57,18 @@ class DevStringsLambda:
 RECORDING_TIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
 
 
+@dataclass
+class VBO:
+    IN_TEXCOORD_N = lambda n: f"in_texcoord_{n}"
+    IN_TEXCOORD_0 = IN_TEXCOORD_N(0)
+    IN_NORMAL = "in_normal"
+    IN_POSITION = "in_position"
+
+    FILE_CUBE = "CubeVBO.npy"
+    FILE_CYLINDER = "CylinderVBO.npy"
+    FILE_SPHERE = "SphereVBO.npy"
+
+
 ###
 # Enums
 ###

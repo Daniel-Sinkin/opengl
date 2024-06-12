@@ -3,6 +3,10 @@ from typing import Iterable, TypeAlias
 
 import numpy as np
 
+from .constants import *
+from .settings import Folders
+
+# TODO: Rethink the type hinting for this
 Vertex: TypeAlias = tuple[float, float, float]
 VertexIdx: TypeAlias = tuple[int, int, int]
 
@@ -14,7 +18,7 @@ def vertex_idx_transform(
     return np.array(data, dtype=np.float32)
 
 
-def generate_CubeVertices(folderpath="objects", filename="CubeVBO.npy") -> None:
+def generate_CubeVertices(folderpath=Folders.OBJECTS, filename=VBO.FILE_CUBE) -> None:
     vertices = [
         (-1, -1, 1),
         (1, -1, 1),
@@ -76,8 +80,8 @@ def generate_CubeVertices(folderpath="objects", filename="CubeVBO.npy") -> None:
 
 
 def generate_SphereVertices(
-    folderpath="objects",
-    filename="SphereVBO.npy",
+    folderpath=Folders.OBJECTS,
+    filename=VBO.FILE_SPHERE,
     radius: float = 1.0,
     sectors: int = 36,
     stacks: int = 18,
@@ -137,8 +141,8 @@ def generate_SphereVertices(
 
 
 def generate_CylinderVertices(
-    folderpath="objects",
-    filename="CylinderVBO.npy",
+    folderpath=Folders.OBJECTS,
+    filename=VBO.FILE_CYLINDER,
     radius: float = 1.0,
     height: float = 2.0,
     sectors: int = 36,

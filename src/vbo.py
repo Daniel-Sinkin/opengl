@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias, cast
 
@@ -6,16 +7,26 @@ import pywavefront
 import pywavefront.material
 from moderngl import Buffer, Context, Program
 
-from util.vertex_data_generator import (
+from . import my_logger
+from .constants import *
+from .settings import Folders
+from .vertex_data_generator import (
     generate_CubeVertices,
     generate_CylinderVertices,
     generate_SphereVertices,
 )
 
-from .constants import *
-
 if TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
+
+logger = my_logger.setup("VBO")
+
+# Don't care about the retvals of the functions as we read from drive
+FILENAME_TO_GENERATOR_FUNC_MAP: dict[str, Callable[[], any]] = {
+    VBO.FILE_CUBE: generate_CubeVertices,
+    VBO.FILE_CYLINDER: generate_CylinderVertices,
+    VBO.FILE_SPHERE: generate_SphereVertices,
+}
 
 
 class VBOHandler:
@@ -61,30 +72,72 @@ class VertexBufferObject(ABC):
         self.vbo.release()
 
 
-class Cube(VertexBufferObject):
+class VBOFromFile(VertexBufferObject):
+    def __init__(self, ctx: Context, filename: str):
+        if "." not in filename:
+            logger.warning(
+                f"Adding '.npy' to the end of VBO file {filename=}, please fix the function call."
+            )
+            filename = filename + ".npy"
+        elif not filename.endswith(".npy"):
+            raise NotImplementedError(
+                "Only npy files supported for now. '.obj' files coming soon."
+            )
+
+        self.filename: str = filename
+        self.filepath: str = os.path.join(Folders.OBJECTS, self.filename)
+
+        super().__init__(ctx)
+
+    def get_vertex_data(self) -> np.ndarray:
+        if not os.path.exists(self.filepath):
+            logger.warning(f"{self.filepath=} does not exist! Trying to create it now.")
+            FILENAME_TO_GENERATOR_FUNC_MAP[self.filename]()
+            if not os.path.exists(self.filepath):
+                raise RuntimeError(
+                    f"{self.filepath=} does not exist despite calling the generation function."
+                )
+
+        return cast(np.ndarray, np.load(os.path.join(Folders.OBJECTS, self.filename)))
+
+
+class Cube(VBOFromFile):
+    def __init__(self, ctx: Context):
+        super().__init__(ctx, VBO.FILE_CUBE)
+
     @property
     def buffer_format(self) -> str:
         return "2f 3f 3f"
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_texcoord_0", "in_normal", "in_position"]
+        return [VBO.IN_TEXCOORD_0, VBO.IN_NORMAL, VBO.IN_POSITION]
 
-    def get_vertex_data(self) -> np.ndarray:
-        try:
-            return cast(np.ndarray, np.load("objects/CubeVBO.npy"))
-        except FileNotFoundError:
-            # TODO: Attach logger and replace these prints with proper logging
-            print(
-                "objects/CubeVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
-            )
-            generate_CubeVertices()
-            try:
-                return cast(np.ndarray, np.load("objects/CubeVBO.npy"))
-            except FileNotFoundError:
-                raise RuntimeError(
-                    "objects/CubeVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
-                )
+
+class Sphere(VBOFromFile):
+    def __init__(self, ctx: Context):
+        super().__init__(ctx, VBO.FILE_SPHERE)
+
+    @property
+    def buffer_format(self) -> str:
+        return "3f 3f 2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return [VBO.IN_NORMAL, VBO.IN_POSITION, VBO.IN_TEXCOORD_0]
+
+
+class Cylinder(VBOFromFile):
+    def __init__(self, ctx: Context):
+        super().__init__(ctx, VBO.FILE_CYLINDER)
+
+    @property
+    def buffer_format(self) -> str:
+        return "3f 3f 2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return [VBO.IN_NORMAL, VBO.IN_POSITION, VBO.IN_TEXCOORD_0]
 
 
 class NaiveSkyBox(VertexBufferObject):
@@ -94,7 +147,7 @@ class NaiveSkyBox(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_position"]
+        return [VBO.IN_POSITION]
 
     @staticmethod
     def get_data(
@@ -141,7 +194,7 @@ class SkyBox(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_position"]
+        return [VBO.IN_POSITION]
 
     def get_vertex_data(self) -> np.ndarray:
         z = 1 - 1e-4
@@ -161,7 +214,7 @@ class Cat(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_texcoord_0", "in_normal", "in_position"]
+        return [VBO.IN_TEXCOORD_0, VBO.IN_NORMAL, VBO.IN_POSITION]
 
     def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
         objs = pywavefront.Wavefront(
@@ -185,7 +238,7 @@ class Quad(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_position"]
+        return [VBO.IN_POSITION]
 
     # fmt: off
     def get_vertex_data(self) -> Iterable[POSITION2D]:
@@ -201,61 +254,6 @@ class Quad(VertexBufferObject):
     # fmt: on
 
 
-class Sphere(VertexBufferObject):
-    @property
-    def buffer_format(self) -> str:
-        return "3f 3f 2f"
-
-    @property
-    def attributes(self) -> list[str]:
-        return ["in_normal", "in_position", "in_texcoord_0"]
-
-    # fmt: off
-    def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
-        try:
-            return cast(np.ndarray, np.load("objects/SphereVBO.npy"))
-        except FileNotFoundError:
-            # TODO: Attach logger and replace these prints with proper logging
-            print(
-                "objects/SphereVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
-            )
-            generate_SphereVertices()
-            try:
-                return cast(np.ndarray, np.load("objects/SphereVBO.npy"))
-            except FileNotFoundError:
-                raise RuntimeError(
-                    "objects/SphereVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
-                )
-
-
-# TODO: Make a class for vertex loaders
-class Cylinder(VertexBufferObject):
-    @property
-    def buffer_format(self) -> str:
-        return "3f 3f 2f"
-
-    @property
-    def attributes(self) -> list[str]:
-        return ["in_normal", "in_position", "in_texcoord_0"]
-
-    # fmt: off
-    def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
-        try:
-            return cast(np.ndarray, np.load("objects/CylinderVBO.npy"))
-        except FileNotFoundError:
-            # TODO: Attach logger and replace these prints with proper logging
-            print(
-                "objects/CylinderVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
-            )
-            generate_CylinderVertices()
-            try:
-                return cast(np.ndarray, np.load("objects/CylinderVBO.npy"))
-            except FileNotFoundError:
-                raise RuntimeError(
-                    "objects/CylinderVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
-                )
-
-
 class Coordinate_Axis(VertexBufferObject):
     @property
     def buffer_format(self) -> str:
@@ -263,7 +261,7 @@ class Coordinate_Axis(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_position", "in_color"]
+        return [VBO.IN_POSITION, "in_color"]
 
     # fmt: off
     def get_vertex_data(self) -> Iterable[POSITION3D]:
