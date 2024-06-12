@@ -16,16 +16,16 @@ from PIL import Image
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as pg
 
-from src import my_logger, settings
-from src.camera import Camera
-from src.constants import *
-from src.light import Light
-from src.mesh import Mesh
-from src.my_logger import setup
-from src.opengl import setup_opengl
-from src.player_controller import PlayerController
-from src.scene import Scene
-from src.scene_renderer import SceneRenderer
+from . import my_logger, settings
+from .camera import Camera
+from .constants import *
+from .light import Light
+from .mesh import Mesh
+from .my_logger import setup
+from .opengl import setup_opengl
+from .player_controller import PlayerController
+from .scene import Scene
+from .scene_renderer import SceneRenderer
 
 
 # TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
@@ -232,12 +232,3 @@ class GraphicsEngine:
             screen_surf, os.path.join(settings.Folders.RECORDINGS_SCREENSHOTS, filename)
         )
         self.sound_screenshot.play()
-
-
-def main() -> None:
-    graphics_engine = GraphicsEngine()
-    graphics_engine.run()
-
-
-if __name__ == "__main__":
-    main()

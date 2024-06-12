@@ -14,7 +14,7 @@ from .settings import Physics
 from .util import clamp_vector_above, normalize_or_zero
 
 if typing.TYPE_CHECKING:
-    from graphics_engine import GraphicsEngine
+    from .graphics_engine import GraphicsEngine
 
 
 class PlayerController:

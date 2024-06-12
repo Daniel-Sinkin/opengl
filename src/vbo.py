@@ -18,7 +18,7 @@ from .vertex_data_generator import (
 )
 
 if TYPE_CHECKING:
-    from graphics_engine import GraphicsEngine
+    from .graphics_engine import GraphicsEngine
 
 logger = my_logger.setup("VBO")
 
