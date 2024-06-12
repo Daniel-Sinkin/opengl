@@ -158,8 +158,30 @@ class Line(BaseModel):
         self.program["m_model"].write(self.m_model)
 
     @staticmethod
-    def between_two_points(p: POSITION3D, q: POSITION3D) -> "line":
-        pass
+    def between_two_points(p: vec3, q: vec3) -> "Line":
+        # It's not faster to compute distance and divide it rather than normalizing via that function.
+        distance = glm.distance(p, q)
+        if distance < EPS:
+            raise ValueError("Can't put a line between a point and itself!")
+
+        direction = glm.normalize(q - p)
+
+        translation_matric: mat4 = glm.translate(glm.mat4(), p)
+
+        scaling_matrix: mat4 = glm.scale(glm.mat4(), glm.vec3(distance, 1.0, 1.0))
+
+        angle: float = glm.acos(direction.x)
+        rotation_axis: vec3 = glm.cross(vec3_x(), direction)
+
+        if glm.length(rotation_axis) > EPS:
+            rotation_axis = glm.normalize(rotation_axis)
+            rotation_matrix = glm.rotate(glm.mat4(1.0), angle, rotation_axis)
+        else:
+            rotation_matrix = glm.mat4(1.0)
+
+        transformation_matrix = translation_matric * rotation_axis * scaling_matrix
+
+        start_point = vec4()
 
 
 class CoordinateAxis(BaseModel):
