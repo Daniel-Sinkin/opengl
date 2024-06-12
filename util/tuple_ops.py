@@ -10,7 +10,18 @@ to use lists if we want to modify them often and don't iterate over them often.
 
 from typing import Optional, TypeVar
 
+from typing_extensions import Protocol
+
 T = TypeVar("T", int, float)
+
+
+class SupportsRichComparison(Protocol):
+    def __lt__(self, other: "SupportsRichComparison") -> bool: ...
+    def __le__(self, other: "SupportsRichComparison") -> bool: ...
+    def __gt__(self, other: "SupportsRichComparison") -> bool: ...
+    def __ge__(self, other: "SupportsRichComparison") -> bool: ...
+    def __eq__(self, other: "SupportsRichComparison") -> bool: ...
+    def __ne__(self, other: "SupportsRichComparison") -> bool: ...
 
 
 def tuple_op_check(*tuples: tuple[T, ...]) -> None:
@@ -18,10 +29,15 @@ def tuple_op_check(*tuples: tuple[T, ...]) -> None:
 
     length_of_first: int = len(tuples[0])
     assert isinstance(tuples[0], tuple)
+    type_of_first = type(tuples[0][0])
+    for x in tuples[0][1:]:
+        assert isinstance(x, type_of_first)
 
     for tuple_ in tuples[1:]:
         assert isinstance(tuple_, tuple)
         assert len(tuple_) == length_of_first
+        for x in tuple_:
+            assert isinstance(x, type_of_first)
 
 
 def tuple_sum(*tuples: tuple[T, ...]) -> tuple[T]:
@@ -59,31 +75,34 @@ def tuple_div_safe(x: tuple[float], y: tuple[float]) -> Optional[tuple[float]]:
         return None
 
 
-def tuple_leq(x: tuple, y: tuple) -> bool:
+S = TypeVar("S", bound=SupportsRichComparison)
+
+
+def tuple_leq(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return all(xp <= yp for (xp, yp) in zip(x, y))
 
 
-def tuple_less(x: tuple, y: tuple) -> bool:
+def tuple_less(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return all(xp < yp for (xp, yp) in zip(x, y))
 
 
-def tuple_geq(x: tuple[T, ...], y: tuple[T, ...]) -> bool:
+def tuple_geq(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return all(xp >= yp for (xp, yp) in zip(x, y))
 
 
-def tuple_greater(x: tuple[T, ...], y: tuple[T, ...]) -> bool:
+def tuple_greater(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return all(xp > yp for (xp, yp) in zip(x, y))
 
 
-def tuple_eq(x: tuple[T, ...], y: tuple[T, ...]) -> bool:
+def tuple_eq(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return all(xp == yp for (xp, yp) in zip(x, y))
 
 
-def tuple_neq(x: tuple[T, ...], y: tuple[T, ...]) -> bool:
+def tuple_neq(x: tuple[S], y: tuple[S]) -> bool:
     tuple_op_check(x, y)
     return any(xp != yp for (xp, yp) in zip(x, y))
