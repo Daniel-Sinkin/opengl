@@ -19,7 +19,7 @@ class Scene:
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)
-        self.ray = Ray(app, pos=vec3_xy(4.0), scale=vec3_1(30.0))
+        self.ray = Line(app, pos=vec3_xy(4.0), scale=vec3_1(30.0))
 
     def serialize(
         self, serialize_type="json", filepath=None

@@ -42,7 +42,7 @@ class VBOHandler:
             "cylinder": Cylinder(ctx),
             "coordinate_axis": Coordinate_Axis(ctx),
             "ui_text": UI_text(ctx),
-            "ray": Ray(ctx),
+            "line": Line(ctx),
         }
 
     def destroy(self):
@@ -279,7 +279,7 @@ class Coordinate_Axis(VertexBufferObject):
     # fmt: on
 
 
-class Ray(VertexBufferObject):
+class Line(VertexBufferObject):
     @property
     def buffer_format(self) -> str:
         return "3f"

@@ -129,7 +129,7 @@ class BaseModel:
         return dict_
 
 
-class Ray(BaseModel):
+class Line(BaseModel):
     def __init__(
         self,
         app: "GraphicsEngine",
@@ -139,7 +139,7 @@ class Ray(BaseModel):
     ):
         super().__init__(
             app,
-            "ray",
+            "line",
             texture_id=None,
             pos=pos,
             rot=rot,
@@ -156,6 +156,10 @@ class Ray(BaseModel):
         if self.app.camera_projection_has_changed:
             self.program["m_proj"].write(self.camera.m_proj)
         self.program["m_model"].write(self.m_model)
+
+    @staticmethod
+    def between_two_points(p: POSITION3D, q: POSITION3D) -> "line":
+        pass
 
 
 class CoordinateAxis(BaseModel):
