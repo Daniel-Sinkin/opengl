@@ -18,6 +18,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterable,
+    Literal,
     NotRequired,
     Optional,
     TypeAlias,
