@@ -43,11 +43,11 @@ class PlayerController:
         self.jump_movespeed_mult = 1.2
 
         # Direction that physics will push you
-        self.force_vector: vec3 = vec3_0()
+        self.force_vector: vec3 = vec3()
         # The force with which you move
-        self.move_force: vec3 = vec3_0()
-        self.jump_force_vector = vec3_0()
-        self.aircontrol_vector = vec3_0()
+        self.move_force: vec3 = vec3()
+        self.jump_force_vector = vec3()
+        self.aircontrol_vector = vec3()
 
         self.is_jumping = False
 
@@ -84,7 +84,7 @@ class PlayerController:
         self.is_sprinting = keys[pg.K_LSHIFT] and self.on_ground
         velocity: float = self.speed * self.app.delta_time
 
-        move_direction = vec3_0()
+        move_direction = vec3()
         needs_normalizing = True
         if keys[pg.K_w]:
             move_direction += self.forward
@@ -127,8 +127,8 @@ class PlayerController:
             self.jump_force_vector = self.move_force
             self.jump_force_direction = normalize_or_zero(self.move_force)
 
-            self.move_force = vec3_0()
-            self.aircontrol_vector = vec3_0()
+            self.move_force = vec3()
+            self.aircontrol_vector = vec3()
             self.is_jumping = True
 
     def fixed_update(self) -> None:
@@ -158,7 +158,7 @@ class PlayerController:
         if (move_magnitude < glm.length(move_force_reduction)) or (
             move_magnitude < EPS
         ):
-            self.move_force = vec3_0()
+            self.move_force = vec3()
         else:
             self.move_force -= move_force_reduction
 
@@ -167,8 +167,8 @@ class PlayerController:
             self.force_vector.y = 0
             if self.is_jumping:
                 self.move_force = 1.5 * self.jump_force_vector
-            self.jump_force_vector = vec3_0()
-            self.jump_force_direction = vec3_0()
-            self.aircontrol_vector = vec3_0()
+            self.jump_force_vector = vec3()
+            self.jump_force_direction = vec3()
+            self.aircontrol_vector = vec3()
 
             self.is_jumping = False

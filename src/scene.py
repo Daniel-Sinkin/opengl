@@ -133,7 +133,7 @@ class Scene:
     def load_basic_example(self) -> None:
         tex_ids: list[int] = [0, 1, 2, 0, 1, 2, 0]
         poss: list[vec3] = [
-            vec3_0(),
+            vec3(),
             -2.5 * vec3_x(),
             2.5 * vec3_x(),
             -5.0 * vec3_x(),
@@ -142,7 +142,7 @@ class Scene:
             7.5 * vec3_x(),
         ]
         rots: list[vec3] = [
-            vec3_0(),
+            vec3(),
             45 * vec3_x(),
             -45 * vec3_x(),
             90 * vec3_x(),

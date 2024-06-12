@@ -9,7 +9,7 @@ class Light:
     def __init__(self, position=(50, 50, -10), color=(1, 1, 1)):
         self.position = vec3(position)
         self.color = vec3(color)
-        self.direction: vec3 = vec3_0()
+        self.direction: vec3 = vec3()
 
         self.intensity_ambient: vec3 = 0.06 * self.color
         self.intensity_diffuse: vec3 = 0.8 * self.color

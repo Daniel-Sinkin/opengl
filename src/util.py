@@ -37,7 +37,7 @@ def clamp_vector_above(v: vec3, upper_bound: float, lower_bound: float = EPS) ->
     assert lower_bound < upper_bound
 
     normalized: vec3 = normalize_or_zero(v)
-    if normalized == vec3_0():
+    if normalized == vec3():
         return normalized
 
     if glm.length(v) < lower_bound:
