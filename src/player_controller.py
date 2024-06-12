@@ -1,11 +1,8 @@
-import logging
-import typing
-from logging import Logger
+from . import *
 
-import glm
-import pygame as pg
-from glm import vec3
-from pygame.key import ScancodeWrapper
+""""""
+
+import logging
 
 from . import my_logger
 from .camera import Camera
@@ -13,13 +10,14 @@ from .constants import *
 from .settings import Physics
 from .util import clamp_vector_above, normalize_or_zero
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
 
 class PlayerController:
     def __init__(self, app: "GraphicsEngine", initial_position: POSITION3D = (0, 3, 0)):
         self.logger: Logger = my_logger.setup("PlayerController")
+        # TODO: Move this into settings
         self.logger.setLevel(logging.DEBUG)
 
         self.app: GraphicsEngine = app
@@ -79,7 +77,7 @@ class PlayerController:
         When controlling a floating camera we can just pass through objects so we
         don't need any bound checks.
         """
-        keys: ScancodeWrapper = pg.key.get_pressed()
+        keys: pg.ScancodeWrapper = pg.key.get_pressed()
 
         self.is_sprinting = keys[pg.K_LSHIFT] and self.on_ground
         velocity: float = self.speed * self.app.delta_time

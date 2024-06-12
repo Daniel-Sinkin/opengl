@@ -1,12 +1,18 @@
+from . import *
+
+""""""
+
 import glm
 from glm import mat4, vec3
 
 from .constants import *
 
 
-# https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
+# TODO: Refactor the way we handle scenes and light, after all light is just a part of a scene
+#       not an intrinsic part of the renderer.
 class Light:
-    def __init__(self, position=(50, 50, -10), color=(1, 1, 1)):
+    # https://learnopengl.com/Advanced-Lighting/Advanced-Lighting
+    def __init__(self, position=(50.0, 50.0, -10.0), color=(1.0, 1.0, 1.0)):
         self.position = vec3(position)
         self.color = vec3(color)
         self.direction: vec3 = vec3()

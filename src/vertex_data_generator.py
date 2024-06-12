@@ -3,21 +3,23 @@ from typing import Iterable, TypeAlias
 
 import numpy as np
 
-from .constants import *
+from .constants import VBO
 from .settings import Folders
 
-# TODO: Rethink the type hinting for this
-Vertex: TypeAlias = tuple[float, float, float]
-VertexIdx: TypeAlias = tuple[int, int, int]
 
-
+# TODO: Either remove this by inlining the functionality, solve it in another way or make this func
+#       more general, only using it for one construction feels weird.
+# TODO: Improve the type hinting
 def vertex_idx_transform(
-    vertices: Iterable[Vertex], indices: Iterable[VertexIdx]
+    vertices: list[tuple[float, float, float]], indices: list[tuple[int, int, int]]
 ) -> np.ndarray[np.float32]:
     data = [vertices[ind] for triangle in indices for ind in triangle]
     return np.array(data, dtype=np.float32)
 
 
+# TODO: Rewrite this, this is from a tutorial I watched when starting out and I don't like the
+#       approach that was taken.
+# TODO: Improve the type hinting
 def generate_CubeVertices(folderpath=Folders.OBJECTS, filename=VBO.FILE_CUBE) -> None:
     vertices = [
         (-1, -1, 1),
@@ -79,6 +81,7 @@ def generate_CubeVertices(folderpath=Folders.OBJECTS, filename=VBO.FILE_CUBE) ->
     np.save(os.path.join(folderpath, filename), vertex_data)
 
 
+# TODO: Improve the type hinting
 def generate_SphereVertices(
     folderpath=Folders.OBJECTS,
     filename=VBO.FILE_SPHERE,
@@ -140,6 +143,7 @@ def generate_SphereVertices(
     return vertex_data
 
 
+# TODO: Improve the type hinting
 def generate_CylinderVertices(
     folderpath=Folders.OBJECTS,
     filename=VBO.FILE_CYLINDER,
@@ -246,5 +250,3 @@ if __name__ == "__main__":
     generate_SphereVertices()
     generate_CubeVertices()
     generate_CylinderVertices()
-
-    pass

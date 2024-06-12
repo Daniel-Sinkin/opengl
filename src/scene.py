@@ -1,6 +1,11 @@
+from . import *
+
+""""""
+
 import random
 import typing
 
+# TODO: Remove these wildcard imports
 from .constants import *
 from .model import *
 
@@ -15,7 +20,7 @@ class Scene:
         self.object_idx = 0
         self.objects: list[Model] = []
 
-        # self.load_cat_circle_animated_scale()
+        self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)

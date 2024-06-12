@@ -1,21 +1,11 @@
-import typing
-from abc import ABC, abstractmethod
-from typing import Optional, cast
+from . import *
 
-import freetype
-import glm
-import moderngl as mgl
-import numpy as np
-import pygame as pg
-import ujson as json
-from glm import mat3, mat4, vec2, vec3
-from moderngl import Program
-from PIL import Image
+""""""
 
 from .camera import Camera
 from .constants import *
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
 
@@ -23,7 +13,7 @@ class Quad:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
         self.vao_name = "quad"
-        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
+        self.vao: VertexArray = app.mesh.vao.vao_map[self.vao_name]
 
         self.program: Program = self.vao.program
 
@@ -61,7 +51,7 @@ class BaseModel:
         self.texture_id: Optional[int | str] = texture_id
 
         self.vao_name = vao_name
-        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[vao_name]
+        self.vao: VertexArray = app.mesh.vao.vao_map[vao_name]
 
         self.program: Program = self.vao.program
         self.camera: Camera = self.app.camera
@@ -352,7 +342,7 @@ class Model(BaseModel):
         self.depth_texture.use(location=1)
 
         # Shadows
-        self.shadow_vao: mgl.VertexArray = self.app.mesh.vao.vao_map[
+        self.shadow_vao: VertexArray = self.app.mesh.vao.vao_map[
             "shadow_" + self.vao_name
         ]
         self.shadow_program: Program = self.shadow_vao.program
@@ -468,7 +458,7 @@ class UIText:
         self.app: GraphicsEngine = app
         self.ctx: GraphicsEngine = app.ctx
         self.vao_name = "ui_text"
-        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
+        self.vao: VertexArray = app.mesh.vao.vao_map[self.vao_name]
         self.program: Program = self.vao.program
 
         width, height, texture_data = load_char_texture("A", self.app.font_face)

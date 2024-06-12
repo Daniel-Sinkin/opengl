@@ -1,20 +1,9 @@
-import datetime as dt
-import os
-import sys
-import typing
-from logging import Logger
-from typing import Optional
+from . import *
 
-import moderngl as mgl
-import numpy as np
-import ujson as json
-from freetype import Face
-from glm import vec3
-from PIL import Image
-
-# Suppresses welcome message
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-import pygame as pg
+"""
+This is the main rendering engine for the project, currently it's also the window, input and game manager
+but those will be split into seperate parts later on.
+"""
 
 from . import my_logger, settings
 from .camera import Camera
@@ -30,7 +19,7 @@ from .scene_renderer import SceneRenderer
 
 # TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
 class GraphicsEngine:
-    def __init__(self, win_size: Optional[tuple[int, int]] = None):
+    def __init__(self):
         self.logger: Logger = my_logger.setup("GraphicsEngine")
 
         self.window_size: tuple[int, int] = settings.OpenGL.WINDOW_SIZE
@@ -51,7 +40,7 @@ class GraphicsEngine:
         # TODO: Set this in setting
         # TODO: Either include a free-license font or pull from internet, or make the
         #       font finder more os independent.
-        self.font_face = Face(settings.UI.FONT_FILEPATH)
+        self.font_face = freetype.Face(settings.UI.FONT_FILEPATH)
         self.font_face.set_char_size(settings.UI.FONT_CHARSIZE)
 
         self.light = Light()
@@ -87,6 +76,8 @@ class GraphicsEngine:
             os.path.join(settings.Folders.DATA_SOUND, "screenshot.wav")
         )
 
+        self.MAX_FRAME_COUNTER = None
+
     def check_events(self) -> None:
         for event in pg.event.get():
             match event.type:
@@ -98,9 +89,7 @@ class GraphicsEngine:
                         PLAYER_CONTROLLER_MODE.FLOATING_CAMERA,
                         PLAYER_CONTROLLER_MODE.FPS,
                     ):
-                        mouse_rel: tuple[int, int] = typing.cast(
-                            tuple[int, int], event.rel
-                        )
+                        mouse_rel: tuple[int, int] = cast(tuple[int, int], event.rel)
                         if mouse_rel != (0, 0):
                             self.camera.rotate(*mouse_rel)
 
@@ -183,30 +172,35 @@ class GraphicsEngine:
     def pre_run(self) -> None:
         self.camera.activate_recording(5 * SECOND_TO_MS)
 
+    def iteration(self) -> None:
+        self.get_time()
+        self.check_events()
+
+        match self.player_controller_mode:
+            case PLAYER_CONTROLLER_MODE.FLOATING_CAMERA:
+                self.camera.move()
+            case PLAYER_CONTROLLER_MODE.FPS:
+                self.player_controller.move()
+            case PLAYER_CONTROLLER_MODE.MENU:
+                pass
+            case _:
+                raise NotImplementedError
+
+        self.camera.update()
+        self.player_controller.update()
+
+        self.render()
+
+        self.delta_time: int = self.clock.tick(settings.OpenGL.FPS_TARGET)
+        self.delta_time_s: float = self.delta_time * MS_TO_SECOND
+
+        self.camera_projection_has_changed = False
+
+        self.frame_counter += 1
+
     def run(self) -> None:
         while self.is_running:
-            self.get_time()
-            self.check_events()
-
-            match self.player_controller_mode:
-                case PLAYER_CONTROLLER_MODE.FLOATING_CAMERA:
-                    self.camera.move()
-                case PLAYER_CONTROLLER_MODE.FPS:
-                    self.player_controller.move()
-                case PLAYER_CONTROLLER_MODE.MENU:
-                    pass
-                case _:
-                    raise NotImplementedError
-
-            self.camera.update()
-            self.player_controller.update()
-            self.render()
-            self.delta_time: int = self.clock.tick(settings.OpenGL.FPS_TARGET)
-            self.delta_time_s: float = self.delta_time * MS_TO_SECOND
-
-            self.frame_counter += 1
-
-            self.camera_projection_has_changed = False
+            self.iteration()
 
     def __del__(self) -> None:
         self.logger.info("Cleaning up Graphics Enging.")

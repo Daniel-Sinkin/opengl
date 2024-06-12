@@ -1,5 +1,6 @@
-import numpy as np
-from moderngl import Buffer, Context, Program, VertexArray
+from . import *
+
+""""""
 
 from .shader_program import ShaderProgram
 from .vbo import VBOHandler, VertexBufferObject

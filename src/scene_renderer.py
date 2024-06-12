@@ -1,12 +1,11 @@
-import typing
+from . import *
 
-import moderngl as mgl
-from moderngl import Context, Framebuffer, Texture
+""""""
 
 from .mesh import Mesh
 from .scene import Scene
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
 

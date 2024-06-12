@@ -1,5 +1,6 @@
-import moderngl as mgl
-from moderngl import Context, Program
+from . import *
+
+""""""
 
 
 class ShaderProgram:

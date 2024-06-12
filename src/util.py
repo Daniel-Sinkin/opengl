@@ -1,9 +1,6 @@
-from typing import overload
+from . import *
 
-import glm
-from glm import vec1, vec2, vec3, vec4
-
-from .constants import *
+""""""
 
 
 @overload

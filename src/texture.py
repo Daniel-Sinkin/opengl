@@ -1,14 +1,10 @@
-import os
-import typing
+from . import *
 
-import numpy as np
-import pygame as pg
-from moderngl import LINEAR, LINEAR_MIPMAP_LINEAR, Buffer, Context, Texture, TextureCube
-from PIL import Image
+""""""
 
 from .settings import Folders
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
 
@@ -16,7 +12,7 @@ class TextureHandler:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
         self.ctx: Context = app.ctx
-        self.texture_folderpath = Folders.TEXTURES
+        self.texture_folderpath: str = Folders.TEXTURES
         self.textures: dict[int, Texture] = {
             i: self.get_texture(
                 os.path.join(self.texture_folderpath, f"img_{i}.png"), mode=0
@@ -24,7 +20,7 @@ class TextureHandler:
             for i in range(3)
         }
         self.textures["cat"] = self.get_texture(
-            "objects/cat/20430_cat_diff_v1.jpg", mode=1
+            os.path.join(Folders.DATA_OBJ, "cat", "20430_cat_diff_v1.jpg"), mode=1
         )
         self.textures["skybox_debug"] = self.get_texture_cube(
             os.path.join(self.texture_folderpath, "skybox"), ext="png"
@@ -40,7 +36,7 @@ class TextureHandler:
         depth_texture.repeat_y = False
         return depth_texture
 
-    def get_texture_cube(self, filepath: str, ext="png"):
+    def get_texture_cube(self, filepath: str, ext="png") -> TextureCube:
         faces = ["right", "left", "top", "bottom", "back", "front"]
 
         textures: list[pg.Surface] = []
@@ -53,7 +49,7 @@ class TextureHandler:
             textures.append(texture)
 
         assert len(set([texture.get_size() for texture in textures])) == 1
-        size: typing.Tuple[int] = textures[0].get_size()
+        size: tuple[int] = textures[0].get_size()
         texture_cube: TextureCube = self.ctx.texture_cube(
             size=size, components=3, data=None
         )
@@ -75,7 +71,7 @@ class TextureHandler:
                 size=image.size, components=3, data=data
             )
 
-            texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
+            texture.filter = (mgl.LINEAR_MIPMAP_LINEAR, mgl.LINEAR)
             texture.build_mipmaps()
 
             texture.anisotropy = 16.0
@@ -90,7 +86,7 @@ class TextureHandler:
                 data=pg.image.tostring(texture, "RGB"),
             )
             # mipmaps
-            texture.filter = (LINEAR_MIPMAP_LINEAR, LINEAR)
+            texture.filter = (mgl.LINEAR_MIPMAP_LINEAR, mgl.LINEAR)
             texture.build_mipmaps()
             # AF
             texture.anisotropy = 32.0

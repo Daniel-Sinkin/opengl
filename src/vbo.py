@@ -1,15 +1,12 @@
-import os
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias, cast
+from . import *
 
-import numpy as np
+""""""
+
 import pywavefront
 import pywavefront.material
-from freetype import Face
-from moderngl import Buffer, Context, Program
 
 from . import my_logger
-from .constants import *
+from .constants import VBO
 from .settings import Folders
 from .vertex_data_generator import (
     generate_CubeVertices,
@@ -220,7 +217,9 @@ class Cat(VertexBufferObject):
 
     def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
         objs = pywavefront.Wavefront(
-            "objects/cat/20430_Cat_v1_NEW.obj", cache=True, parse=True
+            file_name=os.path.join(Folders.DATA_OBJ, "cat", "20430_Cat_v1_NEW.obj"),
+            cache=True,
+            parse=True,
         )
         assert len(objs.materials) == 1
         obj: pywavefront.material.Material = objs.materials.popitem()[1]
@@ -297,6 +296,7 @@ class Line(VertexBufferObject):
     # fmt: on
 
 
+# TODO: Rewrite this whole thing and delete this, it's a bit too scuffed.
 class UI_text(VertexBufferObject):
     @property
     def buffer_format(self) -> str:
@@ -306,8 +306,9 @@ class UI_text(VertexBufferObject):
     def attributes(self) -> list[str]:
         return [VBO.IN_POSITION, VBO.IN_TEXCOORD_0]
 
+    # TODO: Add type hints here
     def load_char_texture(self, character):
-        self.font_face = Face("/System/Library/Fonts/Supplemental/Arial.ttf")
+        self.font_face = freetype.Face("/System/Library/Fonts/Supplemental/Arial.ttf")
         self.font_face.set_char_size(48 * 64)
 
         self.font_face.load_char(character)

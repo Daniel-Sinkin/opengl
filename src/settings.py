@@ -1,3 +1,7 @@
+from . import *
+
+""""""
+
 import logging
 import os
 from dataclasses import dataclass
@@ -49,6 +53,8 @@ class Camera:
     PITCH_BOUNDS: tuple[float, float] = (-89.0, 89.0)
     FOV_BOUNDS: tuple[float, float] = (50.0, 100.0)
 
+    RECORDING_TIME_FORMAT = "%Y-%m-%d-%H-%M-%S"
+
 
 @dataclass
 class OpenGL:
@@ -80,3 +86,4 @@ class Folders:
 
     DATA: str = "data"
     DATA_SOUND: str = os.path.join(DATA, "sound")
+    DATA_OBJ: str = os.path.join(DATA, "obj")

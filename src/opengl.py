@@ -1,4 +1,6 @@
-import pygame as pg
+from . import *
+
+""""""
 
 from . import settings
 

@@ -1,7 +1,8 @@
+from . import *
+
+""""""
+
 import logging
-import os
-from logging import Handler, Logger
-from typing import Optional
 
 from . import settings
 
@@ -39,7 +40,7 @@ def setup(logger_name: str, logger_folderpath: str = settings.Folders.LOGS) -> L
 
 def cleanup(logger: Optional[Logger]) -> None:
     if logger is not None:
-        handlers: list[Handler] = logger.handlers[:]
+        handlers: list[logging.Handler] = logger.handlers[:]
         for handler in handlers:
             handler.close()
             logger.removeHandler(handler)

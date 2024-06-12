@@ -1,18 +1,16 @@
-import datetime as dt
-import os
-import typing
-from typing import Optional, cast
+from . import *
 
-import glm
-import pygame as pg
-import ujson as json
-from glm import mat4
-from pygame.key import ScancodeWrapper
+""""""
 
 from . import settings
-from .constants import *
+from .constants import (
+    PLAYER_CONTROLLER_MODE,
+    CameraSerialize,
+    CameraSerializeBase,
+    DevStrings,
+)
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
 
@@ -122,7 +120,9 @@ class Camera:
         if time_passed < self.recording_duration_ms:
             self.recording_buffer.append(current_tick, self.serialize())
         else:
-            dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(RECORDING_TIME_FORMAT)
+            dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(
+                settings.Camera.RECORDING_TIME_FORMAT
+            )
             with open(
                 os.path.join(settings.Folders.RECORDINGS_CAMERA, dt_str), "w"
             ) as file:
@@ -142,7 +142,7 @@ class Camera:
         When controlling a floating camera we can just pass through objects so we
         don't need any bound checks.
         """
-        keys: ScancodeWrapper = pg.key.get_pressed()
+        keys: pg.ScancodeWrapper = pg.key.get_pressed()
         if keys[pg.K_SPACE]:
             self.app.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
             return
@@ -194,7 +194,7 @@ class Camera:
         the MOUSEWHEEL(UP/DOWN) event.
         """
 
-        new_fov = typing.cast(
+        new_fov = cast(
             float,
             glm.clamp(self.fov + amount, *settings.Camera.FOV_BOUNDS),
         )
