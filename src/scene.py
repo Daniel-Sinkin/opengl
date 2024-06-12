@@ -18,7 +18,7 @@ class Scene:
         self.load_basic()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
-        self.lines = Line(app)
+        self.lines = CoordinateAxis(app)
 
     def serialize(
         self, serialize_type="json", filepath=None

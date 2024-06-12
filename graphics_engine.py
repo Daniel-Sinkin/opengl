@@ -97,7 +97,7 @@ class GraphicsEngine:
                             # Flushes the mouse position buffer
                             pg.mouse.get_rel()
                 case pg.KEYDOWN:
-                    if event.key == pg.K_ESCAPE:
+                    if event.key in (pg.K_ESCAPE, pg.K_TAB):
                         if self.player_controller_mode != PLAYER_CONTROLLER_MODE.MENU:
                             self.state_transition_sound.play()
                             self.player_controller_mode = PLAYER_CONTROLLER_MODE.MENU

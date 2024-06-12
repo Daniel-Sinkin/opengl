@@ -13,9 +13,37 @@ class ShaderProgram:
                 "advanced_skybox",
                 "shadow_map",
                 "quad",
-                "line",
             ]
         }
+
+        self.programs["coordinate_axis"] = self.ctx.program(
+            vertex_shader="""
+            #version 330 core
+
+            layout(location = 0) in vec3 in_position;
+            layout(location = 1) in vec3 in_color;
+
+            out vec3 fragColor;  // Pass color to fragment shader
+
+            uniform mat4 mvp;
+
+            void main() {
+                gl_Position = mvp * vec4(in_position, 1.0);
+                fragColor = in_color;  // Pass color to fragment shader
+            }
+            """,
+            fragment_shader="""
+            #version 330 core
+
+            in vec3 fragColor;
+
+            out vec4 outColor;
+
+            void main() {
+                outColor = vec4(fragColor, 1.0);
+            }
+            """,
+        )
 
     def get_shader_program(self, shader_name) -> Program:
         with open(f"shaders/{shader_name}.vert") as file:

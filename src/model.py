@@ -17,11 +17,11 @@ if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
 
-class Line:
+class CoordinateAxis:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
         self.camera: Camera = self.app.camera
-        self.vao_name = "line"
+        self.vao_name = "coordinate_axis"
         self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
 
         self.program: Program = self.vao.program

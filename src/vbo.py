@@ -27,7 +27,7 @@ class VBOHandler:
             "advanced_skybox": SkyBox(ctx),
             "quad": Quad(ctx),
             "sphere": Sphere(ctx),
-            "line": Line(ctx),
+            "coordinate_axis": Coordinate_Axis(ctx),
             "cylinder": Cylinder(ctx),
         }
 
@@ -256,23 +256,24 @@ class Cylinder(VertexBufferObject):
                 )
 
 
-class Line(VertexBufferObject):
+class Coordinate_Axis(VertexBufferObject):
     @property
     def buffer_format(self) -> str:
-        return "3f"
+        return "3f 3f"
 
     @property
     def attributes(self) -> list[str]:
-        return ["in_position"]
+        return ["in_position", "in_color"]
 
     # fmt: off
     def get_vertex_data(self) -> Iterable[POSITION3D]:
         return np.array([
-             0.0,  0.0, 0.0,
-             1.0,  0.0, 0.0,
-             0.0,  0.0, 0.0,
-             0.0,  1.0, 0.0,
-             0.0,  0.0, 0.0,
-             0.0,  0.0, 1.0,
+            # Objects         Colors
+            0.0,  0.0, 0.0,   1.0, 0.0, 0.0, # X Axis
+            1.0,  0.0, 0.0,   1.0, 0.0, 0.0, # RED
+            0.0,  0.0, 0.0,   0.0, 1.0, 0.0, # Y Axis
+            0.0,  1.0, 0.0,   0.0, 1.0, 0.0, # GREEN
+            0.0,  0.0, 0.0,   0.0, 0.0, 1.0, # Z Axis
+            0.0,  0.0, 1.0,   0.0, 0.0, 1.0, # BLUE
         ], dtype=np.float32)
     # fmt: on

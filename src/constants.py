@@ -1,4 +1,5 @@
-from enum import IntEnum, auto
+from dataclasses import dataclass
+from enum import IntEnum, StrEnum, auto
 from typing import Callable, NotRequired, TypeAlias, TypedDict
 
 import glm

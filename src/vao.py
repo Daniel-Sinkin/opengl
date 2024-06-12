@@ -39,8 +39,9 @@ class VertexArrayObject:
             "shadow_sphere": self.get_vao(
                 self.program.programs["shadow_map"], self.vbo.vbo_map["sphere"]
             ),
-            "line": self.get_vao(
-                self.program.programs["line"], self.vbo.vbo_map["line"]
+            "coordinate_axis": self.get_vao(
+                self.program.programs["coordinate_axis"],
+                self.vbo.vbo_map["coordinate_axis"],
             ),
             "cylinder": self.get_vao(
                 self.program.programs["default"], self.vbo.vbo_map["cylinder"]
