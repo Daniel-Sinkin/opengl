@@ -15,10 +15,9 @@ class Scene:
         self.object_idx = 0
         self.objects: list[Model] = []
 
-        self.load_basic()
+        self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
-        self.coordinate_axis = CoordinateAxis(app)
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -33,6 +32,7 @@ class Scene:
             )
             for obj in self.objects
         }
+        return dict_
 
     def add_object(self, obj: Model, log=False) -> None:
         log = True
@@ -43,12 +43,6 @@ class Scene:
 
         self.object_idx += 1
 
-    # TODO: Add serializing and deserializing to scenes
-    #       Idea I had was to use the fact that we have 3 floats for each
-    #       postion, rotation and scale, if we have n objects then we just have
-    #       3 arrays of shape (n, 3) so we could just store them as a single (n, 3, 3)
-    #       array by just stacking them, that would have the advantage that we
-    #       can immediately read of the number of objects from the header.
     def load(self) -> None:
         n, s = 30, 2
         for x in range(-n, n, s):
@@ -65,16 +59,19 @@ class Scene:
 
     def load_basic(self) -> None:
         n, s = 30, 3
-        for x in range(-n, n, s):
-            for z in range(-n, n, s):
-                self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
+        if False:
+            for x in range(-n, n, s):
+                for z in range(-n, n, s):
+                    self.add_object(Cube(self.app, pos=vec3(x, -s, z)))
+            self.add_object(
+                Model(
+                    self.app,
+                    vao_name="cylinder",
+                    texture_id=1,
+                    pos=vec3(-5, 5, -5),
+                )
+            )
         self.add_object(Cat(self.app, pos=vec3(0, -2, -15)))
-        self.add_object(
-            Sphere(self.app, texture_id=1, pos=10.0 * vec3_xy(), scale=4.0 * vec3_1())
-        )
-        self.add_object(
-            Model(self.app, vao_name="cylinder", texture_id=1, pos=vec3(-5, 5, -5))
-        )
 
     def load_cat_circle_animated_scale(self) -> None:
         n, s = 80, 2

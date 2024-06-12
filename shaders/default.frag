@@ -26,6 +26,8 @@ float lookup(float ox, float oy) {
     return textureProj(shadowMap, shadowCoord + vec4(ox * pixelOffset.x * shadowCoord.w, oy * pixelOffset.y * shadowCoord.w, 0.0, 0.0));
 }
 
+// This technique is called Percentage-Closer Filtering (PCF)
+// https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-11-shadow-map-antialiasing
 float getSoftShadowX16() {
     float shadow = 0;
     float swidth = 1.0;

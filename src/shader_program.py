@@ -27,9 +27,10 @@ class ShaderProgram:
 
             uniform mat4 m_view;
             uniform mat4 m_proj;
+            uniform mat4 m_model;
 
             void main() {
-                gl_Position = m_proj * m_view * vec4(in_position, 1.0);
+                gl_Position = m_proj * m_view * m_model * vec4(in_position, 1.0);
                 fragColor = in_color;
             }
             """,
@@ -41,6 +42,13 @@ class ShaderProgram:
             out vec4 outColor;
 
             void main() {
+                vec2 fragCoord = gl_FragCoord.xy;
+                float screenWidth = 1600.0;
+                float leftBoundary = 0.2 * screenWidth;
+                if (fragCoord.x < leftBoundary) {
+                    discard;
+                }
+            
                 outColor = vec4(fragColor, 1.0);
             }
             """,

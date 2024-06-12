@@ -45,6 +45,9 @@ class BaseModel:
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
         render_mode: Optional[int] = None,
+        has_coordinate_axis: bool = True,
+        *args,
+        **kwargs,
     ):
         self.app: GraphicsEngine = app
 
@@ -67,6 +70,11 @@ class BaseModel:
         self.render_mode: Optional[int] = render_mode
 
         self.scene_idx = None
+
+        if has_coordinate_axis:
+            self.coordinate_axis = CoordinateAxis(self.app, self)
+        else:
+            self.coordinate_axis = None
 
     @abstractmethod
     def update(self) -> None: ...
@@ -126,25 +134,38 @@ class CoordinateAxis(BaseModel):
     def __init__(
         self,
         app: "GraphicsEngine",
-        pos: vec3 = vec3_0(),
-        rot: vec3 = vec3_0(),
-        scale: vec3 = vec3_1(),
+        owner: BaseModel,
     ):
+        self.owner = owner
         super().__init__(
             app,
             "coordinate_axis",
             texture_id=None,
-            pos=pos,
-            rot=rot,
-            scale=scale,
+            pos=self.owner.pos,
+            rot=self.owner.rot,
+            scale=self.owner.scale,
             render_mode=mgl.LINES,
+            has_coordinate_axis=False,
         )
-        self.program["m_proj"].write(self.camera.m_proj)
-
-    def update(self):
         self.program["m_view"].write(self.camera.m_view)
-        if self.app.camera_projection_has_changed:
-            self.program["m_proj"].write(self.camera.m_proj)
+        self.program["m_proj"].write(self.camera.m_proj)
+        self.program["m_model"].write(self.m_model)
+
+        self.is_active = False
+
+    def update(self) -> None:
+        print("UPDATE!")
+        self.is_active = self.app.menu_open
+        if self.is_active:
+            self.program["m_view"].write(self.camera.m_view)
+            if self.app.camera_projection_has_changed:
+                self.program["m_proj"].write(self.camera.m_proj)
+
+            self.program["m_model"].write(self.owner.m_model)
+
+    def render(self) -> None:
+        if self.is_active:
+            super().render()
 
 
 class SkyBox(BaseModel):
@@ -185,13 +206,22 @@ class Model(BaseModel):
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
         rot_update: Optional[vec3] = None,
+        *args,
+        **kwargs,
     ):
-        self.rot_update = rot_update
+        self.rot_update: Optional[vec3] = rot_update
         self.scale_animation_function = None
-        self.previous_scale_factor = vec3_1()
+        self.previous_scale_factor: vec3 = vec3_1()
 
         super().__init__(
-            app, vao_name=vao_name, texture_id=texture_id, pos=pos, rot=rot, scale=scale
+            app,
+            vao_name=vao_name,
+            texture_id=texture_id,
+            pos=pos,
+            rot=rot,
+            scale=scale,
+            *args,
+            **kwargs,
         )
         self.on_init()
 
@@ -249,6 +279,9 @@ class Model(BaseModel):
             self.program["menuOpen"] = True
         else:
             self.program["menuOpen"] = False
+
+    def render(self):
+        super().render()
 
     def update_shadow(self):
         self.shadow_program["m_model"].write(self.m_model)
@@ -312,37 +345,12 @@ class Cube(Model):
         rot=vec3_0(),
         scale=vec3_1(),
         rot_update: Optional[vec3] = None,
+        *args,
+        **kwargs,
     ):
-        super().__init__(app, "cube", tex_id, pos, rot, scale, rot_update)
-
-
-class MovingCube(Cube):
-    """
-    A cube that continually does its initial rotation instead of just once.
-    """
-
-    def __init__(
-        self,
-        app: "GraphicsEngine",
-        tex_id: str | int = 0,
-        pos=vec3_0(),
-        rot=vec3_0(),
-        scale=vec3_1(),
-    ):
-        super().__init__(app, tex_id, pos, rot, scale)
-
-    def update(self):
-        self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.x, vec3_x()
+        super().__init__(
+            app, "cube", tex_id, pos, rot, scale, rot_update, *args, **kwargs
         )
-        self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.y, vec3_y()
-        )
-        self.m_model = glm.rotate(
-            self.m_model, self.app.delta_time * self.rot.z, vec3_z()
-        )
-
-        super().update()
 
 
 class Cat(Model):
@@ -357,11 +365,20 @@ class Cat(Model):
         pos: vec3 = vec3_0(),
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
+        *args,
+        **kwargs,
     ):
         # Model data is rotated weirdly
         rot_: vec3 = rot - float(np.pi / 2) * vec3_x()
         super().__init__(
-            app, vao_name="cat", texture_id="cat", pos=pos, rot=rot_, scale=scale
+            app,
+            vao_name="cat",
+            texture_id="cat",
+            pos=pos,
+            rot=rot_,
+            scale=scale,
+            *args,
+            **kwargs,
         )
 
 
@@ -373,7 +390,16 @@ class Sphere(Model):
         pos: vec3 = vec3_0(),
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
+        *args,
+        **kwargs,
     ):
         super().__init__(
-            app, vao_name="sphere", texture_id=texture_id, pos=pos, rot=rot, scale=scale
+            app,
+            vao_name="sphere",
+            texture_id=texture_id,
+            pos=pos,
+            rot=rot,
+            scale=scale,
+            *args,
+            **kwargs,
         )

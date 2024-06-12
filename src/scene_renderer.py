@@ -1,5 +1,6 @@
 import typing
 
+import moderngl as mgl
 from moderngl import Context, Framebuffer, Texture
 
 from .mesh import Mesh
@@ -33,13 +34,23 @@ class SceneRenderer:
             obj.render()
         self.scene.skybox.render()
         self.scene.quad.render()
-        self.scene.coordinate_axis.render()
+        # self.scene.global_coordinate_axis.render()
+
+    def debug_render(self):
+        # Coordinate axis
+        self.app.ctx.disable(mgl.DEPTH_TEST)
+        for obj in self.scene.objects:
+            if obj.coordinate_axis is not None:
+                obj.coordinate_axis.update()
+                obj.coordinate_axis.render()
+        self.app.ctx.enable(mgl.DEPTH_TEST)
 
     def render(self):
         # Maybe also have a fixed_update function for physics stuff
         self.scene.update()
         self.render_shadow()
         self.main_render()
+        self.debug_render()
 
     def destroy(self):
         self.depth_fbo.release()
