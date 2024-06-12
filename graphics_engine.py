@@ -76,7 +76,9 @@ class GraphicsEngine:
         )
 
         # TODO: Set this in setting
-        font_face = Face("path/to/your/font.ttf")  # Specify the path to your font file
+        # TODO: Either include a free-license font or pull from internet, or make the
+        #       font finder more os independent.
+        font_face = Face("/System/Library/Fonts/Supplemental/Arial.ttf")
         font_face.set_char_size(48 * 64)
 
     def check_events(self) -> None:
