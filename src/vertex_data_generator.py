@@ -78,6 +78,7 @@ def generate_CubeVertices(folderpath=Folders.OBJECTS, filename=VBO.FILE_CUBE) ->
     vertex_data = np.hstack([normals, vertex_data])
     vertex_data = np.hstack([tex_coord_data, vertex_data])
 
+    os.makedirs(folderpath, exist_ok=True)
     np.save(os.path.join(folderpath, filename), vertex_data)
 
 
@@ -139,6 +140,7 @@ def generate_SphereVertices(
 
     vertex_data = vertex_idx_transform(vertices, normals, tex_coords, indices)
 
+    os.makedirs(folderpath, exist_ok=True)
     np.save(os.path.join(folderpath, filename), vertex_data)
     return vertex_data
 
@@ -242,6 +244,7 @@ def generate_CylinderVertices(
 
     vertex_data = vertex_idx_transform(vertices, normals, tex_coords, indices)
 
+    os.makedirs(folderpath, exist_ok=True)
     np.save(os.path.join(folderpath, filename), vertex_data)
     return vertex_data
 

@@ -11,7 +11,7 @@ wildcard imported, unlike the `globals.py` file.
 ###
 @dataclass
 class VBO:
-    IN_TEXCOORD_N: Callable[..., str] = lambda n: f"in_texcoord_{n}"
+    IN_TEXCOORD_N: Callable[[int], str] = lambda n: f"in_texcoord_{n}"
     IN_TEXCOORD_0: str = IN_TEXCOORD_N(0)
     IN_TEXCOORD_1: str = IN_TEXCOORD_N(1)
     IN_TEXCOORD_2: str = IN_TEXCOORD_N(2)

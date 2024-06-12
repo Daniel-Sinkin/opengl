@@ -19,7 +19,7 @@ from .scene_renderer import SceneRenderer
 
 # TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
 class GraphicsEngine:
-    def __init__(self):
+    def __init__(self, scene_id=None):
         self.logger: Logger = my_logger.setup("GraphicsEngine")
 
         self.window_size: tuple[int, int] = settings.OpenGL.WINDOW_SIZE
@@ -48,7 +48,7 @@ class GraphicsEngine:
             self,
         )
         self.mesh = Mesh(self)
-        self.scene = Scene(self)
+        self.scene = Scene(self, scene_id=scene_id)
         self.scene_renderer = SceneRenderer(self)
 
         self.is_running = True
@@ -76,7 +76,7 @@ class GraphicsEngine:
             os.path.join(settings.Folders.DATA_SOUND, "screenshot.wav")
         )
 
-        self.MAX_FRAME_COUNTER = None
+        self.screenshot_prefix = None
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -161,8 +161,8 @@ class GraphicsEngine:
         self.scene_renderer.render()
 
         if self.take_screenshot_after_render:
-            self.take_screenshot_after_render = False
             self.take_screenshot()
+            self.take_screenshot_after_render = False
 
         pg.display.flip()
 
@@ -220,8 +220,13 @@ class GraphicsEngine:
         )
 
         filename = dt.datetime.now(dt.timezone.utc).strftime(
-            settings.Screenshots.NAME_FORMAT
+            settings.Screenshots.DT_NAME_FORMAT
         )
+        filename += f"-{self.frame_counter:04}.{settings.Screenshots.EXTENSION}"
+        if self.screenshot_prefix is not None:
+            filename: str = self.screenshot_prefix + filename
+
+        os.makedirs(settings.Folders.RECORDINGS_SCREENSHOTS, exist_ok=True)
         pg.image.save(
             screen_surf, os.path.join(settings.Folders.RECORDINGS_SCREENSHOTS, filename)
         )

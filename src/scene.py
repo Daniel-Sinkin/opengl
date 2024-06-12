@@ -14,13 +14,16 @@ if typing.TYPE_CHECKING:
 
 
 class Scene:
-    def __init__(self, app: "GraphicsEngine"):
+    def __init__(self, app: "GraphicsEngine", scene_id=None):
         self.app: GraphicsEngine = app
         # Tracks a unique index for every object
         self.object_idx = 0
         self.objects: list[Model] = []
 
-        self.load_cat_circle_animated_scale()
+        if scene_id == "DEBUG":
+            self.load_debug()
+        else:
+            self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)
@@ -46,6 +49,19 @@ class Scene:
         obj.scene_idx = self.object_idx
 
         self.object_idx += 1
+
+    def load_debug(self) -> None:
+        self.add_object(Cube(self.app))
+        self.add_object(Cat(self.app))
+        self.add_object(Sphere(self.app))
+        self.add_object(
+            Model(
+                self.app,
+                vao_name="cylinder",
+                texture_id=1,
+                pos=vec3(-5, 5, -5),
+            )
+        )
 
     def load(self) -> None:
         n, s = 30, 2

@@ -6,17 +6,14 @@ import logging
 import os
 from dataclasses import dataclass
 
-from .constants import *
-
 
 @dataclass
 class Screenshots:
     EXTENSION: str = "png"
-    NAME_FORMAT: str = (
-        "%Y_%m_%d-%H_%M_%S-{self.frame_counter:05}.{Screenshots.EXTENSION}"
-    )
+    DT_NAME_FORMAT: str = "%Y_%m_%d-%H_%M_%S"
 
 
+# TODO: Move the folder and filepaths into the Folders Class
 @dataclass
 class UI:
     FONT: str = "Arial"
