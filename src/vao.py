@@ -42,6 +42,12 @@ class VertexArrayObject:
             "line": self.get_vao(
                 self.program.programs["line"], self.vbo.vbo_map["line"]
             ),
+            "cylinder": self.get_vao(
+                self.program.programs["default"], self.vbo.vbo_map["cylinder"]
+            ),
+            "shadow_cylinder": self.get_vao(
+                self.program.programs["shadow_map"], self.vbo.vbo_map["cylinder"]
+            ),
         }
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:

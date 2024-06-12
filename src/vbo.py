@@ -6,7 +6,11 @@ import pywavefront
 import pywavefront.material
 from moderngl import Buffer, Context, Program
 
-from util.vertex_data_generator import generate_CubeVBO  # type: ignore
+from util.vertex_data_generator import (
+    generate_CubeVertices,
+    generate_CylinderVertices,
+    generate_SphereVertices,
+)
 
 from .constants import *
 
@@ -24,6 +28,7 @@ class VBOHandler:
             "quad": Quad(ctx),
             "sphere": Sphere(ctx),
             "line": Line(ctx),
+            "cylinder": Cylinder(ctx),
         }
 
     def destroy(self):
@@ -73,7 +78,7 @@ class Cube(VertexBufferObject):
             print(
                 "objects/CubeVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
             )
-            generate_CubeVBO()
+            generate_CubeVertices()
             try:
                 return cast(np.ndarray, np.load("objects/CubeVBO.npy"))
             except FileNotFoundError:
@@ -212,14 +217,42 @@ class Sphere(VertexBufferObject):
         except FileNotFoundError:
             # TODO: Attach logger and replace these prints with proper logging
             print(
-                "objects/SubeVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
+                "objects/SphereVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
             )
-            generate_CubeVBO()
+            generate_SphereVertices()
             try:
                 return cast(np.ndarray, np.load("objects/SphereVBO.npy"))
             except FileNotFoundError:
                 raise RuntimeError(
-                    "objects/SubeVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
+                    "objects/SphereVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
+                )
+
+
+# TODO: Make a class for vertex loaders
+class Cylinder(VertexBufferObject):
+    @property
+    def buffer_format(self) -> str:
+        return "3f 3f 2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return ["in_normal", "in_position", "in_texcoord_0"]
+
+    # fmt: off
+    def get_vertex_data(self) -> Iterable[tuple[float, float, float]]:
+        try:
+            return cast(np.ndarray, np.load("objects/CylinderVBO.npy"))
+        except FileNotFoundError:
+            # TODO: Attach logger and replace these prints with proper logging
+            print(
+                "objects/CylinderVBO.npy' was not found, running 'util/vertex_data_generator.py' first."
+            )
+            generate_CylinderVertices()
+            try:
+                return cast(np.ndarray, np.load("objects/CylinderVBO.npy"))
+            except FileNotFoundError:
+                raise RuntimeError(
+                    "objects/CylinderVBO.npy' was not found despite running 'util/vertex_data_generator.py'!"
                 )
 
 
@@ -235,7 +268,11 @@ class Line(VertexBufferObject):
     # fmt: off
     def get_vertex_data(self) -> Iterable[POSITION3D]:
         return np.array([
-            -1.0,  0.0, 0.0,
+             0.0,  0.0, 0.0,
+             1.0,  0.0, 0.0,
+             0.0,  0.0, 0.0,
+             0.0,  1.0, 0.0,
+             0.0,  0.0, 0.0,
              0.0,  0.0, 1.0,
         ], dtype=np.float32)
     # fmt: on

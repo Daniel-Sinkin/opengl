@@ -174,7 +174,7 @@ class GraphicsEngine:
                 case PLAYER_CONTROLLER_MODE.FPS:
                     self.player_controller.move()
                 case PLAYER_CONTROLLER_MODE.MENU:
-                    self.logger.debug(pg.mouse.get_pos())
+                    pass
                 case _:
                     raise NotImplementedError
 

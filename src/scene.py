@@ -73,6 +73,9 @@ class Scene:
         self.add_object(
             Sphere(self.app, texture_id=1, pos=10.0 * vec3_xy(), scale=4.0 * vec3_1())
         )
+        self.add_object(
+            Model(self.app, vao_name="cylinder", texture_id=1, pos=vec3(-5, 5, -5))
+        )
 
     def load_cat_circle_animated_scale(self) -> None:
         n, s = 80, 2
