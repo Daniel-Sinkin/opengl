@@ -14,7 +14,7 @@ def vertex_idx_transform(
     return np.array(data, dtype=np.float32)
 
 
-def generate_CubeVBO(folderpath="objects", filename="CubeVBO.npy") -> None:
+def generate_CubeVertices(folderpath="objects", filename="CubeVBO.npy") -> None:
     vertices = [
         (-1, -1, 1),
         (1, -1, 1),
@@ -75,7 +75,7 @@ def generate_CubeVBO(folderpath="objects", filename="CubeVBO.npy") -> None:
     np.save(os.path.join(folderpath, filename), vertex_data)
 
 
-def generate_Sphere(
+def generate_SphereVertices(
     folderpath="objects",
     filename="SphereVBO.npy",
     radius: float = 1.0,
@@ -136,7 +136,111 @@ def generate_Sphere(
     return vertex_data
 
 
+def generate_CylinderVertices(
+    folderpath="objects",
+    filename="CylinderVBO.npy",
+    radius: float = 1.0,
+    height: float = 2.0,
+    sectors: int = 36,
+) -> np.ndarray[np.float32]:
+    vertices = []
+    normals = []
+    tex_coords = []
+    indices = []
+
+    half_height = height / 2
+
+    # Vertices for the top and bottom circles
+    for i in range(sectors + 1):
+        sector_angle = i * 2 * np.pi / sectors
+
+        x = radius * np.cos(sector_angle)
+        y = radius * np.sin(sector_angle)
+
+        # Top circle
+        vertices.append((x, y, half_height))
+        normals.append((0, 0, 1))
+        tex_coords.append((i / sectors, 1))
+
+        # Bottom circle
+        vertices.append((x, y, -half_height))
+        normals.append((0, 0, -1))
+        tex_coords.append((i / sectors, 0))
+
+    # Vertices for the sides
+    for i in range(sectors + 1):
+        sector_angle = i * 2 * np.pi / sectors
+
+        x = radius * np.cos(sector_angle)
+        y = radius * np.sin(sector_angle)
+
+        # Top edge of the side
+        vertices.append((x, y, half_height))
+        normals.append((x / radius, y / radius, 0))
+        tex_coords.append((i / sectors, 1))
+
+        # Bottom edge of the side
+        vertices.append((x, y, -half_height))
+        normals.append((x / radius, y / radius, 0))
+        tex_coords.append((i / sectors, 0))
+
+    # Indices for the top and bottom circles
+    top_center_index = len(vertices)
+    bottom_center_index = len(vertices) + 1
+    vertices.append((0, 0, half_height))  # Top center
+    normals.append((0, 0, 1))
+    tex_coords.append((0.5, 0.5))
+    vertices.append((0, 0, -half_height))  # Bottom center
+    normals.append((0, 0, -1))
+    tex_coords.append((0.5, 0.5))
+
+    for i in range(sectors):
+        next_i = (i + 1) % sectors
+        top_vertex = 2 * i
+        next_top_vertex = 2 * next_i
+        bottom_vertex = 2 * i + 1
+        next_bottom_vertex = 2 * next_i + 1
+
+        # Top circle
+        indices.append((top_center_index, top_vertex, next_top_vertex))
+
+        # Bottom circle
+        indices.append((bottom_center_index, next_bottom_vertex, bottom_vertex))
+
+    # Indices for the side surface
+    side_offset = 2 * (sectors + 1)
+    for i in range(sectors):
+        top_edge = side_offset + 2 * i
+        next_top_edge = side_offset + 2 * ((i + 1) % sectors)
+        bottom_edge = top_edge + 1
+        next_bottom_edge = next_top_edge + 1
+
+        indices.append((top_edge, bottom_edge, next_top_edge))
+        indices.append((bottom_edge, next_bottom_edge, next_top_edge))
+
+    vertices = np.array(vertices, dtype=np.float32)
+    normals = np.array(normals, dtype=np.float32)
+    tex_coords = np.array(tex_coords, dtype=np.float32)
+    indices = np.array(indices, dtype=np.uint32)
+
+    def vertex_idx_transform(vertices, normals, tex_coords, indices):
+        transformed_data = []
+        for triangle in indices:
+            for ind in triangle:
+                transformed_data.extend(normals[ind])
+                transformed_data.extend(vertices[ind])
+                transformed_data.extend(tex_coords[ind])
+        return np.array(transformed_data, dtype=np.float32)
+
+    vertex_data = vertex_idx_transform(vertices, normals, tex_coords, indices)
+
+    np.save(os.path.join(folderpath, filename), vertex_data)
+    return vertex_data
+
+
 if __name__ == "__main__":
+    generate_SphereVertices()
+    generate_CubeVertices()
+    generate_CylinderVertices()
+
     pass
-    # generate_Sphere()
-    # generate_CubeVBO()
