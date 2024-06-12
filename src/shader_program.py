@@ -15,6 +15,7 @@ class ShaderProgram:
                 "quad",
                 "coordinate_axis",
                 "ui_text",
+                "ray",
             ]
         }
 

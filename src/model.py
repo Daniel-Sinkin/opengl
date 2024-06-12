@@ -129,6 +129,35 @@ class BaseModel:
         return dict_
 
 
+class Ray(BaseModel):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        pos=vec3(),
+        rot=vec3(),
+        scale=vec3_1(),
+    ):
+        super().__init__(
+            app,
+            "ray",
+            texture_id=None,
+            pos=pos,
+            rot=rot,
+            scale=scale,
+            render_mode=mgl.LINES,
+            has_coordinate_axis=False,
+        )
+        self.program["m_view"].write(self.camera.m_view)
+        self.program["m_proj"].write(self.camera.m_proj)
+        self.program["m_model"].write(self.m_model)
+
+    def update(self) -> None:
+        self.program["m_view"].write(self.camera.m_view)
+        if self.app.camera_projection_has_changed:
+            self.program["m_proj"].write(self.camera.m_proj)
+        self.program["m_model"].write(self.m_model)
+
+
 class CoordinateAxis(BaseModel):
     def __init__(
         self,
@@ -397,8 +426,6 @@ def load_char_texture(character, font_face):
     font_face.load_char(character)
     bitmap: freetype.Bitmap = cast(freetype.Bitmap, font_face.glyph.bitmap)
     width, height = int(bitmap.width), int(bitmap.rows)
-
-    print(f"{type(width)=},{type(height)=},{type(bitmap)=}")
 
     texture_data: np.ndarray = np.array(bitmap.buffer, dtype=np.ubyte).reshape(
         height, width

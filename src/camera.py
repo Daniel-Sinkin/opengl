@@ -34,14 +34,15 @@ class Camera:
 
         self.position = vec3(self.initial_position)
 
+        # What we reset the fov to.
         self.original_fov = settings.Camera.FOV
-        self.fov = self.original_fov
+        self.fov: float = self.original_fov
 
-        self.near_plane = settings.Camera.NEAR
-        self.far_plane = settings.Camera.FAR
-        self.speed = settings.Camera.SPEED
-        self.speed_turbo = settings.Camera.SPEED_TUROB
-        self.sensitivity = settings.Camera.SENSITIVITY
+        self.near_plane: float = settings.Camera.NEAR
+        self.far_plane: float = settings.Camera.FAR
+        self.speed: float = settings.Camera.SPEED
+        self.speed_turbo: float = settings.Camera.SPEED_TUROB
+        self.sensitivity: float = settings.Camera.SENSITIVITY
 
         self.up: vec3 = vec3_y()
         self.right: vec3 = vec3_x()
@@ -202,6 +203,16 @@ class Camera:
             self.fov = new_fov
 
     def activate_recording(self, duration_ms: int) -> None:
+        """
+        Traces the camera transforms for a certain while, this functionality is pretty bare bones
+        right now, ideal state would be that I can trace the camera with a frameskip and then
+        interpolate later on, maybe making highly smooth playbacks or something like that.
+
+        This is pretty closely related to what it would like to serialize the camera the entire
+        time we are recording so maybe I could make some kind of short term serialization so we
+        can add a playback, although that is something that comes much later, if at all.
+        """
+
         self.recording_duration_ms: int = duration_ms
         self.recording_start: int = pg.time.get_ticks()
         self.is_recording = True

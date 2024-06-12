@@ -21,13 +21,13 @@ VEC_N: TypeAlias = vec1 | vec2 | vec3 | vec4
 ###
 # fmt: off
 # Have to create new objects otherwise we only pass around references
-vec3_1 : Callable[[], vec3] = lambda: vec3(1.0, 1.0, 1.0)
-vec3_x : Callable[[], vec3] = lambda: vec3(1.0, 0.0, 0.0)
-vec3_y : Callable[[], vec3] = lambda: vec3(0.0, 1.0, 0.0)
-vec3_z : Callable[[], vec3] = lambda: vec3(0.0, 0.0, 1.0)
-vec3_xy: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 0.0)
-vec3_xz: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 1.0)
-vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
+vec3_1 : Callable[[], vec3] = lambda x = 1.0: vec3(x, x, x)
+vec3_x : Callable[[], vec3] = lambda x = 1.0: vec3(x, 0.0, 0.0)
+vec3_y : Callable[[], vec3] = lambda x = 1.0: vec3(0.0, x, 0.0)
+vec3_z : Callable[[], vec3] = lambda x = 1.0: vec3(0.0, 0.0, x)
+vec3_xy: Callable[[], vec3] = lambda x = 1.0: vec3(x, x, 0.0)
+vec3_xz: Callable[[], vec3] = lambda x = 1.0: vec3(x, 0.0, x)
+vec3_yz: Callable[[], vec3] = lambda x = 1.0: vec3(0.0, x, x)
 # fmt: on
 VEC3_AXIS_PERMUTATIONS: Callable[[], list[vec3]] = lambda: [
     vec3(),

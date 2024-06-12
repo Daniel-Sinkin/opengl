@@ -42,6 +42,7 @@ class VBOHandler:
             "cylinder": Cylinder(ctx),
             "coordinate_axis": Coordinate_Axis(ctx),
             "ui_text": UI_text(ctx),
+            "ray": Ray(ctx),
         }
 
     def destroy(self):
@@ -274,6 +275,24 @@ class Coordinate_Axis(VertexBufferObject):
             0.0,  1.0, 0.0,   0.0, 1.0, 0.0, # GREEN
             0.0,  0.0, 0.0,   0.0, 0.0, 1.0, # Z Axis
             0.0,  0.0, 1.0,   0.0, 0.0, 1.0, # BLUE
+        ], dtype=np.float32)
+    # fmt: on
+
+
+class Ray(VertexBufferObject):
+    @property
+    def buffer_format(self) -> str:
+        return "3f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return [VBO.IN_POSITION]
+
+    # fmt: off
+    def get_vertex_data(self) -> np.ndarray:
+        return np.array([
+            0.0,  0.0, 0.0,
+            1.0,  0.0, 0.0,
         ], dtype=np.float32)
     # fmt: on
 
