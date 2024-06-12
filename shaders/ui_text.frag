@@ -9,6 +9,6 @@ uniform sampler2D text_texture;
 uniform vec3 text_color;
 
 void main() {
-    float alpha = texture(text_texture, frag_texcoord).r;
-    out_color = vec4(text_color, alpha);
+    // float alpha = texture(text_texture, frag_texcoord).r;
+    out_color = vec4(text_color, 1.0);
 }

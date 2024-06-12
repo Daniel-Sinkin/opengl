@@ -5,7 +5,6 @@ out vec3 texCubeCoords;
 
 uniform mat4 m_proj;
 uniform mat4 m_view;
-uniform bool menuOpen;
 
 void main() {
     texCubeCoords = in_position;

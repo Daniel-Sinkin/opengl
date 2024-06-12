@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 import sys
 import typing
@@ -15,7 +16,7 @@ from PIL import Image
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame as pg
 
-from src import my_logger
+from src import my_logger, settings
 from src.camera import Camera
 from src.constants import *
 from src.light import Light
@@ -25,7 +26,6 @@ from src.opengl import setup_opengl
 from src.player_controller import PlayerController
 from src.scene import Scene
 from src.scene_renderer import SceneRenderer
-from src.settings import Colors, Folders, Settings_OpenGL
 
 
 # TODO: Make GraphicsEngine a part of a larger application instead of being the first class object.
@@ -33,7 +33,7 @@ class GraphicsEngine:
     def __init__(self, win_size: Optional[tuple[int, int]] = None):
         self.logger: Logger = my_logger.setup("GraphicsEngine")
 
-        self.window_size: tuple[int, int] = Settings_OpenGL.WINDOW_SIZE
+        self.window_size: tuple[int, int] = settings.OpenGL.WINDOW_SIZE
         self.pg_window = setup_opengl(window_size=self.window_size)
 
         # Locks mouse into window
@@ -47,6 +47,12 @@ class GraphicsEngine:
         self.time = 0.0
         self.delta_time = 0
         self.delta_time_s = 0
+
+        # TODO: Set this in setting
+        # TODO: Either include a free-license font or pull from internet, or make the
+        #       font finder more os independent.
+        self.font_face = Face(settings.UI.FONT_FILEPATH)
+        self.font_face.set_char_size(settings.UI.FONT_CHARSIZE)
 
         self.light = Light()
         self.camera = Camera(
@@ -63,6 +69,8 @@ class GraphicsEngine:
         self.camera_projection_has_changed = False
         self.mouse_position_on_freelook_enter = None
 
+        self.take_screenshot_after_render = False
+
         # TODO: Add a dedicated State Management function instead of just swapping around
         self.player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
         self.previous_player_controller_mode = PLAYER_CONTROLLER_MODE.FPS
@@ -71,15 +79,13 @@ class GraphicsEngine:
 
         self.player_controller = PlayerController(self)
 
-        self.state_transition_sound = pygame.mixer.Sound(
-            "data/sound/state_transition.wav"
+        # TODO: Once we have more sounds structure this better
+        self.sound_state_transition = pygame.mixer.Sound(
+            os.path.join(settings.Folders.DATA_SOUND, "state_transition.wav")
         )
-
-        # TODO: Set this in setting
-        # TODO: Either include a free-license font or pull from internet, or make the
-        #       font finder more os independent.
-        font_face = Face("/System/Library/Fonts/Supplemental/Arial.ttf")
-        font_face.set_char_size(48 * 64)
+        self.sound_screenshot = pygame.mixer.Sound(
+            os.path.join(settings.Folders.DATA_SOUND, "screenshot.wav")
+        )
 
     def check_events(self) -> None:
         for event in pg.event.get():
@@ -106,7 +112,7 @@ class GraphicsEngine:
                 case pg.KEYDOWN:
                     if event.key in (pg.K_ESCAPE, pg.K_TAB):
                         if self.player_controller_mode != PLAYER_CONTROLLER_MODE.MENU:
-                            self.state_transition_sound.play()
+                            self.sound_state_transition.play()
                             self.player_controller_mode = PLAYER_CONTROLLER_MODE.MENU
                             self.menu_open = True
 
@@ -121,10 +127,13 @@ class GraphicsEngine:
                             self.player_controller_mode
                             != PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
                         ):
-                            self.state_transition_sound.play()
+                            self.sound_state_transition.play()
                             self.player_controller_mode = (
                                 PLAYER_CONTROLLER_MODE.FLOATING_CAMERA
                             )
+                case pg.KEYUP:
+                    if event.key == pg.K_PRINTSCREEN:
+                        self.take_screenshot_after_render = True
                 case pg.MOUSEBUTTONDOWN:
                     if (
                         self.player_controller_mode == PLAYER_CONTROLLER_MODE.MENU
@@ -135,7 +144,7 @@ class GraphicsEngine:
                             pg.BUTTON_MIDDLE,
                         )
                     ):
-                        self.state_transition_sound.play()
+                        self.sound_state_transition.play()
                         # Avoids sudden jumps when re-entering FPS mode
                         _ = pg.mouse.get_rel()
 
@@ -158,9 +167,13 @@ class GraphicsEngine:
     # being synced with the rendering pipeline is okay for now.
     def render(self) -> None:
         # This should always be covered
-        self.ctx.clear(color=Colors.MISSING_TEXTURE)
+        self.ctx.clear(color=settings.Colors.MISSING_TEXTURE)
 
         self.scene_renderer.render()
+
+        if self.take_screenshot_after_render:
+            self.take_screenshot_after_render = False
+            self.take_screenshot()
 
         pg.display.flip()
 
@@ -188,7 +201,7 @@ class GraphicsEngine:
             self.camera.update()
             self.player_controller.update()
             self.render()
-            self.delta_time: int = self.clock.tick(Settings_OpenGL.FPS_TARGET)
+            self.delta_time: int = self.clock.tick(settings.OpenGL.FPS_TARGET)
             self.delta_time_s: float = self.delta_time * MS_TO_SECOND
 
             self.frame_counter += 1
@@ -205,6 +218,20 @@ class GraphicsEngine:
 
         self.logger.info("Cleanup is done, deleting logger now.")
         my_logger.cleanup(self.logger)
+
+    def take_screenshot(self) -> None:
+        screen: pg.Surface = pg.display.get_surface()
+        screen_surf: pg.Surface = pygame.image.fromstring(
+            self.ctx.screen.read(), screen.get_size(), "RGB", True
+        )
+
+        filename = dt.datetime.now(dt.timezone.utc).strftime(
+            settings.Screenshots.NAME_FORMAT
+        )
+        pg.image.save(
+            screen_surf, os.path.join(settings.Folders.RECORDINGS_SCREENSHOTS, filename)
+        )
+        self.sound_screenshot.play()
 
 
 def main() -> None:

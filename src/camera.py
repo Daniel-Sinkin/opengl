@@ -9,8 +9,8 @@ import ujson as json
 from glm import mat4
 from pygame.key import ScancodeWrapper
 
+from . import settings
 from .constants import *
-from .settings import Folders, Settings_Camera
 
 if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
@@ -21,8 +21,8 @@ class Camera:
         self,
         app: "GraphicsEngine",
         position: POSITION3D = None,
-        yaw=Settings_Camera.INITIAL_YAW,
-        pitch=Settings_Camera.INITAL_PITCH,
+        yaw=settings.Camera.INITIAL_YAW,
+        pitch=settings.Camera.INITAL_PITCH,
     ):
         self.app: GraphicsEngine = app
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
@@ -30,18 +30,18 @@ class Camera:
         if position is not None:
             self.initial_position: POSITION3D = position
         else:
-            self.initial_position: POSITION3D = Settings_Camera.INITIAL_POSITION
+            self.initial_position: POSITION3D = settings.Camera.INITIAL_POSITION
 
         self.position = vec3(self.initial_position)
 
-        self.original_fov = Settings_Camera.FOV
+        self.original_fov = settings.Camera.FOV
         self.fov = self.original_fov
 
-        self.near_plane = Settings_Camera.NEAR
-        self.far_plane = Settings_Camera.FAR
-        self.speed = Settings_Camera.SPEED
-        self.speed_turbo = Settings_Camera.SPEED_TUROB
-        self.sensitivity = Settings_Camera.SENSITIVITY
+        self.near_plane = settings.Camera.NEAR
+        self.far_plane = settings.Camera.FAR
+        self.speed = settings.Camera.SPEED
+        self.speed_turbo = settings.Camera.SPEED_TUROB
+        self.sensitivity = settings.Camera.SENSITIVITY
 
         self.up: vec3 = vec3_y()
         self.right: vec3 = vec3_x()
@@ -101,7 +101,7 @@ class Camera:
         self.yaw += rel_x * self.sensitivity
         self.pitch -= rel_y * self.sensitivity
 
-        self.pitch = cast(float, glm.clamp(self.pitch, *Settings_Camera.PITCH_BOUNDS))
+        self.pitch = cast(float, glm.clamp(self.pitch, *settings.Camera.PITCH_BOUNDS))
 
     def update_camera_vectors(self) -> None:
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
@@ -122,7 +122,9 @@ class Camera:
             self.recording_buffer.append(current_tick, self.serialize())
         else:
             dt_str = dt.datetime.now(tz=dt.timezone.utc).strftime(RECORDING_TIME_FORMAT)
-            with open(os.path.join(Folders.RECORDINGS_CAMERA, dt_str), "w") as file:
+            with open(
+                os.path.join(settings.Folders.RECORDINGS_CAMERA, dt_str), "w"
+            ) as file:
                 file.write(self.recording_buffer)
 
     def update(self) -> None:
@@ -192,7 +194,8 @@ class Camera:
         """
 
         new_fov = typing.cast(
-            float, glm.clamp(self.fov + amount, *Settings_Camera.FOV_BOUNDS)
+            float,
+            glm.clamp(self.fov + amount, *settings.Camera.FOV_BOUNDS),
         )
         if new_fov != self.fov:
             self.app.camera_projection_has_changed = True

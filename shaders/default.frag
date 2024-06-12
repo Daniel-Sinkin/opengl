@@ -19,7 +19,6 @@ uniform sampler2D u_texture_0;
 uniform vec3 camPos;
 uniform sampler2DShadow shadowMap;
 uniform vec2 u_resolution;
-uniform bool menuOpen;
 
 float lookup(float ox, float oy) {
     vec2 pixelOffset = 1 / u_resolution;
@@ -69,15 +68,6 @@ vec3 getLight(vec3 color) {
 }
 
 void main() {
-    if(menuOpen) {
-        vec2 fragCoord = gl_FragCoord.xy;
-        float screenWidth = 1600.0;
-        float leftBoundary = 0.2 * screenWidth;
-        if (fragCoord.x < leftBoundary) {
-            discard;
-        }
-    }
-
     // https://learnopengl.com/Advanced-Lighting/Gamma-Correction
     float gamma = 2.2;
     

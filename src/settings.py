@@ -6,18 +6,35 @@ from .constants import *
 
 
 @dataclass
+class Screenshots:
+    EXTENSION: str = "png"
+    NAME_FORMAT: str = (
+        "%Y_%m_%d-%H_%M_%S-{self.frame_counter:05}.{Screenshots.EXTENSION}"
+    )
+
+
+@dataclass
+class UI:
+    FONT: str = "Arial"
+    FONT_FOLDERPATH: str = f"/System/Library/Fonts/Supplemental/"
+    FONT_FILEPATH: str = os.path.join(FONT_FOLDERPATH, f"{FONT}.ttf")
+
+    FONT_CHARSIZE = 48 * 64
+
+
+@dataclass
 class Physics:
     GRAVITATIONAL_CONSTANT: float = 9.81  # Accelerates in -y with G meters per second
 
 
 @dataclass
-class LoggingSettings:
+class Logging:
     LEVEL: int = logging.DEBUG
     LEVEL_FILE: int = logging.INFO
 
 
 @dataclass
-class Settings_Camera:
+class Camera:
     FOV: float = 60.0
     NEAR: float = 0.1
     FAR: float = 200.0
@@ -34,7 +51,7 @@ class Settings_Camera:
 
 
 @dataclass
-class Settings_OpenGL:
+class OpenGL:
     WINDOW_SIZE: tuple[int, int] = (1600, 900)
     MAJOR_VERSION: int = 3
     MINOR_VERSION: int = 3

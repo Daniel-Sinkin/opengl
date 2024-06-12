@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Iterable, Optional, TypeAlias, cast
 import numpy as np
 import pywavefront
 import pywavefront.material
+from freetype import Face
 from moderngl import Buffer, Context, Program
 
 from . import my_logger
@@ -244,10 +245,10 @@ class Quad(VertexBufferObject):
     def get_vertex_data(self) -> np.ndarray:
         return np.array(
             [
-                -1.0, -1.0,
-                -0.6, -1.0,
-                -1.0,  1.0,
-                -0.6,  1.0,
+                0.85, 0.85,
+                  1.0, 0.85,
+                 0.85,  1.0,
+                  1.0,  1.0,
             ],
             dtype=np.float32,
         )
@@ -286,5 +287,29 @@ class UI_text(VertexBufferObject):
     def attributes(self) -> list[str]:
         return [VBO.IN_POSITION, VBO.IN_TEXCOORD_0]
 
+    def load_char_texture(self, character):
+        self.font_face = Face("/System/Library/Fonts/Supplemental/Arial.ttf")
+        self.font_face.set_char_size(48 * 64)
+
+        self.font_face.load_char(character)
+        bitmap = self.font_face.glyph.bitmap
+        width, height = bitmap.width, bitmap.rows
+        texture_data = np.array(bitmap.buffer, dtype=np.ubyte).reshape(height, width)
+        return width, height, texture_data
+
+    # fmt: off
     def get_vertex_data(self) -> np.ndarray:
-        return np.zeros(6 * 4 * 4, dtype=np.float32)
+        x = 0
+        width, height, texture_data = self.load_char_texture("A")
+        xpos, ypos = x, 0
+        w, h = int(width), int(height)
+        return np.array([
+                xpos    , ypos + h, 0.0, 1.0, 0.0,
+                xpos    , ypos    , 0.0, 0.0, 0.0,
+                xpos + w, ypos    , 0.0, 0.0, 1.0,
+
+                xpos    , ypos + h, 0.0, 1.0, 0.0,
+                xpos + w, ypos    , 0.0, 0.0, 1.0,
+                xpos + w, ypos + h, 0.0, 1.0, 1.0
+            ], dtype='f4')
+    # fmt: on

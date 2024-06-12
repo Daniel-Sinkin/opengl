@@ -1,7 +1,8 @@
 import typing
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, cast
 
+import freetype
 import glm
 import moderngl as mgl
 import numpy as np
@@ -9,6 +10,7 @@ import pygame as pg
 import ujson as json
 from glm import mat3, mat4, vec2, vec3
 from moderngl import Program
+from PIL import Image
 
 from .camera import Camera
 from .constants import *
@@ -25,11 +27,8 @@ class Quad:
 
         self.program: Program = self.vao.program
 
-    def update(self) -> None:
-        if self.app.menu_open:
-            self.program["menuOpen"] = True
-        else:
-            self.program["menuOpen"] = False
+    def update(self):
+        pass
 
     def render(self) -> None:
         self.vao.render(mgl.TRIANGLE_STRIP)
@@ -154,10 +153,15 @@ class CoordinateAxis(BaseModel):
         self.is_active = False
 
     def update(self) -> None:
+        was_active = self.is_active
         self.is_active = self.app.menu_open
         if self.is_active:
             self.program["m_view"].write(self.camera.m_view)
-            if self.app.camera_projection_has_changed:
+
+            # If were inactive and the FOV changed we have no way of checking that so we just
+            # push the current projection matrix into the shader, this not a performance
+            # concern because that will only be done every menu switch.
+            if self.app.camera_projection_has_changed or was_active:
                 self.program["m_proj"].write(self.camera.m_proj)
 
             self.program["m_model"].write(self.owner.m_model)
@@ -175,11 +179,6 @@ class SkyBox(BaseModel):
     def update(self):
         m_view = glm.mat4(glm.mat3(self.camera.m_view))
         self.program["m_invProjView"].write(glm.inverse(self.camera.m_proj * m_view))
-
-        if self.app.menu_open:
-            self.program["menuOpen"] = True
-        else:
-            self.program["menuOpen"] = False
 
     def on_init(self):
         self.texture = self.app.mesh.texture.textures[self.texture_id]
@@ -274,11 +273,6 @@ class Model(BaseModel):
                 self.scale_animation_function(self.alpha + self.app.frame_counter / 50),
             )
 
-        if self.app.menu_open:
-            self.program["menuOpen"] = True
-        else:
-            self.program["menuOpen"] = False
-
     def render(self):
         super().render()
 
@@ -328,11 +322,6 @@ class Model(BaseModel):
     def get_data(vertices, indices):
         data = [vertices[ind] for triangle in indices for ind in triangle]
         return np.array(data, dtype=np.float32)
-
-    def get_vbo(self):
-        vertex_data = self.get_vertex_data()
-        vbo = self.ctx.buffer(vertex_data)
-        return vbo
 
 
 class Cube(Model):
@@ -402,3 +391,41 @@ class Sphere(Model):
             *args,
             **kwargs,
         )
+
+
+def load_char_texture(character, font_face):
+    font_face.load_char(character)
+    bitmap: freetype.Bitmap = cast(freetype.Bitmap, font_face.glyph.bitmap)
+    width, height = int(bitmap.width), int(bitmap.rows)
+
+    print(f"{type(width)=},{type(height)=},{type(bitmap)=}")
+
+    texture_data: np.ndarray = np.array(bitmap.buffer, dtype=np.ubyte).reshape(
+        height, width
+    )
+
+    image = Image.fromarray(texture_data, mode="L")
+    image.save("image_texture.png")
+
+    return width, height, texture_data
+
+
+class UIText:
+    def __init__(self, app: "GraphicsEngine", text, font_face):
+        self.app: GraphicsEngine = app
+        self.ctx: GraphicsEngine = app.ctx
+        self.vao_name = "ui_text"
+        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
+        self.program: Program = self.vao.program
+
+        width, height, texture_data = load_char_texture("A", self.app.font_face)
+        self.texture = self.app.ctx.texture((width, height), 1, texture_data)
+
+        self.text = text
+        self.font_face = font_face
+
+    def render(self):
+        # self.texture.use(location=0)
+        # self.program["text_texture"].value = 0
+        # self.program["text_color"].value = (1.0, 1.0, 1.0)
+        self.vao.render()

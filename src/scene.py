@@ -18,6 +18,7 @@ class Scene:
         self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
+        self.ui_text = UIText(app, "a", self.app.font_face)
 
     def serialize(
         self, serialize_type="json", filepath=None

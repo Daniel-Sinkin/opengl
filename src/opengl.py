@@ -1,6 +1,6 @@
 import pygame as pg
 
-from .settings import Settings_OpenGL
+from . import settings
 
 
 def setup_opengl(window_size: tuple[int, int]) -> pg.Surface:
@@ -8,10 +8,10 @@ def setup_opengl(window_size: tuple[int, int]) -> pg.Surface:
 
     # OpenGL setup
     pg.display.gl_set_attribute(
-        pg.GL_CONTEXT_MAJOR_VERSION, Settings_OpenGL.MAJOR_VERSION
+        pg.GL_CONTEXT_MAJOR_VERSION, settings.OpenGL.MAJOR_VERSION
     )
     pg.display.gl_set_attribute(
-        pg.GL_CONTEXT_MINOR_VERSION, Settings_OpenGL.MINOR_VERSION
+        pg.GL_CONTEXT_MINOR_VERSION, settings.OpenGL.MINOR_VERSION
     )
     pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
     # OpenGL Context
