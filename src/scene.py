@@ -34,12 +34,9 @@ class Scene:
         }
         return dict_
 
-    def add_object(self, obj: Model, log=False) -> None:
-        log = True
+    def add_object(self, obj: Model) -> None:
         self.objects.append(obj)
         obj.scene_idx = self.object_idx
-        if log:
-            self.app.logger.debug("Registered object: %s", obj)
 
         self.object_idx += 1
 

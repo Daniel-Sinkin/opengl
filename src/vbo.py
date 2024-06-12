@@ -38,8 +38,9 @@ class VBOHandler:
             "advanced_skybox": SkyBox(ctx),
             "quad": Quad(ctx),
             "sphere": Sphere(ctx),
-            "coordinate_axis": Coordinate_Axis(ctx),
             "cylinder": Cylinder(ctx),
+            "coordinate_axis": Coordinate_Axis(ctx),
+            "ui_text": UI_text(ctx),
         }
 
     def destroy(self):
@@ -52,9 +53,8 @@ class VertexBufferObject(ABC):
         self.ctx: Context = ctx
         self.vbo: Buffer = self.get_vbo()
 
-    # TODO: Rethink how we typehint this, prolly don't even need any because this is pretty isolated code
     @abstractmethod
-    def get_vertex_data(self) -> Iterable[VERTEX_POSITION]: ...
+    def get_vertex_data(self) -> np.ndarray: ...
 
     @property
     @abstractmethod
@@ -241,7 +241,7 @@ class Quad(VertexBufferObject):
         return [VBO.IN_POSITION]
 
     # fmt: off
-    def get_vertex_data(self) -> Iterable[POSITION2D]:
+    def get_vertex_data(self) -> np.ndarray:
         return np.array(
             [
                 -1.0, -1.0,
@@ -261,10 +261,10 @@ class Coordinate_Axis(VertexBufferObject):
 
     @property
     def attributes(self) -> list[str]:
-        return [VBO.IN_POSITION, "in_color"]
+        return [VBO.IN_POSITION, VBO.IN_COLOR]
 
     # fmt: off
-    def get_vertex_data(self) -> Iterable[POSITION3D]:
+    def get_vertex_data(self) -> np.ndarray:
         return np.array([
             # Objects         Colors
             0.0,  0.0, 0.0,   1.0, 0.0, 0.0, # X Axis
@@ -275,3 +275,16 @@ class Coordinate_Axis(VertexBufferObject):
             0.0,  0.0, 1.0,   0.0, 0.0, 1.0, # BLUE
         ], dtype=np.float32)
     # fmt: on
+
+
+class UI_text(VertexBufferObject):
+    @property
+    def buffer_format(self) -> str:
+        return "4f 2f"
+
+    @property
+    def attributes(self) -> list[str]:
+        return [VBO.IN_POSITION, VBO.IN_TEXCOORD_0]
+
+    def get_vertex_data(self) -> np.ndarray:
+        return np.zeros(6 * 4 * 4, dtype=np.float32)

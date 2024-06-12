@@ -29,8 +29,8 @@ vec3_xy: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 0.0)
 vec3_xz: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 1.0)
 vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
 # fmt: on
-VEC3_AXIS_PERMUTATIONS = lambda: [
-    vec3()
+VEC3_AXIS_PERMUTATIONS: Callable[[], list[vec3]] = lambda: [
+    vec3(),
     vec3_1(),
     vec3_x(),
     vec3_y(),
@@ -65,6 +65,7 @@ class VBO:
     IN_TEXCOORD_0 = IN_TEXCOORD_N(0)
     IN_NORMAL = "in_normal"
     IN_POSITION = "in_position"
+    IN_COLOR = "in_color"
 
     FILE_CUBE = "CubeVBO.npy"
     FILE_CYLINDER = "CylinderVBO.npy"
