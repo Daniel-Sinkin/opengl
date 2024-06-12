@@ -17,24 +17,6 @@ if typing.TYPE_CHECKING:
     from graphics_engine import GraphicsEngine
 
 
-class CoordinateAxis:
-    def __init__(self, app: "GraphicsEngine"):
-        self.app: GraphicsEngine = app
-        self.camera: Camera = self.app.camera
-        self.vao_name = "coordinate_axis"
-        self.vao: mgl.VertexArray = app.mesh.vao.vao_map[self.vao_name]
-
-        self.program: Program = self.vao.program
-
-    def update(self) -> None:
-        mvp = self.camera.m_proj * self.camera.m_view
-        self.program["mvp"].write(mvp)
-
-    def render(self) -> None:
-        self.update()
-        self.vao.render(mgl.LINES)
-
-
 class Quad:
     def __init__(self, app: "GraphicsEngine"):
         self.app: GraphicsEngine = app
@@ -58,10 +40,11 @@ class BaseModel:
         self,
         app: "GraphicsEngine",
         vao_name: str,
-        texture_id: int | str,
+        texture_id: Optional[int | str] = None,
         pos: vec3 = vec3_0(),
         rot: vec3 = vec3_0(),
         scale: vec3 = vec3_1(),
+        render_mode: Optional[int] = None,
     ):
         self.app: GraphicsEngine = app
 
@@ -73,13 +56,15 @@ class BaseModel:
         self.m_model_initial = self.get_initial_model_matrix()
         self.m_model: mat4 = self.get_initial_model_matrix()
 
-        self.texture_id: int | str = texture_id
+        self.texture_id: Optional[int | str] = texture_id
 
         self.vao_name = vao_name
         self.vao: mgl.VertexArray = app.mesh.vao.vao_map[vao_name]
 
         self.program: Program = self.vao.program
         self.camera: Camera = self.app.camera
+
+        self.render_mode: Optional[int] = render_mode
 
         self.scene_idx = None
 
@@ -104,19 +89,19 @@ class BaseModel:
 
     def render(self) -> None:
         self.update()
-        self.vao.render()
+        self.vao.render(self.render_mode)
 
     def __str__(self) -> None:
         return f"BaseModel({self.vao_name=},{self.texture_id=},{self.pos=},{self.rot=},{self.scale=})"
 
     def serialize(
         self, serialize_type="json", filepath=None, include_scene_idx=False
-    ) -> BASEMODEL_SERIALIZE:
+    ) -> BasemodelSerialize:
         if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
+                DevStrings.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_ = BASEMODEL_SERIALIZE(
+        dict_ = BasemodelSerialize(
             vao_name=self.vao_name,
             texture_id=self.texture_id,
             pos=tuple(self.pos),
@@ -125,7 +110,7 @@ class BaseModel:
         )
         if include_scene_idx:
             if self.scene_idx is None:
-                self.app.logger.warn(
+                self.app.logger.warning(
                     f"Tried to serialize `scene_idx` of {self}, but it's not set!"
                 )
             else:
@@ -135,6 +120,31 @@ class BaseModel:
             json.dump(dict_, filepath)
 
         return dict_
+
+
+class CoordinateAxis(BaseModel):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        pos: vec3 = vec3_0(),
+        rot: vec3 = vec3_0(),
+        scale: vec3 = vec3_1(),
+    ):
+        super().__init__(
+            app,
+            "coordinate_axis",
+            texture_id=None,
+            pos=pos,
+            rot=rot,
+            scale=scale,
+            render_mode=mgl.LINES,
+        )
+        self.program["m_proj"].write(self.camera.m_proj)
+
+    def update(self):
+        self.program["m_view"].write(self.camera.m_view)
+        if self.app.camera_projection_has_changed:
+            self.program["m_proj"].write(self.camera.m_proj)
 
 
 class SkyBox(BaseModel):
@@ -193,12 +203,12 @@ class Model(BaseModel):
 
     def serialize(
         self, serialize_type="json", filepath=None, include_scene_idx=False
-    ) -> MODEL_SERIALIZE:
+    ) -> ModelSerialize:
         if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
+                DevStrings.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_: BASEMODEL_SERIALIZE = super().serialize(serialize_type, None, False)
+        dict_: BasemodelSerialize = super().serialize(serialize_type, None, False)
         dict_["rot_update"] = self.rot_update
         if include_scene_idx:
             dict_["scene_idx"] = self.scene_idx

@@ -56,7 +56,7 @@ class Camera:
         self.recording_start = None
         self.is_recording = False
 
-        self.recording_buffer: list[tuple[int, CAMERA_SERIALIZE_BASE]] = []
+        self.recording_buffer: list[tuple[int, CameraSerializeBase]] = []
         self.recorded_camera_path_tracer = None
 
     def serialize(
@@ -64,13 +64,13 @@ class Camera:
         serialize_type="json",
         filepath: Optional[str] = None,
         include_base_settings=False,
-    ) -> CAMERA_SERIALIZE_BASE:
+    ) -> CameraSerializeBase:
         if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
+                DevStrings.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
 
-        dict_ = CAMERA_SERIALIZE_BASE(
+        dict_ = CameraSerializeBase(
             position=tuple(map(lambda x: round(x, 4), self.position)),
             pitch=round(self.pitch, 4),
             yaw=round(self.yaw, 4),
@@ -80,19 +80,19 @@ class Camera:
             dict_["far_plane"] = round(self.far_plane, 4)
             dict_["speed"] = round(self.speed, 4)
             dict_["sensitivity"] = round(self.sensitivity, 4)
-            dict_ = cast(CAMERA_SERIALIZE, dict_)
+            dict_ = cast(CameraSerialize, dict_)
 
         if filepath is not None:
             json.dump(dict_, filepath)
 
         return dict_
 
-    def deserialize(self, serialized: CAMERA_SERIALIZE_BASE) -> None:
+    def deserialize(self, serialized: CameraSerializeBase) -> None:
         self.position = vec3(serialized["position"])
         self.yaw = serialized["yaw"]
         self.pitch = serialized["pitch"]
 
-    def append_current_to_path_trace(self) -> list[CAMERA_SERIALIZE_BASE]:
+    def append_current_to_path_trace(self) -> list[CameraSerializeBase]:
         self.path_trace[pg.time.get_ticks()] = self.serialize(
             serialize_type="json", filepath=None, include_base_settings=False
         )

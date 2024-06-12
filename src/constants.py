@@ -19,15 +19,17 @@ VEC_N: TypeAlias = vec1 | vec2 | vec3 | vec4
 ###
 # Constant Variables
 ###
+# fmt: off
 # Have to create new objects otherwise we only pass around references
-vec3_0: Callable[[], vec3] = lambda: vec3(0.0, 0.0, 0.0)
-vec3_1: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 1.0)
-vec3_x: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 0.0)
-vec3_y: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 0.0)
-vec3_z: Callable[[], vec3] = lambda: vec3(0.0, 0.0, 1.0)
+vec3_0 : Callable[[], vec3] = lambda: vec3(0.0, 0.0, 0.0)
+vec3_1 : Callable[[], vec3] = lambda: vec3(1.0, 1.0, 1.0)
+vec3_x : Callable[[], vec3] = lambda: vec3(1.0, 0.0, 0.0)
+vec3_y : Callable[[], vec3] = lambda: vec3(0.0, 1.0, 0.0)
+vec3_z : Callable[[], vec3] = lambda: vec3(0.0, 0.0, 1.0)
 vec3_xy: Callable[[], vec3] = lambda: vec3(1.0, 1.0, 0.0)
 vec3_xz: Callable[[], vec3] = lambda: vec3(1.0, 0.0, 1.0)
 vec3_yz: Callable[[], vec3] = lambda: vec3(0.0, 1.0, 1.0)
+# fmt: on
 VEC3_AXIS_PERMUTATIONS = lambda: [
     vec3_0(),
     vec3_1(),
@@ -48,7 +50,8 @@ EPS = 1e-4
 ###
 # Strings
 ###
-class DevStringsLambda:
+@dataclass
+class DevStrings:
     UNSUPPORTED_OBJECT_SERIALIZATION_TYPE: Callable[[type], str] = (
         lambda type_: "Unsupported object serialization type %s." % type_
     )
@@ -81,20 +84,20 @@ class PLAYER_CONTROLLER_MODE(IntEnum):
 ###
 # Dicts
 ###
-class CAMERA_SERIALIZE_BASE(TypedDict):
+class CameraSerializeBase(TypedDict):
     position: POSITION3D
     pitch: float
     yaw: float
 
 
-class CAMERA_SERIALIZE(CAMERA_SERIALIZE_BASE):
+class CameraSerialize(CameraSerializeBase):
     near_plane: float
     far_plane: float
     speed: float
     sensitivity: float
 
 
-class BASEMODEL_SERIALIZE(TypedDict):
+class BasemodelSerialize(TypedDict):
     vao_name: str
     texture_id: int
     pos: POSITION3D
@@ -102,8 +105,8 @@ class BASEMODEL_SERIALIZE(TypedDict):
     scale: POSITION3D
 
 
-class MODEL_SERIALIZE(BASEMODEL_SERIALIZE):
+class ModelSerialize(BasemodelSerialize):
     rot_update: POSITION3D
 
 
-SCENE_SERIALIZE_DICT: TypeAlias = dict[int, BASEMODEL_SERIALIZE]
+SCENE_SERIALIZE_DICT: TypeAlias = dict[int, BasemodelSerialize]

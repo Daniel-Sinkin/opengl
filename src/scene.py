@@ -18,16 +18,16 @@ class Scene:
         self.load_basic()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
-        self.lines = CoordinateAxis(app)
+        self.coordinate_axis = CoordinateAxis(app)
 
     def serialize(
         self, serialize_type="json", filepath=None
-    ) -> dict[int, BASEMODEL_SERIALIZE]:
+    ) -> dict[int, BasemodelSerialize]:
         if serialize_type != "json":
             raise NotImplementedError(
-                DevStringsLambda.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
+                DevStrings.UNSUPPORTED_OBJECT_SERIALIZATION_TYPE(serialize_type)
             )
-        dict_: dict[int, BASEMODEL_SERIALIZE] = {
+        dict_: dict[int, BasemodelSerialize] = {
             obj.scene_idx: obj.serialize(
                 serialize_type, filepath=None, include_scene_idx=False
             )
@@ -61,7 +61,6 @@ class Scene:
                     )
                 )
         self.add_object(Cat(self.app, pos=vec3(0, -1, -15)))
-
         self.add_object(Cube(self.app, pos=vec3(5, 5, 5), rot_update=0.002 * vec3_xy()))
 
     def load_basic(self) -> None:

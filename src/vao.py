@@ -3,6 +3,25 @@ from moderngl import Buffer, Context, Program, VertexArray
 from .shader_program import ShaderProgram
 from .vbo import VBOHandler, VertexBufferObject
 
+# TODO: Consider if we should make the vao map into a named tuple
+# fmt: off
+vao_tuples: list[tuple[str, str, str]] = [
+#   VAO_NAME            PROGRAM_NAME       VBO_NAME
+    ("cube",            "default",         "cube"),
+    ("shadow_cube",     "shadow_map",      "cube"),
+    ("cat",             "default",         "cat"),
+    ("shadow_cat",      "shadow_map",      "cat"),
+    ("skybox",          "skybox",          "skybox"),
+    ("advanced_skybox", "advanced_skybox", "advanced_skybox"),
+    ("quad",            "quad",            "quad"),
+    ("sphere",          "default",         "sphere"),
+    ("shadow_sphere",   "shadow_map",      "sphere"),
+    ("coordinate_axis", "coordinate_axis", "coordinate_axis"),
+    ("cylinder",        "default",         "cylinder"),
+    ("shadow_cylinder", "shadow_map",      "cylinder"),
+]
+# fmt: on
+
 
 class VertexArrayObject:
     def __init__(self, ctx: Context):
@@ -11,44 +30,10 @@ class VertexArrayObject:
         self.program = ShaderProgram(ctx)
 
         self.vao_map: dict[str, VertexArray] = {
-            "cube": self.get_vao(
-                self.program.programs["default"], self.vbo.vbo_map["cube"]
-            ),
-            "shadow_cube": self.get_vao(
-                self.program.programs["shadow_map"], self.vbo.vbo_map["cube"]
-            ),
-            "cat": self.get_vao(
-                self.program.programs["default"], self.vbo.vbo_map["cat"]
-            ),
-            "shadow_cat": self.get_vao(
-                self.program.programs["shadow_map"], self.vbo.vbo_map["cat"]
-            ),
-            "skybox": self.get_vao(
-                self.program.programs["skybox"], self.vbo.vbo_map["skybox"]
-            ),
-            "advanced_skybox": self.get_vao(
-                self.program.programs["advanced_skybox"],
-                self.vbo.vbo_map["advanced_skybox"],
-            ),
-            "quad": self.get_vao(
-                self.program.programs["quad"], self.vbo.vbo_map["quad"]
-            ),
-            "sphere": self.get_vao(
-                self.program.programs["default"], self.vbo.vbo_map["sphere"]
-            ),
-            "shadow_sphere": self.get_vao(
-                self.program.programs["shadow_map"], self.vbo.vbo_map["sphere"]
-            ),
-            "coordinate_axis": self.get_vao(
-                self.program.programs["coordinate_axis"],
-                self.vbo.vbo_map["coordinate_axis"],
-            ),
-            "cylinder": self.get_vao(
-                self.program.programs["default"], self.vbo.vbo_map["cylinder"]
-            ),
-            "shadow_cylinder": self.get_vao(
-                self.program.programs["shadow_map"], self.vbo.vbo_map["cylinder"]
-            ),
+            vao_name: self.get_vao(
+                self.program.programs[program_name], self.vbo.vbo_map[vbo_name]
+            )
+            for vao_name, program_name, vbo_name in vao_tuples
         }
 
     def get_vao(self, program: Program, vbo: VertexBufferObject) -> VertexArray:
