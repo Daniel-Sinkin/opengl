@@ -154,7 +154,6 @@ class CoordinateAxis(BaseModel):
         self.is_active = False
 
     def update(self) -> None:
-        print("UPDATE!")
         self.is_active = self.app.menu_open
         if self.is_active:
             self.program["m_view"].write(self.camera.m_view)

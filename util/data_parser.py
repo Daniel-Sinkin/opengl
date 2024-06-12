@@ -27,7 +27,6 @@ def determine_vertex_buffer_format(array_map: ARRAY_MAP) -> tuple[int, int, int]
     if obj_map[OBJSymbols.VERTEX][0].split(" ") == 3:
         vertex_dim = 3
     else:
-        print(obj_map[OBJSymbols.VERTEX][0].split(" "))
         raise NotImplementedError("Vertex Buffer dim != 3 not supported yet.")
 
     if obj_map[OBJSymbols.NORMAL][0].split(" ") == 3:
