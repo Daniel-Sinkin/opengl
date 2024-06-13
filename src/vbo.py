@@ -245,7 +245,7 @@ class Quad(VertexBufferObject):
     def get_vertex_data(self) -> np.ndarray:
         return np.array(
             [
-                0.85, 0.85,
+                 0.85, 0.85,
                   1.0, 0.85,
                  0.85,  1.0,
                   1.0,  1.0,

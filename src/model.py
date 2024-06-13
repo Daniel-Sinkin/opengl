@@ -171,7 +171,13 @@ class Line(BaseModel):
 
         transformation_matrix = translation_matric * rotation_axis * scaling_matrix
 
-        start_point = vec4()
+        start_point = vec4_w()
+        end_point = vec4_xw()
+
+        transformed_start_point = transformation_matrix * start_point
+        transformed_end_point = transformation_matrix * end_point
+
+        print(transformed_start_point, transformed_end_point)
 
 
 class CoordinateAxis(BaseModel):
@@ -453,6 +459,7 @@ def load_char_texture(character, font_face):
     return width, height, texture_data
 
 
+# TODO: Rework this
 class UIText:
     def __init__(self, app: "GraphicsEngine", text, font_face):
         self.app: GraphicsEngine = app

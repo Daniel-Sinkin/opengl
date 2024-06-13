@@ -57,6 +57,7 @@ def scale(v: vec3) -> mat4:
         0.0, 0.0, 0.0, 1.0
     )
 
+# TODO: Implement the case where we have rotation axis and angle given.
 def rot_angle_vector(angles: vec3) -> mat4:
     """Returns a rotation matrix for rotating around the corresponding angles around each axis."""
     c_x, s_x = glm.cos(angles.x), glm.sin(angles.x)
@@ -88,6 +89,7 @@ def get_line_transform_from_endpoints(p: vec3, q: vec3) -> mat4:
     """
     Computes T such that T @ (0, 0, 0) = p, T @ (1, 0, 0) = q.
     """
+    raise NotImplementedError("Need to rework this")
 
     # It's not faster to compute distance and divide it rather than normalizing via that function.
     distance = glm.distance(p, q)
@@ -120,7 +122,6 @@ def get_line_transform_from_endpoints(p: vec3, q: vec3) -> mat4:
     print(transformed_start_point, transformed_end_point)
 
 
-# TODO: Think of a better name this is horrible
 def mat4_x_vec3_to_vec3(M: mat4, v: vec3) -> vec3:
     v_extended = vec4(*v, 1)
     product: vec4 = M @ v_extended

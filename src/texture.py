@@ -37,7 +37,7 @@ class TextureHandler:
         return depth_texture
 
     def get_texture_cube(self, filepath: str, ext="png") -> TextureCube:
-        faces = ["right", "left", "top", "bottom", "back", "front"]
+        faces: list[str] = ["right", "left", "top", "bottom", "back", "front"]
 
         textures: list[pg.Surface] = []
         for face in faces:
