@@ -33,7 +33,7 @@ class BaseModel:
         texture_id: Optional[int | str] = None,
         pos: vec3 = vec3(),
         rot: vec3 = vec3(),
-        scale: vec3 = vec3_1(),
+        scale: vec3 = vec3(1.0),
         render_mode: Optional[int] = None,
         has_coordinate_axis: bool = True,
         *args,
@@ -126,7 +126,7 @@ class Line(BaseModel):
         app: "GraphicsEngine",
         pos=vec3(),
         rot=vec3(),
-        scale=vec3_1(),
+        scale=vec3(1.0),
     ):
         super().__init__(
             app,
@@ -257,14 +257,14 @@ class Model(BaseModel):
         texture_id,
         pos: vec3 = vec3(),
         rot: vec3 = vec3(),
-        scale: vec3 = vec3_1(),
+        scale: vec3 = vec3(1.0),
         rot_update: Optional[vec3] = None,
         *args,
         **kwargs,
     ):
         self.rot_update: Optional[vec3] = rot_update
         self.scale_animation_function = None
-        self.previous_scale_factor: vec3 = vec3_1()
+        self.previous_scale_factor: vec3 = vec3(1.0)
 
         super().__init__(
             app,
@@ -386,7 +386,7 @@ class Cube(Model):
         tex_id: str | int = 0,
         pos=vec3(),
         rot=vec3(),
-        scale=vec3_1(),
+        scale=vec3(1.0),
         rot_update: Optional[vec3] = None,
         *args,
         **kwargs,
@@ -407,7 +407,7 @@ class Cat(Model):
         app: "GraphicsEngine",
         pos: vec3 = vec3(),
         rot: vec3 = vec3(),
-        scale: vec3 = vec3_1(),
+        scale: vec3 = vec3(1.0),
         *args,
         **kwargs,
     ):
@@ -432,7 +432,7 @@ class Sphere(Model):
         texture_id=0,
         pos: vec3 = vec3(),
         rot: vec3 = vec3(),
-        scale: vec3 = vec3_1(),
+        scale: vec3 = vec3(1.0),
         *args,
         **kwargs,
     ):

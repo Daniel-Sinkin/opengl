@@ -69,43 +69,40 @@ VEC_N: TypeAlias = vec1 | vec2 | vec3 | vec4
 ###
 # fmt: off
 # Have to create new objects otherwise we only pass around references which can then be overwritten
-vec2_1  : Callable[[float], vec2] = lambda val = 1.0: vec2(val, val)
-vec2_x  : Callable[[float], vec2] = lambda val = 1.0: vec2(val, 0.0)
-vec2_y  : Callable[[float], vec2] = lambda val = 1.0: vec2(0.0, val)
+vec2_x  : Callable[[], vec2] = lambda val = 1.0: vec2(val, 0.0)
+vec2_y  : Callable[[], vec2] = lambda val = 1.0: vec2(0.0, val)
 
-vec3_1  : Callable[[float], vec3] = lambda val = 1.0: vec3(val, val, val)
-vec3_x  : Callable[[float], vec3] = lambda val = 1.0: vec3(val, 0.0, 0.0)
-vec3_y  : Callable[[float], vec3] = lambda val = 1.0: vec3(0.0, val, 0.0)
-vec3_z  : Callable[[float], vec3] = lambda val = 1.0: vec3(0.0, 0.0, val)
-vec3_xy : Callable[[float], vec3] = lambda val = 1.0: vec3(val, val, 0.0)
-vec3_xz : Callable[[float], vec3] = lambda val = 1.0: vec3(val, 0.0, val)
-vec3_yz : Callable[[float], vec3] = lambda val = 1.0: vec3(0.0, val, val)
+vec3_x  : Callable[[], vec3] = lambda val = 1.0: vec3(val, 0.0, 0.0)
+vec3_y  : Callable[[], vec3] = lambda val = 1.0: vec3(0.0, val, 0.0)
+vec3_z  : Callable[[], vec3] = lambda val = 1.0: vec3(0.0, 0.0, val)
+vec3_xy : Callable[[], vec3] = lambda val = 1.0: vec3(val, val, 0.0)
+vec3_xz : Callable[[], vec3] = lambda val = 1.0: vec3(val, 0.0, val)
+vec3_yz : Callable[[], vec3] = lambda val = 1.0: vec3(0.0, val, val)
 
-vec4_1  : Callable[[float], vec4] = lambda val = 1.0: vec4(val, val, val, val)
-vec4_x  : Callable[[float], vec4] = lambda val = 1.0: vec4(val, 0.0, 0.0, 0.0)
-vec4_y  : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, val, 0.0, 0.0)
-vec4_z  : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, 0.0, val, 0.0)
-vec4_w  : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, 0.0, 0.0, val)
-vec4_xy : Callable[[float], vec4] = lambda val = 1.0: vec4(val, val, 0.0, 0.0)
-vec4_xz : Callable[[float], vec4] = lambda val = 1.0: vec4(val, 0.0, val, 0.0)
-vec4_xw : Callable[[float], vec4] = lambda val = 1.0: vec4(val, 0.0, 0.0, val)
-vec4_yz : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, val, val, 0.0)
-vec4_yw : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, val, 0.0, val)
-vec4_zw : Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, 0.0, val, val)
-vec4_xyz: Callable[[float], vec4] = lambda val = 1.0: vec4(val, val, val, 0.0)
-vec4_xyw: Callable[[float], vec4] = lambda val = 1.0: vec4(val, val, 0.0, val)
-vec4_xzw: Callable[[float], vec4] = lambda val = 1.0: vec4(val, 0.0, val, val)
-vec4_yzw: Callable[[float], vec4] = lambda val = 1.0: vec4(0.0, val, val, val)
+vec4_x  : Callable[[], vec4] = lambda val = 1.0: vec4(val, 0.0, 0.0, 0.0)
+vec4_y  : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, val, 0.0, 0.0)
+vec4_z  : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, 0.0, val, 0.0)
+vec4_w  : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, 0.0, 0.0, val)
+vec4_xy : Callable[[], vec4] = lambda val = 1.0: vec4(val, val, 0.0, 0.0)
+vec4_xz : Callable[[], vec4] = lambda val = 1.0: vec4(val, 0.0, val, 0.0)
+vec4_xw : Callable[[], vec4] = lambda val = 1.0: vec4(val, 0.0, 0.0, val)
+vec4_yz : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, val, val, 0.0)
+vec4_yw : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, val, 0.0, val)
+vec4_zw : Callable[[], vec4] = lambda val = 1.0: vec4(0.0, 0.0, val, val)
+vec4_xyz: Callable[[], vec4] = lambda val = 1.0: vec4(val, val, val, 0.0)
+vec4_xyw: Callable[[], vec4] = lambda val = 1.0: vec4(val, val, 0.0, val)
+vec4_xzw: Callable[[], vec4] = lambda val = 1.0: vec4(val, 0.0, val, val)
+vec4_yzw: Callable[[], vec4] = lambda val = 1.0: vec4(0.0, val, val, val)
 
 VEC2_AXIS_PERMUTATIONS: Callable[[], list[vec2]] = lambda: [
     vec2(),
-    vec2_1(),
+    vec2(1.0),
     vec2_x(),
     vec2_y(),
 ]
 VEC3_AXIS_PERMUTATIONS: Callable[[], list[vec3]] = lambda: [
     vec3(),
-    vec3_1(),
+    vec3(1.0),
     vec3_x(),
     vec3_y(),
     vec3_z(),
@@ -114,7 +111,7 @@ VEC3_AXIS_PERMUTATIONS: Callable[[], list[vec3]] = lambda: [
     vec3_yz(),
 ]
 VEC4_AXIS_PERMUTATIONS: Callable[[], list[vec4]] = lambda: [
-    vec4_1(),
+    vec4(1.0),
     vec4_x(),
     vec4_y(),
     vec4_z(),

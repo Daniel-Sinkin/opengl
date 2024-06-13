@@ -28,7 +28,7 @@ class Scene:
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)
-        self.line = Line(app, pos=vec3_xy(4.0), scale=vec3_1(30.0))
+        self.line = Line(app, pos=vec3_xy(4.0), scale=vec3(30.0))
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -112,7 +112,7 @@ class Scene:
                 )
 
         def cat_scale_func(sigma):
-            return 0.5 * (1 + glm.cos(2 * sigma)) * (vec3_1()) + 0.5 * (
+            return 0.5 * (1 + glm.cos(2 * sigma)) * (vec3(1.0)) + 0.5 * (
                 1 - glm.cos(2 * sigma)
             ) * (vec3_xy() + 0.3 * vec3_z())
 
@@ -172,13 +172,13 @@ class Scene:
             -135 * vec3_x(),
         ]
         scales: list[vec3] = [
-            vec3_1(),
-            0.75 * vec3_1(),
-            0.6 * vec3_1(),
-            0.5 * vec3_1(),
-            0.4 * vec3_1(),
-            0.3 * vec3_1(),
-            0.2 * vec3_1(),
+            vec3(1.0),
+            0.75 * vec3(1.0),
+            0.6 * vec3(1.0),
+            0.5 * vec3(1.0),
+            0.4 * vec3(1.0),
+            0.3 * vec3(1.0),
+            0.2 * vec3(1.0),
         ]
 
         for tex_id, pos, rot, scale in zip(tex_ids, poss, rots, scales):
