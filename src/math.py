@@ -41,6 +41,13 @@ def get_line_to_line_transformation(p1: vec3, p2: vec3, q1: vec3, q2: vec3) -> m
     return glm.translate(q1) @ rotation_matrix @ scaling_matrix @ glm.translate(-p1)
 
 
+def distance_line_to_point(p1: vec3, p2: vec3, q: vec3) -> float:
+    """Unbounded Line to point distance, computed by projecting v onto p - ray_0."""
+    q_offset: vec3 = q - p1
+    ray_dir_n: vec3 = glm.normalize(p2 - p1)
+    return glm.distance(glm.dot(ray_dir_n, q_offset) * ray_dir_n, q_offset)
+
+
 ###
 # Reimplementations
 ###
