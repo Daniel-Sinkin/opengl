@@ -23,11 +23,12 @@ class Scene:
         if scene_id == "DEBUG":
             self.load_debug()
         else:
-            self.load_cat_circle_animated_scale()
+            pass
+            # self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)
-        self.ray = Line(app, pos=vec3_xy(4.0), scale=vec3_1(30.0))
+        self.line = Line(app, pos=vec3_xy(4.0), scale=vec3_1(30.0))
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -189,4 +190,4 @@ class Scene:
         for obj in self.objects:
             obj.update()
         self.quad.update()
-        self.ray.update()
+        self.line.update()

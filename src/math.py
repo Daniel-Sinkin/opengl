@@ -1,34 +1,49 @@
 from . import *
 
 """
-My utility math library, I might rewrite all the black box glm operations I'm using (like
-the projection, look_at, translation, scaling, rotation and so on) in here, but I prolly should
-stick to the std implementation regardless for performance reasons.
+This serves both as a utility class and as me implementing the blackbox functions that I use from
+glm like how the translation, scaling and rotation matrices are constructed, how view projection,
+model projections and so on are done under the hood.
+
+Maybe I'll split up the utility functionality and the "re-implementation" into seperate files as 
+my reimplementation will be quite a bit slower than the native glm operations.
 """
 
-
-def dot(p: vec3, q: vec3) -> vec3:
-    return sum(p * q)
-
-
-def length(p: vec3) -> float:
-    return glm.sqrt(dot(p, p))
+###
+# Math Utilities
+###
 
 
-def length2(p: vec3) -> float:
-    return dot(p, p)
+def get_line_to_line_transformation(p1: vec3, p2: vec3, q1: vec3, q2: vec3) -> mat4:
+    """
+    Returns the matrix T such that T @ p1 = q1, T @ p2 = q2
+    """
+    dist_q: float = glm.distance(q1, q2)
+    dist_p: float = glm.distance(p1, p2)
+    assert dist_p > EPS, "The points have to be different"
+    assert dist_q > EPS, "The points have to be different"
+
+    direction_p: vec3 = glm.normalize(p2 - p1)
+    direction_q: vec3 = glm.normalize(q2 - q1)
+
+    # How much will we need to stretch the line
+    scaling_factor: float = dist_q / dist_p
+
+    scaling_matrix: mat4 = glm.scale(vec3(scaling_factor))
+
+    rotation_axis: vec3 = glm.cross(direction_p, direction_q)
+    if glm.distance(rotation_axis, vec3()) < EPS:
+        rotation_matrix = mat4()
+    else:
+        rotation_angle: float = glm.acos(glm.dot(direction_p, direction_q))
+        rotation_matrix: mat4 = glm.rotate(rotation_angle, rotation_axis)
+
+    return glm.translate(q1) @ rotation_matrix @ scaling_matrix @ glm.translate(-p1)
 
 
-def norm1(p: vec3) -> float:
-    return abs(p.x) + abs(p.y) + abs(p.z)
-
-
-def norm_inf(p: vec3) -> float:
-    return max(abs(p.x), abs(p.y), abs(p.z))
-
-
-def normalize(p: vec3) -> vec3:
-    return p / length(p)
+###
+# Reimplementations
+###
 
 
 def cross(p: vec3, q: vec3) -> vec3:
@@ -39,7 +54,7 @@ def cross(p: vec3, q: vec3) -> vec3:
 
 
 # fmt: off
-def translate(v: vec3) -> mat4:
+def get_translation_matrix(v: vec3) -> mat4:
     """Returns a matrix T such that vec3(T @ p) = (p.x + v.x, p.y + v.y, p.z + v.z)."""
     return mat4(
         1.0, 0.0, 0.0, v.x,
@@ -48,7 +63,7 @@ def translate(v: vec3) -> mat4:
         0.0, 0.0, 0.0, 1.0
     )
 
-def scale(v: vec3) -> mat4:
+def get_scale_matrix(v: vec3) -> mat4:
     """Returns a matrix T such that vec3(T @ p) = (v.x * p.x, v.y * p.y, v.z * p.z)."""
     return mat4(
         v.x, 0.0, 0.0, 0.0,
@@ -58,7 +73,7 @@ def scale(v: vec3) -> mat4:
     )
 
 # TODO: Implement the case where we have rotation axis and angle given.
-def rot_angle_vector(angles: vec3) -> mat4:
+def get_axis_rotation_matrix(angles: vec3) -> mat4:
     """Returns a rotation matrix for rotating around the corresponding angles around each axis."""
     c_x, s_x = glm.cos(angles.x), glm.sin(angles.x)
     c_y, s_y = glm.cos(angles.y), glm.sin(angles.y)
@@ -85,76 +100,10 @@ def rot_angle_vector(angles: vec3) -> mat4:
 # fmt: on
 
 
-def get_line_transform_from_endpoints(p: vec3, q: vec3) -> mat4:
-    """
-    Computes T such that T @ (0, 0, 0) = p, T @ (1, 0, 0) = q.
-    """
-    raise NotImplementedError("Need to rework this")
-
-    # It's not faster to compute distance and divide it rather than normalizing via that function.
-    distance = glm.distance(p, q)
-    if distance < EPS:
-        raise ValueError("Can't put a line between a point and itself!")
-
-    direction = glm.normalize(q - p)
-
-    translation_matric: mat4 = glm.translate(glm.mat4(), p)
-
-    scaling_matrix: mat4 = glm.scale(glm.mat4(), glm.vec3(distance, 1.0, 1.0))
-
-    angle: float = glm.acos(direction.x)
-    rotation_axis: vec3 = glm.cross(vec3_x(), direction)
-
-    if glm.length(rotation_axis) > EPS:
-        rotation_axis = glm.normalize(rotation_axis)
-        rotation_matrix = glm.rotate(glm.mat4(1.0), angle, rotation_axis)
-    else:
-        rotation_matrix = glm.mat4(1.0)
-
-    transformation_matrix = translation_matric * rotation_axis * scaling_matrix
-
-    start_point = vec4_w()
-    end_point = vec4_xw()
-
-    transformed_start_point = transformation_matrix * start_point
-    transformed_end_point = transformation_matrix * end_point
-
-    print(transformed_start_point, transformed_end_point)
-
-
-def get_line_to_line_transformation(p1: vec3, p2: vec3, q1: vec3, q2: vec3) -> mat4:
-    """
-    Returns the matrix T such that T @ p1 = q1, T @ p2 = q2
-    """
-    direction = glm.normalize(q2 - q1)
-    distance = glm.distance(q1, q2)
-
-    p2_s = p1 + distance * glm.normalize(p2 - p1)
-
-    translation = glm.translate(q1 - p1)
-    assert np.allclose(translation @ p1, q1)
-
-    p2_t = translation @ p2_s
-
-    v = glm.normalize(p2 - p1)  # == glm.normalize(p2_t - q)
-    w = direction
-
-    alpha = glm.acos(glm.dot(v, w))
-
-    # p2_t_norm = glm.normalize(p2_t)
-    # p2_t_norm_to_dir_alpha = glm.acos(glm.dot(p2_t_norm, direction))
-    # rotation_axis = glm.cross(p2_t_norm, direction)
-    # p2_t_norm_to_dir = glm.rotate(p2_t_norm_to_dir_alpha, glm.cross(p2_t_norm, direction))
-    # assert np.allclose(p2_t_norm_to_dir @ p2_t_norm, direction)
-    # assert np.allclose(p2_t_norm_to_dir @ p2_t, q2)
-
-    alpha = glm.acos(glm.dot(glm.normalize(p2 - p1), direction))
-    rotation_axis = glm.cross(glm.normalize(p2 - p1), direction)
-    glm.rotate(alpha, rotation_axis) @ p2_t
-    print(p2_t)
-
-
 def mat4_x_vec3_to_vec3(M: mat4, v: vec3) -> vec3:
+    """
+    This is what gets executed when you call M @ v.
+    """
     v_extended = vec4(*v, 1)
     product: vec4 = M @ v_extended
     product_restricted = vec3(product)

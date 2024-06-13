@@ -2,7 +2,7 @@ from . import *
 
 """"""
 
-from . import settings
+from . import my_logger, settings
 from .constants import (
     PLAYER_CONTROLLER_MODE,
     CameraSerialize,
@@ -18,10 +18,12 @@ class Camera:
     def __init__(
         self,
         app: "GraphicsEngine",
-        position: POSITION3D = None,
+        position: POSITION3D = (-3.32, 4.00, -45.27),
         yaw=settings.Camera.INITIAL_YAW,
         pitch=settings.Camera.INITAL_PITCH,
     ):
+        self.logger = my_logger.setup("PlayerCamera")
+
         self.app: GraphicsEngine = app
         self.aspect_ratio: float = app.window_size[0] / app.window_size[1]
 
@@ -46,6 +48,7 @@ class Camera:
         self.right: vec3 = vec3_x()
         self.forward: vec3 = -vec3_z()
 
+        yaw, pitch = 4.05, 75.00
         self.initial_yaw, self.initial_pitch = yaw, pitch
         self.yaw, self.pitch = yaw, pitch
 
@@ -136,6 +139,10 @@ class Camera:
 
         if self.is_recording:
             self._update_recoding()
+
+        self.logger.debug(
+            "(%.2f, %.2f, %.2f, %.2f, %.2f)", *self.position, self.pitch, self.yaw
+        )
 
     def move(self) -> None:
         """

@@ -4,6 +4,7 @@ from . import *
 
 from .camera import Camera
 from .constants import *
+from .math import get_line_to_line_transformation
 
 if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
@@ -136,6 +137,9 @@ class Line(BaseModel):
             scale=scale,
             render_mode=mgl.LINES,
             has_coordinate_axis=False,
+        )
+        self.m_model *= get_line_to_line_transformation(
+            vec3(), vec3_x(), vec3(), vec3_xy()
         )
         self.program["m_view"].write(self.camera.m_view)
         self.program["m_proj"].write(self.camera.m_proj)

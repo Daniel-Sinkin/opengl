@@ -34,7 +34,7 @@ class SceneRenderer:
         self.scene.skybox.render()
         self.scene.quad.render()
         self.scene.ui_text.render()
-        self.scene.ray.render()
+        self.scene.line.render()
         # self.scene.global_coordinate_axis.render()
 
     def debug_render(self):
