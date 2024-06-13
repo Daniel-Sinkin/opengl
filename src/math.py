@@ -122,6 +122,38 @@ def get_line_transform_from_endpoints(p: vec3, q: vec3) -> mat4:
     print(transformed_start_point, transformed_end_point)
 
 
+def get_line_to_line_transformation(p1: vec3, p2: vec3, q1: vec3, q2: vec3) -> mat4:
+    """
+    Returns the matrix T such that T @ p1 = q1, T @ p2 = q2
+    """
+    direction = glm.normalize(q2 - q1)
+    distance = glm.distance(q1, q2)
+
+    p2_s = p1 + distance * glm.normalize(p2 - p1)
+
+    translation = glm.translate(q1 - p1)
+    assert np.allclose(translation @ p1, q1)
+
+    p2_t = translation @ p2_s
+
+    v = glm.normalize(p2 - p1)  # == glm.normalize(p2_t - q)
+    w = direction
+
+    alpha = glm.acos(glm.dot(v, w))
+
+    # p2_t_norm = glm.normalize(p2_t)
+    # p2_t_norm_to_dir_alpha = glm.acos(glm.dot(p2_t_norm, direction))
+    # rotation_axis = glm.cross(p2_t_norm, direction)
+    # p2_t_norm_to_dir = glm.rotate(p2_t_norm_to_dir_alpha, glm.cross(p2_t_norm, direction))
+    # assert np.allclose(p2_t_norm_to_dir @ p2_t_norm, direction)
+    # assert np.allclose(p2_t_norm_to_dir @ p2_t, q2)
+
+    alpha = glm.acos(glm.dot(glm.normalize(p2 - p1), direction))
+    rotation_axis = glm.cross(glm.normalize(p2 - p1), direction)
+    glm.rotate(alpha, rotation_axis) @ p2_t
+    print(p2_t)
+
+
 def mat4_x_vec3_to_vec3(M: mat4, v: vec3) -> vec3:
     v_extended = vec4(*v, 1)
     product: vec4 = M @ v_extended
