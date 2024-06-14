@@ -80,8 +80,14 @@ def cross(p: vec3, q: vec3) -> vec3:
     return vec3(s1, s2, s3)
 
 
+def lookAt(self, eye: vec3, center: vec3, up: vec3) -> mat4: ...
+
+
+def perspective(self, fovy: float, aspect: float, near: float, far: float) -> mat4: ...
+
+
 # fmt: off
-def get_translation_matrix(v: vec3) -> mat4:
+def translate(v: vec3) -> mat4:
     """Returns a matrix T such that vec3(T @ p) = (p.x + v.x, p.y + v.y, p.z + v.z)."""
     return mat4(
         1.0, 0.0, 0.0, v.x,
@@ -90,7 +96,7 @@ def get_translation_matrix(v: vec3) -> mat4:
         0.0, 0.0, 0.0, 1.0
     )
 
-def get_scale_matrix(v: vec3) -> mat4:
+def scale(v: vec3) -> mat4:
     """Returns a matrix T such that vec3(T @ p) = (v.x * p.x, v.y * p.y, v.z * p.z)."""
     return mat4(
         v.x, 0.0, 0.0, 0.0,
