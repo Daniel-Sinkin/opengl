@@ -17,6 +17,12 @@ class Ray:
         self.direction: vec3 = glm.normalize(direction)
         self.length: Optional[float] = length
 
+    def __repr__(self):
+        if self.length is None:
+            return f"Ray(origin={self.origin},direction={self.direction})"
+        else:
+            return f"Ray(origin={self.origin},direction={self.direction},{self.length})"
+
     def distance_to_point_minimizer(self, p: vec3) -> tuple[float, float]:
         t: float = glm.dot(p - self.origin, self.direction)
         # Only positive ray val is allowed
@@ -28,17 +34,22 @@ class Ray:
         return dist
 
     def check_for_collision_sphere(self, obj: "SphereCollider") -> Optional[vec3]:
+        if glm.distance(self.origin, obj.center) <= obj.radius:
+            return 0.0, 0.0
         dist, t = self.distance_to_point_minimizer(obj.center)
         if dist <= obj.radius:
-            return self.origin + t * self.direction
+            return self.origin + (t - obj.radius) * self.direction
         else:
             return None
 
     def check_for_collision(self, obj: "Collider") -> Optional[vec3]:
+        if not isinstance(self, "Collider"):
+            raise TypeError(f"Can't compute collision with {type(obj)}.")
         if not isinstance(obj, SphereCollider):
             raise NotImplementedError
 
-        return self.check_for_collision_sphere(obj)
+        if isinstance(obj, SphereCollider):
+            return self.check_for_collision_sphere(obj)
 
 
 class Collider:
@@ -59,4 +70,4 @@ class SphereCollider(Collider):
         if not isinstance(obj, Ray):
             raise NotImplementedError("Non-ray sphere collision is not supported yet.")
 
-        return obj.distance_to_point_minimizer(self.center) <= self.radius
+        return obj.check_for_collision_sphere(self)
