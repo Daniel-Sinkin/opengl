@@ -5,8 +5,7 @@ from . import *
 import random
 import typing
 
-# TODO: Remove these wildcard imports
-from .constants import *
+from .constants import BasemodelSerialize
 from .model import *
 
 if typing.TYPE_CHECKING:

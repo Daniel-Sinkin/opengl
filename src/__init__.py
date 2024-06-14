@@ -1,9 +1,5 @@
 """
 This contains all project-wide global variables and should be wildcard important by everything.
-
-TODO: Add a `__all__` list to have more finegrained control over what is being imported, but if you
-      do write a github action hook that automatically generates it, the overhead of manually adding
-      it would absolutely not be worth it.
 """
 
 import dataclasses

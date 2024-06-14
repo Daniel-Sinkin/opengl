@@ -26,7 +26,7 @@ def test_distance_to_point_minimizer_local_minimum() -> None:
     assert np.isclose(dist_0, 4.0)
 
     _rng = np.random.default_rng(0x2024_06_14)
-    random_floats = _rng.uniform(-1000.0, 1000.0, (100, 3, 3))
+    random_floats = _rng.uniform(-1000.0, 1000.0, (1000, 3, 3))
     for rands in random_floats:
         origin = vec3(rands[0])
         direction = vec3(rands[1])

@@ -23,6 +23,9 @@ class Ray:
         else:
             return f"Ray(origin={self.origin},direction={self.direction},{self.length})"
 
+    def __str__(self):
+        return self.__repr__()
+
     def distance_to_point_minimizer(self, p: vec3) -> tuple[float, float]:
         t: float = glm.dot(p - self.origin, self.direction)
         # Only positive ray val is allowed
@@ -34,8 +37,9 @@ class Ray:
         return dist
 
     def check_for_collision_sphere(self, obj: "SphereCollider") -> Optional[vec3]:
+        # We're inside of the ball!
         if glm.distance(self.origin, obj.center) <= obj.radius:
-            return 0.0, 0.0
+            return self.origin
         dist, t = self.distance_to_point_minimizer(obj.center)
         if dist <= obj.radius:
             return self.origin + (t - obj.radius) * self.direction
@@ -64,6 +68,12 @@ class SphereCollider(Collider):
         self.radius = float(radius)
 
         self.center: vec3 = center
+
+    def __repr__(self):
+        return f"SphereCollider({self.center},{self.radius})"
+
+    def __str__(self):
+        return self.__repr__()
 
     def check_for_collision(self, obj: "Collider | Ray") -> Optional[vec3]:
         """If there is a collision then return collision point, otherwise return None."""

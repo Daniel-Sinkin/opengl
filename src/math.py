@@ -48,6 +48,26 @@ def distance_line_to_point(p1: vec3, p2: vec3, q: vec3) -> float:
     return glm.distance(glm.dot(ray_dir_n, q_offset) * ray_dir_n, q_offset)
 
 
+# TODO(FIXME)
+def rel_to_abs_screenspace_coords(
+    width: int, height: int, rel_x: float, rel_y: float
+) -> tuple[int, int]:
+    """
+    Applies the linear coordinate transformation:
+    (-1, -1) -> (  0.0, height)
+    (-1, +1) -> (  0.0,    0.0)
+    (+1, -1) -> (width, height)
+    (+1, +1) -> (width,    0.0)
+
+    ,i.e.,
+    (x, y) -> ((x + 1.0) * width / 2.0, (-y + 1.0) * height / 2")
+    """
+    assert -1.0 <= rel_x <= 1.0
+    assert -1.0 <= rel_y <= 1.0
+
+    return int((rel_x + 1.0) / 2.0 * width), int((-rel_y + 1.0) / 2.0 * height)
+
+
 ###
 # Reimplementations
 ###

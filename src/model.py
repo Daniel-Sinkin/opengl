@@ -9,6 +9,12 @@ from .math import get_line_to_line_transformation
 if TYPE_CHECKING:
     from .graphics_engine import GraphicsEngine
 
+# fmt: off
+__all__: list[str] = [
+    "Quad", "Line", "Sphere", "Cube", "Cat", "CoordinateAxis",
+    "BaseModel", "Model", "UIText", "SkyBox"]
+# fmt: on
+
 
 class Quad:
     def __init__(self, app: "GraphicsEngine"):
