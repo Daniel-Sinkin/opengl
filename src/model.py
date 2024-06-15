@@ -1,3 +1,5 @@
+from moderngl import Texture
+
 from . import *
 
 """"""
@@ -479,12 +481,12 @@ class UIText:
         self.program: Program = self.vao.program
 
         width, height, texture_data = load_char_texture("A", self.app.font_face)
-        self.texture = self.app.ctx.texture((width, height), 1, texture_data)
+        self.texture: Texture = self.app.ctx.texture((width, height), 1, texture_data)
 
         self.text = text
         self.font_face = font_face
 
-    def render(self):
+    def render(self) -> None:
         # self.texture.use(location=0)
         # self.program["text_texture"].value = 0
         # self.program["text_color"].value = (1.0, 1.0, 1.0)

@@ -17,6 +17,6 @@ class Mesh:
         self.vao = VertexArrayObject(app.ctx)
         self.texture = TextureHandler(app)
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.vao.destroy
         self.texture.destroy()

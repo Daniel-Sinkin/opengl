@@ -99,7 +99,7 @@ class PlayerController:
             needs_normalizing = False
 
         if needs_normalizing:
-            move_direction = glm.normalize(move_direction)
+            move_direction: vec3 = glm.normalize(move_direction)
 
         if not self.is_jumping:
             self.move_force += (
@@ -122,8 +122,8 @@ class PlayerController:
 
         if keys[pg.K_SPACE] and self.on_ground:
             self.force_vector.y += self.jump_force_y
-            self.jump_force_vector = self.move_force
-            self.jump_force_direction = normalize_or_zero(self.move_force)
+            self.jump_force_vector: vec3 = self.move_force
+            self.jump_force_direction: vec3 = normalize_or_zero(self.move_force)
 
             self.move_force = vec3()
             self.aircontrol_vector = vec3()
