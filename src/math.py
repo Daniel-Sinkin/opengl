@@ -48,7 +48,14 @@ def distance_line_to_point(p1: vec3, p2: vec3, q: vec3) -> float:
     return glm.distance(glm.dot(ray_dir_n, q_offset) * ray_dir_n, q_offset)
 
 
-# TODO(FIXME)
+def ndc_to_screenspace(x, y, width, height) -> tuple[int, int]:
+    return int((x + 1.0) / 2.0 * width), int((-y + 1.0) / 2.0 * height)
+
+
+def screenspace_to_ndc(x, y, width, height) -> tuple[float, float]:
+    return 2.0 * x / width - 1.0, 1.0 - 2.0 * y / height
+
+
 def rel_to_abs_screenspace_coords(
     width: int, height: int, rel_x: float, rel_y: float
 ) -> tuple[int, int]:

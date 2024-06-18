@@ -5,8 +5,14 @@ from src import *
 import pytest
 
 import src.math
-from src.math import get_line_to_line_transformation, rel_to_abs_screenspace_coords
+from src.math import (
+    get_line_to_line_transformation,
+    ndc_to_screenspace,
+    screenspace_to_ndc,
+)
 
+WIDTH = 1367
+HEIGHT = 821
 
 # fmt: off
 @pytest.mark.parametrize(
@@ -29,22 +35,59 @@ def test_get_line_to_line_transformation(p1, p2, q1, q2, expect_error) -> None:
         assert glm.distance(T @ p1, q1) < EPS
         assert glm.distance(T @ p2, q2) < EPS
 
-width = 1600
-height = 900
-
-
 @pytest.mark.parametrize(
-    "width, height, rel_x, rel_y, expected", [
-        (width, height, -1, -1, (0.0, height)),
-        (width, height, -1, -1, (0.0, 0.0)),
-        (width, height, -1, -1, (width, height)),
-        (width, height, -1, -1, (width, 0.0)),
-        (width, height, 0, 0, (800, 450)),
+    "x, y, width, height, expected", [
+        (0, 0, WIDTH, HEIGHT, (-1.0, 1.0)),              # Top-left corner
+        (WIDTH, 0, WIDTH, HEIGHT, (1.0, 1.0)),           # Top-right corner
+        (0, HEIGHT, WIDTH, HEIGHT, (-1.0, -1.0)),        # Bottom-left corner
+        (WIDTH, HEIGHT, WIDTH, HEIGHT, (1.0, -1.0)),     # Bottom-right corner
+        (WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, (0.0, 0.0)), # Center
     ],
 )
-def test_rel_to_abs_screenspace_coords(width, height, rel_x, rel_y, expected) -> None:
-    assert rel_to_abs_screenspace_coords(width, height, rel_x, rel_y) == expected
+def test_screenspace_to_ndc(x, y, width, height, expected) -> None:
+    assert screenspace_to_ndc(x, y, width, height) == expected
+
+@pytest.mark.parametrize(
+    "ndc_x, ndc_y, width, height, expected", [
+        (-1.0, 1.0, WIDTH, HEIGHT, (0, 0)),              # Top-left corner
+        (1.0, 1.0, WIDTH, HEIGHT, (WIDTH, 0)),           # Top-right corner
+        (-1.0, -1.0, WIDTH, HEIGHT, (0, HEIGHT)),        # Bottom-left corner
+        (1.0, -1.0, WIDTH, HEIGHT, (WIDTH, HEIGHT)),     # Bottom-right corner
+        (0.0, 0.0, WIDTH, HEIGHT, (WIDTH // 2, HEIGHT // 2)), # Center
+    ],
+)
+def test_ndc_to_screenspace(ndc_x, ndc_y, width, height, expected) -> None:
+    assert ndc_to_screenspace(ndc_x, ndc_y, width, height) == expected
 # fmt: on
+
+
+def test_ndc_screenspace_inverse_invariance():
+    """Test that the functions are inverses of each other."""
+    n_samples = 1_000
+    _rng = np.random.default_rng(0x2024_06_19)
+    ints = _rng.integers((0, 0), (WIDTH + 1, HEIGHT + 1), size=(1000, 2))
+    for x, y in ints:
+        screen_x, screen_y = ndc_to_screenspace(
+            *screenspace_to_ndc(x, y, WIDTH, HEIGHT), WIDTH, HEIGHT
+        )
+
+        # Allow 1 pixel offset due to rounding errors
+        assert abs(screen_x - x) <= 1
+        assert abs(screen_y - y) <= 1
+
+
+@pytest.mark.slow
+def test_ndc_screenspace_inverse_invariance_slow():
+    """Test that the functions are inverses of each other for all possible screen coordinates."""
+    for x in range(WIDTH + 1):
+        for y in range(HEIGHT + 1):
+            x_, y_ = ndc_to_screenspace(
+                *screenspace_to_ndc(x, y, WIDTH, HEIGHT), WIDTH, HEIGHT
+            )
+
+            # Allow 1 pixel offset due to rounding errors
+            assert abs(x_ - x) <= 1, f"computed x: {x_}, actual x: {x}"
+            assert abs(y_ - y) <= 1, f"computed y: {y_}, actual y: {y}"
 
 
 def test_glm_reimplementation() -> None:
@@ -52,8 +95,10 @@ def test_glm_reimplementation() -> None:
     return
     _rng = np.random.default_rng(0x2024_06_14)
 
-    vecs_array: np.ndarray = _rng.uniform(-1000.0, 1000.0, size=(1000, 3, 3))
-    floats_array: np.ndarray = _rng.uniform(-1000.0, 1000.0, size=(1000, 4))
+    combined_array = _rng.uniform(-1000.0, 1000.0, size=(1000, 3, 3 + 4))
+
+    vecs_array = combined_array[:, :, :3]
+    floats_array = combined_array[:, :, 3:].reshape(1000, 4)
 
     func_tuple: list[tuple[Callable, Callable]] = [
         (glm.cross, src.math.cross),

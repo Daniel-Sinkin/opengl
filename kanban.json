@@ -20,23 +20,23 @@
         },
         {
             "title": "In Progress",
-            "tasks": [
-                {
-                    "text": "## Implement\nScreenspace to NDC function\n\nNDC to screenspace function\n## Test\nChecking every corner and center should be sufficient",
-                    "id": "tsyllixbhs6lfo574d4pzl3r"
-                }
-            ],
+            "tasks": [],
             "id": "g4b253phgbylb1tpuldr7t9l",
             "color": "#00d084"
         },
         {
             "title": "Done",
-            "tasks": [],
+            "tasks": [
+                {
+                    "text": "## Implement\nScreenspace to NDC function\n\nNDC to screenspace function\n## Test\nMake the screensize something weird to make sure we don't have overly aggresive rounding errors.\n\nCheck every corner explicitly.\n\nWrite a test that checks the inverse invariance with maximal allowed offset of 1, i.e.\n```\n|f(f^-1(x)) - x| <= 1\n```",
+                    "id": "tsyllixbhs6lfo574d4pzl3r"
+                }
+            ],
             "id": "zghjzgamcw7c6tv856vqcbkb",
             "color": "#7bdcb5"
         }
     ],
     "autosave": true,
     "saveToFile": true,
-    "timestamp": 1718743097336
+    "timestamp": 1718750899479
 }
