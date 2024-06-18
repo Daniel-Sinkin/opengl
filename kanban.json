@@ -3,35 +3,40 @@
     "cols": [
         {
             "title": "Bugs",
-            "tasks": [
-                {
-                    "text": "a sd",
-                    "id": "xpg3j9xooycowmvrfhc4x673"
-                }
-            ],
+            "tasks": [],
             "id": "hldb7lpxzlf6mbimip64l4bk",
             "color": "#eb144c"
         },
         {
-            "title": "To-Do",
-            "tasks": [],
+            "title": "Backlog",
+            "tasks": [
+                {
+                    "text": "# Scene Handling\n## Rendering Flags\n* objects set or don't set different rendering flags like shadows instead of having an object list where every objects renders it\n\n## Serialization\n* Actually use serialization and deserialization of scenes instead of hardcoding them",
+                    "id": "s07swsugdve5blodbxgnd6tq"
+                }
+            ],
             "id": "sm2ao28efq9xbym5ypgw7xe7",
             "color": "#fcb900"
         },
         {
-            "title": "Doing",
-            "tasks": [],
+            "title": "In Progress",
+            "tasks": [
+                {
+                    "text": "## Implement\nScreenspace to NDC function\n\nNDC to screenspace function\n## Test\nChecking every corner and center should be sufficient",
+                    "id": "tsyllixbhs6lfo574d4pzl3r"
+                }
+            ],
             "id": "g4b253phgbylb1tpuldr7t9l",
-            "color": "#0693e3"
+            "color": "#00d084"
         },
         {
             "title": "Done",
             "tasks": [],
             "id": "zghjzgamcw7c6tv856vqcbkb",
-            "color": "#00d084"
+            "color": "#7bdcb5"
         }
     ],
     "autosave": true,
     "saveToFile": true,
-    "timestamp": 1718742612198
+    "timestamp": 1718743097336
 }
