@@ -5,6 +5,7 @@ from . import *
 """"""
 
 from .camera import Camera
+from .collider import Collider, SphereCollider
 from .constants import *
 from .math import get_line_to_line_transformation
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 # fmt: off
 __all__: list[str] = [
     "Quad", "Line", "Sphere", "Cube", "Cat", "CoordinateAxis",
-    "BaseModel", "Model", "UIText", "SkyBox"]
+    "BaseModel", "Model", "UIText", "SkyBox", "SphereColliderModel"]
 # fmt: on
 
 
@@ -453,6 +454,32 @@ class Sphere(Model):
             scale=scale,
             *args,
             **kwargs,
+        )
+
+
+class ColliderModel(BaseModel):
+    def __init__(self, app: "GraphicsEngine", collider: Collider, *args, **kwargs):
+        self.collider: Optional[BaseModel] = collider
+        super().__init__(app, *args, **kwargs)
+
+    def update(self):
+        self.program["camPos"].write(self.camera.position)
+        self.program["m_view"].write(self.camera.m_view)
+        self.program["m_model"].write(self.m_model)
+
+
+class SphereColliderModel(ColliderModel):
+    def __init__(
+        self,
+        app: "GraphicsEngine",
+        pos: vec3 = vec3(),
+        rot: vec3 = vec3(),
+        scale: vec3 = vec3(1.0),
+        *args,
+        **kwargs,
+    ):
+        super().__init__(
+            app, collider=SphereCollider, vao_name="sphere", *args, **kwargs
         )
 
 

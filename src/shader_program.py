@@ -2,6 +2,8 @@ from . import *
 
 """"""
 
+from .settings import Folders
+
 
 class ShaderProgram:
     def __init__(self, ctx: Context):
@@ -17,14 +19,15 @@ class ShaderProgram:
                 "coordinate_axis",
                 "ui_text",
                 "line",
+                "collider",
             ]
         }
 
     def get_shader_program(self, shader_name) -> Program:
-        with open(f"shaders/{shader_name}.vert") as file:
+        with open(os.path.join(Folders.SHADERS, f"{shader_name}.vert")) as file:
             vertex_shader = file.read()
 
-        with open(f"shaders/{shader_name}.frag") as file:
+        with open(os.path.join(Folders.SHADERS, f"{shader_name}.frag")) as file:
             fragment_shader = file.read()
 
         program: Program = self.ctx.program(

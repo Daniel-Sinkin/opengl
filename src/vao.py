@@ -22,7 +22,8 @@ vao_tuples: list[tuple[str, str, str]] = [
     ( "cylinder"        , "default"         , "cylinder"        ),
     ( "shadow_cylinder" , "shadow_map"      , "cylinder"        ),
     ( "ui_text"         , "ui_text"         , "ui_text"         ),
-    ( "line"             , "line"           , "line"            ),
+    ( "line"            , "line"            , "line"            ),
+    ( "collider_sphere" , "collider"        , "sphere"          ),
 ]
 # fmt: on
 

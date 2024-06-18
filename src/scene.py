@@ -28,6 +28,8 @@ class Scene:
         self.quad = Quad(app)
         self.ui_text = UIText(app, "a", self.app.font_face)
         self.line = Line(app, pos=vec3_xy(4.0), scale=vec3(30.0))
+        # self.sphere = Sphere(app, texture_id=0)
+        self.sphere_collider = SphereColliderModel(app, texture_id=0)
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -190,3 +192,4 @@ class Scene:
             obj.update()
         self.quad.update()
         self.line.update()
+        self.sphere_collider.update()

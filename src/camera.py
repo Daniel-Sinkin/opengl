@@ -140,10 +140,6 @@ class Camera:
         if self.is_recording:
             self._update_recoding()
 
-        self.logger.debug(
-            "(%.2f, %.2f, %.2f, %.2f, %.2f)", *self.position, self.pitch, self.yaw
-        )
-
     def move(self) -> None:
         """
         When controlling a floating camera we can just pass through objects so we
