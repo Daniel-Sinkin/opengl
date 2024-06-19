@@ -9,18 +9,22 @@
         },
         {
             "title": "Backlog",
-            "tasks": [
-                {
-                    "text": "# Scene Handling\n## Rendering Flags\n* objects set or don't set different rendering flags like shadows instead of having an object list where every objects renders it\n\n## Serialization\n* Actually use serialization and deserialization of scenes instead of hardcoding them",
-                    "id": "s07swsugdve5blodbxgnd6tq"
-                }
-            ],
+            "tasks": [],
             "id": "sm2ao28efq9xbym5ypgw7xe7",
             "color": "#fcb900"
         },
         {
             "title": "In Progress",
-            "tasks": [],
+            "tasks": [
+                {
+                    "text": "# Scene Handling\n## Rendering Flags\n* objects set or don't set different rendering flags like shadows instead of having an object list where every objects renders it\n  * Instead of flags we could also implement bit masking, might be more suitable for the future anyway\n\n## Serialization\n* Actually use serialization and deserialization of scenes instead of hardcoding them",
+                    "id": "s07swsugdve5blodbxgnd6tq"
+                },
+                {
+                    "text": "## Refactor the Scene Class\nGo through the class and reduce the complexity of creating and loading a new scene\n\nRemove the hardcoded intrinsics as those are mostly just hacks",
+                    "id": "zxyazxyepiq1p9mq6ap0e07x"
+                }
+            ],
             "id": "g4b253phgbylb1tpuldr7t9l",
             "color": "#00d084"
         },
@@ -38,5 +42,5 @@
     ],
     "autosave": true,
     "saveToFile": true,
-    "timestamp": 1718750899479
+    "timestamp": 1718751101341
 }

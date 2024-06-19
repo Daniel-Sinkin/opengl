@@ -26,10 +26,7 @@ class Scene:
             # self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
-        self.ui_text = UIText(app, "a", self.app.font_face)
         self.line = Line(app, pos=vec3_xy(4.0), scale=vec3(30.0))
-        # self.sphere = Sphere(app, texture_id=0)
-        self.sphere_collider = SphereColliderModel(app, texture_id=0)
 
     def serialize(
         self, serialize_type="json", filepath=None
@@ -152,7 +149,7 @@ class Scene:
                 Cube(self.app, pos=vec3(pos.x, 12, pos.y), rot_update=2.5 * vec3_xy())
             )
 
-    def load_basic_example(self) -> None:
+    def get_basic_example(self) -> list[BaseModel]:
         tex_ids: list[int] = [0, 1, 2, 0, 1, 2, 0]
         poss: list[vec3] = [
             vec3(),
@@ -182,14 +179,17 @@ class Scene:
             0.2 * vec3(1.0),
         ]
 
+        objs: list[Model] = []
         for tex_id, pos, rot, scale in zip(tex_ids, poss, rots, scales):
-            self.add_object(
-                Cube(self.app, tex_id=tex_id, pos=pos, rot=rot, scale=scale)
-            )
+            objs.append(Cube(self.app, tex_id=tex_id, pos=pos, rot=rot, scale=scale))
+        return objs
+
+    def load_basic_example(self) -> None:
+        for obj in self.get_basic_example():
+            self.add_object(obj)
 
     def update(self) -> None:
         for obj in self.objects:
             obj.update()
         self.quad.update()
         self.line.update()
-        self.sphere_collider.update()

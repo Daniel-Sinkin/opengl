@@ -56,25 +56,6 @@ def screenspace_to_ndc(x, y, width, height) -> tuple[float, float]:
     return 2.0 * x / width - 1.0, 1.0 - 2.0 * y / height
 
 
-def rel_to_abs_screenspace_coords(
-    width: int, height: int, rel_x: float, rel_y: float
-) -> tuple[int, int]:
-    """
-    Applies the linear coordinate transformation:
-    (-1, -1) -> (  0.0, height)
-    (-1, +1) -> (  0.0,    0.0)
-    (+1, -1) -> (width, height)
-    (+1, +1) -> (width,    0.0)
-
-    ,i.e.,
-    (x, y) -> ((x + 1.0) * width / 2.0, (-y + 1.0) * height / 2")
-    """
-    assert -1.0 <= rel_x <= 1.0
-    assert -1.0 <= rel_y <= 1.0
-
-    return int((rel_x + 1.0) / 2.0 * width), int((-rel_y + 1.0) / 2.0 * height)
-
-
 ###
 # Reimplementations
 ###

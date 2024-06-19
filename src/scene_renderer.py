@@ -36,7 +36,6 @@ class SceneRenderer:
         self.scene.ui_text.render()
         self.scene.line.render()
         # self.scene.global_coordinate_axis.render()
-        self.scene.sphere_collider.render()
 
     def debug_render(self):
         # Coordinate axis
