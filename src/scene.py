@@ -22,8 +22,7 @@ class Scene:
         if scene_id == "DEBUG":
             self.load_debug()
         else:
-            pass
-            # self.load_cat_circle_animated_scale()
+            self.load_cat_circle_animated_scale()
         self.skybox = SkyBox(app)
         self.quad = Quad(app)
         self.line = Line(app, pos=vec3_xy(4.0), scale=vec3(30.0))
